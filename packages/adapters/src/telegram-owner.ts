@@ -412,7 +412,9 @@ function buildAttachments(msg: TgMessage) {
   const out: import('./types.js').Attachment[] = [];
   if (msg.photo?.length) {
     const largest = msg.photo[msg.photo.length - 1];
-    out.push({ kind: 'image', external_id: largest.file_id });
+    if (largest) {
+      out.push({ kind: 'image', external_id: largest.file_id });
+    }
   }
   if (msg.document) {
     out.push({

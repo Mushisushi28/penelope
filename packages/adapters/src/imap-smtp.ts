@@ -166,7 +166,7 @@ export class ImapSmtpAdapter implements ChannelAdapter {
   async send(out: OutboundMessage): Promise<{ external_id: string }> {
     const nodemailer = await import('nodemailer');
     if (!this.transporter) {
-      this.transporter = this.createTransporter(nodemailer.default);
+      this.transporter = this.createTransporter(nodemailer.default as unknown as { createTransport: (opts: unknown) => unknown });
     }
 
     const mailOptions: Record<string, unknown> = {
@@ -280,7 +280,7 @@ export class ImapSmtpAdapter implements ChannelAdapter {
     const { ImapFlow } = await import('imapflow');
     const authType = this.opts.auth_type ?? 'app_password';
 
-    const auth: Record<string, unknown> = authType === 'oauth2'
+    const auth: { user: string; pass?: string; accessToken?: string; loginMethod?: string; authzid?: string } = authType === 'oauth2'
       ? {
           user: this.opts.username,
           accessToken: this.opts.oauth2!.accessToken ?? '',
@@ -306,7 +306,7 @@ export class ImapSmtpAdapter implements ChannelAdapter {
     createTransport: (opts: unknown) => unknown;
   }): unknown {
     const authType = this.opts.auth_type ?? 'app_password';
-    const auth: Record<string, unknown> = authType === 'oauth2'
+    const auth: { user: string; pass?: string; accessToken?: string; loginMethod?: string; authzid?: string } = authType === 'oauth2'
       ? {
           type: 'OAuth2',
           user: this.opts.username,
