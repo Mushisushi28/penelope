@@ -1,0 +1,130 @@
+schema_version: 1
+procedure_id: quote-builder
+description: >
+  Compute a DHR headlight restoration quote from vehicle info, condition, and
+  service type. Applies the Grandfather Formula modifiers. Returns a quoted
+  range clamped to the pricing floor/cap. Ceramic adds $80-100 on top of
+  standard result, clamped to $200-250.
+owner_team: dhr
+specialist_class: pricing-engine
+trigger:
+  kind: bus_event
+  event: compute_quote_requested
+
+inputs:
+  required:
+    - thread_id
+    - vehicle_info
+    - pricing_rule_id
+  optional:
+    - condition_notes
+    - num_lights
+
+runtime_budget:
+  max_tokens_per_run: 2000
+  max_usd_per_run: 0.05
+  max_runs_per_thread_per_day: 20
+
+pricing_formula:
+  # Standard tier formula (all CAD):
+  #   base         = $50 * num_lights  (default num_lights = 2 → $100 base)
+  #   + condition  = mild: +0 | moderate: +15–25 | heavy/cracked_clear_coat: +30–50
+  #   + size       = sedan: +0 | truck/SUV/van: +10–20
+  #   + brand      = audi/bmw/euro luxury: +10–20
+  #   clamp to floor=$100, cap=$200
+  #
+  # Ceramic tier:
+  #   standard_result + ceramic_surcharge ($80–100)
+  #   clamp to floor=$200, cap=$250
+  standard:
+    floor: 100
+    cap: 200
+    base_per_light: 50
+    default_num_lights: 2
+    condition_modifiers:
+      mild: 0
+      moderate: { min: 15, max: 25 }
+      heavy_cracked_clear_coat: { min: 30, max: 50 }
+    size_modifiers:
+      sedan: 0
+      truck: { min: 10, max: 20 }
+      suv: { min: 10, max: 20 }
+      van: { min: 10, max: 20 }
+    brand_modifiers:
+      audi: { min: 10, max: 20 }
+      bmw: { min: 10, max: 20 }
+      mercedes: { min: 10, max: 20 }
+      lexus: { min: 10, max: 20 }
+      euro_luxury: { min: 10, max: 20 }
+  ceramic:
+    floor: 200
+    cap: 250
+    surcharge_on_standard: { min: 80, max: 100 }
+
+states:
+  - id: classify_vehicle
+    label: Classify vehicle size and brand from vehicle_info string
+    actions:
+      - kind: classify_text
+        input: "{{vehicle_info}}"
+        schema:
+          size: "sedan | truck | suv | van | unknown"
+          brand_class: "standard | euro_luxury"
+          make: string
+          model: string
+          year: number
+        store_as: vehicle_classification
+      - kind: set_state
+        key: num_lights
+        value: "{{num_lights | default: 2}}"
+    next: classify_condition
+
+  - id: classify_condition
+    label: Classify headlight condition from condition_notes
+    actions:
+      - kind: classify_text
+        input: "{{condition_notes | default: 'moderate'}}"
+        schema:
+          condition: "mild | moderate | heavy_cracked_clear_coat"
+        store_as: condition_classification
+    next: compute_base_price
+
+  - id: compute_base_price
+    label: Apply pricing formula, compute final quote range
+    when:
+      - vehicle_classification
+      - condition_classification
+    actions:
+      - kind: compute_structured
+        formula: quote-builder-formula
+        inputs:
+          pricing_rule_id: "{{pricing_rule_id}}"
+          num_lights: "{{num_lights}}"
+          condition: "{{condition_classification.condition}}"
+          size: "{{vehicle_classification.size}}"
+          brand_class: "{{vehicle_classification.brand_class}}"
+        store_as: final_quote
+        # Final quote is a range string, e.g. "$130-$150" or a midpoint int
+        out_of_band_approval: owner_telegram_confirm
+      - kind: log_audit
+        event: quote_computed
+        detail: "rule={{pricing_rule_id}} vehicle={{vehicle_info}} condition={{condition_classification.condition}} quote={{final_quote}}"
+    next: emit_result
+
+  - id: emit_result
+    label: Emit quote result back to calling procedure
+    actions:
+      - kind: emit_bus_event
+        event: quote_computed
+        payload:
+          thread_id: "{{thread_id}}"
+          pricing_rule_id: "{{pricing_rule_id}}"
+          final_quote: "{{final_quote}}"
+          vehicle_info: "{{vehicle_info}}"
+          condition: "{{condition_classification.condition}}"
+          size: "{{vehicle_classification.size}}"
+
+outputs:
+  - final_quote
+  - vehicle_classification
+  - condition_classification
