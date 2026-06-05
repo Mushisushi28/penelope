@@ -1,0 +1,28 @@
+{
+  "name": "penelope",
+  "version": "0.1.0-alpha.1",
+  "description": "She runs the home while Odysseus is away. Self-hosted, telegram-first OS for a small business that runs itself.",
+  "license": "MIT",
+  "author": "Isaac Dobson",
+  "homepage": "https://github.com/Mushisushi28/penelope#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Mushisushi28/penelope.git"
+  },
+  "bugs": "https://github.com/Mushisushi28/penelope/issues",
+  "type": "module",
+  "engines": { "node": ">=20" },
+  "workspaces": [
+    "packages/*",
+    "examples/*"
+  ],
+  "scripts": {
+    "build": "echo 'workspace build — wired in v0.1'",
+    "test": "echo 'tests added per-package'",
+    "lint": "echo 'lint added per-package'"
+  },
+  "keywords": ["telegram", "small-business", "agents", "loom", "odysseus", "automation", "crm", "fb-messenger", "self-hosted"],
+  "bin": {
+    "penelope": "./packages/cli/bin/penelope.mjs"
+  }
+}
