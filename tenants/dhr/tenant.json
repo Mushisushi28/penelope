@@ -32,6 +32,25 @@
     "end": "09:00",
     "notes": "Proactive outbound deferred outside this window. Reactive replies (inbound <15 min ago) OK anytime."
   },
+  "agents": {
+    "penelope": {
+      "role": "penelope",
+      "telegram_owner": {
+        "bot_token_env": "DHR_JARVIS_BOT_TOKEN",
+        "owner_chat_id_env": "DHR_OWNER_CHAT_ID"
+      },
+      "voice_character": "en_female_professional"
+    },
+    "specialists": [
+      { "role": "customer-frontend", "enabled": true },
+      { "role": "booking",           "enabled": true },
+      { "role": "quoting",           "enabled": true },
+      { "role": "payment-reconciler","enabled": true },
+      { "role": "review-ask",        "enabled": true },
+      { "role": "marketing",         "enabled": false },
+      { "role": "daily-brief",       "enabled": true }
+    ]
+  },
   "channels": [
     {
       "type": "telegram-owner",

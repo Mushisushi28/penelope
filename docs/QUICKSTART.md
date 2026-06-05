@@ -2,6 +2,8 @@
 
 Get a small business running on Penelope in about ten minutes.
 
+Your **Penelope agent** is the head of the org — she sits at the top of the hierarchy, next to you. Every message you send via Telegram goes to Penelope. She routes work to specialist agents (customer, booking, quoting, payments, reviews, marketing, daily-brief) on the internal bus, and she decides what you see back. You always talk to Penelope, never to the specialists directly.
+
 ## Prerequisites
 
 - Node.js 20 or newer
