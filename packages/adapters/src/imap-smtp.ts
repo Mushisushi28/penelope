@@ -306,7 +306,7 @@ export class ImapSmtpAdapter implements ChannelAdapter {
     createTransport: (opts: unknown) => unknown;
   }): unknown {
     const authType = this.opts.auth_type ?? 'app_password';
-    const auth: { user: string; pass?: string; accessToken?: string; loginMethod?: string; authzid?: string } = authType === 'oauth2'
+    const auth: Record<string, unknown> & { user: string } = authType === 'oauth2'
       ? {
           type: 'OAuth2',
           user: this.opts.username,
