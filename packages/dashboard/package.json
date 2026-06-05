@@ -8,7 +8,11 @@
     "start": "node serve.mjs",
     "dev": "PENELOPE_DASHBOARD_PORT=18900 node serve.mjs",
     "build": "echo \"@penelope/dashboard: no build needed (vanilla JS)\"",
+<<<<<<< HEAD
     "test": "node --test __tests__/procedure-canvas.test.mjs"
+=======
+    "test": "node --test __tests__/inbox.test.mjs"
+>>>>>>> origin/feat/unified-inbox
   },
   "engines": {
     "node": ">=20"

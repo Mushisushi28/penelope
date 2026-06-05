@@ -25,6 +25,10 @@ export const getSettings    = ()         => req('GET', '/api/settings');
 export const saveSettings   = (data)     => req('POST', '/api/settings', data);
 export const busAction      = (action, payload) => req('POST', '/api/action', { action, ...payload });
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/feat/unified-inbox
 // v2 inbox API — two-pane omnichannel inbox
 export const getInboxThreads  = (ch)         => req('GET', `/api/inbox/threads${ch ? '?channel=' + encodeURIComponent(ch) : ''}`);
 export const getInboxMessages = (id)         => req('GET', `/api/inbox/${id}/thread`);

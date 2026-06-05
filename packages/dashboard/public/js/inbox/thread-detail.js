@@ -1,101 +1,88 @@
-// inbox/thread-detail.js — Right-pane message bubbles renderer
-import { channelIcon, channelLabel } from './channel-icon.js';
+// inbox/thread-detail.js -- renders the conversation detail pane
 
-function esc(s) {
-  return String(s)
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+import { channelIcon, channelColor, channelLabel } from './channel-icon.js';
+
+function formatTime(isoStr) {
+  if (!isoStr) return '';
+  var d = new Date(isoStr);
+  return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
-function formatTs(ts) {
-  if (!ts) return '';
-  return new Date(ts).toLocaleString('en-US', {
-    month: 'short', day: 'numeric',
-    hour: 'numeric', minute: '2-digit',
-  });
-}
-
-function buildBubble(m) {
-  const isOut   = m.direction === 'outbound';
-  const isDraft = m.is_draft || m.status === 'draft';
-  const side    = isOut ? 'out' : 'in';
-  const draftClass = isDraft ? ' td-bubble--draft' : '';
-  const sender  = isOut ? (isDraft ? 'Penelope (draft)' : 'Agent') : 'Customer';
-
-  return `
-    <div class="td-bubble td-bubble--${side}${draftClass}">
-      ${isDraft ? `<div class="td-draft-label">✦ Penelope draft — pending approval</div>` : ''}
-      <div class="td-bubble-text">${esc(m.text || '')}</div>
-      <div class="td-bubble-meta">${sender} · ${formatTs(m.ts || m.created_at)}</div>
-    </div>
-  `;
-}
-
-function buildHeader(thread) {
-  const chIcon  = channelIcon(thread.channel, true);
-  const chLabel = channelLabel(thread.channel);
-  const paused  = thread.paused_at;
-  const drafting = thread.ai_status === 'drafting';
-
-  return `
-    <div class="td-header">
-      <div class="td-header-left">
-        <button class="btn btn-ghost btn-sm itp-back-btn" id="td-back" aria-label="Back to list">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M19 12H5M12 5l-7 7 7 7"/>
-          </svg>
-        </button>
-        <div class="td-ch-icon" title="${esc(chLabel)}">${chIcon}</div>
-        <div class="td-header-info">
-          <span class="td-customer-name">${esc(thread.customer_name || 'Unknown')}</span>
-          <span class="td-ch-pill">${esc(chLabel)}</span>
-          ${paused  ? `<span class="td-status-pill td-status-pill--paused">human takeover</span>` : ''}
-          ${drafting ? `<span class="td-status-pill td-status-pill--drafting">drafting</span>` : ''}
-        </div>
-      </div>
-    </div>
-  `;
+function buildBubble(msg) {
+  var isDraft = msg.draft_id !== undefined || msg._is_draft;
+  var dir = msg.direction || 'inbound';
+  var cls = 'td-bubble td-bubble--' + (isDraft ? 'draft' : dir);
+  return [
+    '<div class="' + cls + '">',
+    isDraft ? '<div class="td-draft-label">&#9670; Penelope draft &mdash; pending approval</div>' : '',
+    '<div class="td-bubble-text">' + (msg.text || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/
+/g,'<br>') + '</div>',
+    '<div class="td-bubble-time">' + formatTime(msg.ts) + '</div>',
+    '</div>',
+  ].join('');
 }
 
 export function renderThreadDetail(container, thread, messages, draft) {
-  if (!container || !thread) return;
-
-  const allMsgs = [...(messages || [])];
-  if (draft) {
-    allMsgs.push({ ...draft, is_draft: true, direction: 'outbound' });
+  if (!container) return;
+  var color = channelColor(thread.channel);
+  var icon = channelIcon(thread.channel, true);
+  var pills = '';
+  if (thread.paused_at) {
+    pills += '<span class="td-pill td-pill--paused">paused</span>';
+  } else if (thread.ai_status === 'drafting') {
+    pills += '<span class="td-pill td-pill--drafting">drafting</span>';
   }
-
-  container.innerHTML = `
-    ${buildHeader(thread)}
-    <div class="td-messages" id="td-messages">
-      ${allMsgs.length === 0
-        ? `<div class="td-empty"><p>No messages in this thread yet.</p></div>`
-        : allMsgs.map(buildBubble).join('')
-      }
-    </div>
-  `;
-
-  // Scroll to bottom
-  const msgs = container.querySelector('#td-messages');
+  var header = [
+    '<div class="td-header">',
+    '  <button class="itp-back-btn" id="td-back" aria-label="Back to thread list">',
+    '    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>',
+    '  </button>',
+    '  <div class="td-header-avatar" style="--ch-color:' + color + '">',
+    '    <span>' + (thread.customer_name || '?').charAt(0).toUpperCase() + '</span>',
+    '  </div>',
+    '  <div class="td-header-info">',
+    '    <div class="td-header-name">' + (thread.customer_name || 'Unknown') + '</div>',
+    '    <div class="td-header-meta">',
+    '      <span class="td-ch-pill" style="background:' + color + '20;color:' + color + '">' + icon + ' ' + channelLabel(thread.channel) + '</span>',
+    pills,
+    '    </div>',
+    '  </div>',
+    '</div>',
+  ].join('');
+  var bubbles = (messages || []).map(buildBubble).join('');
+  if (draft) {
+    bubbles += buildBubble({ text: draft.text || draft, direction: 'outbound', ts: draft.ts || null, _is_draft: true });
+  }
+  container.innerHTML = header + '<div class="td-messages" id="td-messages">' + bubbles + '</div>';
+  var msgs = container.querySelector('#td-messages');
   if (msgs) msgs.scrollTop = msgs.scrollHeight;
 }
 
 export function appendMessage(container, msg) {
-  const msgs = container?.querySelector('#td-messages');
+  if (!container) return;
+  var msgs = container.querySelector('#td-messages');
   if (!msgs) return;
-
-  const empty = msgs.querySelector('.td-empty');
-  if (empty) empty.remove();
-
-  msgs.insertAdjacentHTML('beforeend', buildBubble(msg));
+  var tmp = document.createElement('div');
+  tmp.innerHTML = buildBubble(msg);
+  msgs.appendChild(tmp.firstChild);
   msgs.scrollTop = msgs.scrollHeight;
 }
 
 export function refreshHeader(container, thread) {
   if (!container) return;
-  const hdr = container.querySelector('.td-header');
-  if (!hdr) return;
-  const tmp = document.createElement('div');
-  tmp.innerHTML = buildHeader(thread);
-  hdr.replaceWith(tmp.firstElementChild);
+  var header = container.querySelector('.td-header');
+  if (!header) return;
+  var color = channelColor(thread.channel);
+  var icon = channelIcon(thread.channel, true);
+  var pills = '';
+  if (thread.paused_at) {
+    pills = '<span class="td-pill td-pill--paused">paused</span>';
+  } else if (thread.ai_status === 'drafting') {
+    pills = '<span class="td-pill td-pill--drafting">drafting</span>';
+  }
+  header.querySelector('.td-header-name').textContent = thread.customer_name || 'Unknown';
+  var meta = header.querySelector('.td-header-meta');
+  if (meta) {
+    meta.innerHTML = '<span class="td-ch-pill" style="background:' + color + '20;color:' + color + '">' + icon + ' ' + channelLabel(thread.channel) + '</span>' + pills;
+  }
 }

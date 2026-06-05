@@ -112,6 +112,8 @@ const STUB_INBOX = {
       last_message: "Are you available this Saturday?",
       unread: 2,
       last_at: new Date(Date.now() - 1200000).toISOString(),
+      paused_at: null,
+      ai_status: 'drafting',
     },
     {
       id: 'thread-2',
@@ -120,6 +122,8 @@ const STUB_INBOX = {
       last_message: "Perfect, I'll pick them up at 4pm.",
       unread: 0,
       last_at: new Date(Date.now() - 7200000).toISOString(),
+      paused_at: null,
+      ai_status: 'sent',
     },
     {
       id: 'thread-3',
@@ -128,6 +132,8 @@ const STUB_INBOX = {
       last_message: "Yeah still interested. How much?",
       unread: 1,
       last_at: new Date(Date.now() - 3600000).toISOString(),
+      paused_at: null,
+      ai_status: 'pending',
     },
   ],
 };
@@ -165,6 +171,10 @@ const STUB_BRIEF = {
 
 // ── Shadow-queue mutation (in-memory for stubs) ──────────────────────────────
 const _queueState = new Map(STUB_QUEUE.items.map(i => [i.id, { ...i }]));
+
+// ── Inbox mutation state (in-memory for stubs) ───────────────────────────────
+const _takeoverState = new Map(STUB_INBOX.threads.map(t => [t.id, t.paused_at]));
+const _replyLog = new Map(); // id -> [{ direction, text, ts }]
 
 function getQueue() {
   if (!db) return { items: Array.from(_queueState.values()) };
@@ -283,7 +293,7 @@ async function handleApi(req, res, url) {
     return sendJson(res, 200, { ok: true });
   }
 
-  // GET /api/inbox[?channel=...]
+  // GET /api/inbox[?channel=...]  (legacy compat)
   if (path === '/api/inbox' && method === 'GET') {
     const channel = url.searchParams.get('channel');
     if (db) {
@@ -302,6 +312,49 @@ async function handleApi(req, res, url) {
     return sendJson(res, 200, { threads });
   }
 
+  // GET /api/inbox/threads  (v2 — includes paused_at, ai_status)
+  if (path === '/api/inbox/threads' && method === 'GET') {
+    const channel = url.searchParams.get('channel');
+    const base = STUB_INBOX.threads.map(t => ({
+      ...t,
+      paused_at: _takeoverState.get(t.id) ?? t.paused_at,
+    }));
+    const threads = channel ? base.filter(t => t.channel === channel) : base;
+    return sendJson(res, 200, { threads });
+  }
+
+  // POST /api/inbox/:id/takeover
+  const takeoverMatch = path.match(/^\/api\/inbox\/([^/]+)\/takeover$/);
+  if (takeoverMatch && method === 'POST') {
+    const id = takeoverMatch[1];
+    _takeoverState.set(id, new Date().toISOString());
+    return sendJson(res, 200, { ok: true, paused_at: _takeoverState.get(id) });
+  }
+
+  // POST /api/inbox/:id/resume
+  const resumeMatch = path.match(/^\/api\/inbox\/([^/]+)\/resume$/);
+  if (resumeMatch && method === 'POST') {
+    const id = resumeMatch[1];
+    _takeoverState.set(id, null);
+    return sendJson(res, 200, { ok: true, paused_at: null });
+  }
+
+  // POST /api/inbox/:id/reply
+  const replyMatch = path.match(/^\/api\/inbox\/([^/]+)\/reply$/);
+  if (replyMatch && method === 'POST') {
+    const id = replyMatch[1];
+    try {
+      const body = await bodyJson(req);
+      const msg = { direction: 'outbound', text: body.text || '', ts: new Date().toISOString(), _manual: true };
+      if (!_replyLog.has(id)) _replyLog.set(id, []);
+      _replyLog.get(id).push(msg);
+      // Also update last_message preview on the stub thread
+      const t = STUB_INBOX.threads.find(x => x.id === id);
+      if (t) { t.last_message = msg.text.slice(0, 60); t.last_at = msg.ts; }
+      return sendJson(res, 200, { ok: true, message: msg });
+    } catch (e) { return sendJson(res, 400, { error: e.message }); }
+  }
+
   // GET /api/inbox/:id/thread
   const threadMatch = path.match(/^\/api\/inbox\/([^/]+)\/thread$/);
   if (threadMatch && method === 'GET') {
@@ -311,11 +364,12 @@ async function handleApi(req, res, url) {
         const msgs = db.prepare(
           `SELECT direction, text, ts FROM inbox_messages WHERE thread_id=? ORDER BY ts ASC`
         ).all(id);
-        return sendJson(res, 200, { messages: msgs });
+        return sendJson(res, 200, { messages: msgs, pending_draft: null });
       } catch (_) {}
     }
-    const msgs = STUB_THREAD_MSGS[id] || [];
-    return sendJson(res, 200, { messages: msgs });
+    const base = STUB_THREAD_MSGS[id] || [];
+    const extra = _replyLog.get(id) || [];
+    return sendJson(res, 200, { messages: [...base, ...extra], pending_draft: null });
   }
 
   // GET /api/settings
