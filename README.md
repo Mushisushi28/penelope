@@ -1,169 +1,139 @@
 <div align="center">
 
-# penelope
+# Penelope
 
-**she runs the home while Odysseus is away.**
-
-a self-hosted, telegram-first operating system for a small business that runs itself.
+**The autonomous business OS. Run your small business from a Telegram chat.**
 
 [![CI](https://github.com/Mushisushi28/penelope/actions/workflows/ci.yml/badge.svg)](https://github.com/Mushisushi28/penelope/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Node 22](https://img.shields.io/badge/node-22-green)](https://nodejs.org)
+[![16 packages](https://img.shields.io/badge/packages-16-blue)](packages/)
 [![pre-alpha](https://img.shields.io/badge/status-pre--alpha-orange)](https://github.com/Mushisushi28/penelope/releases)
 
-[quickstart](docs/QUICKSTART.md) - [install](INSTALL.md) - [architecture](ARCHITECTURE.md) - [contributing](CONTRIBUTING.md)
+[quickstart](docs/QUICKSTART.md) · [deploy guide](docs/DEPLOY.md) · [architecture](ARCHITECTURE.md) · [connectors](docs/CONNECTORS.md) · [contributing](CONTRIBUTING.md)
 
 </div>
 
 ---
 
-## what is this
+Small business owners spend half their day in eight different apps: one for customer messages, one for invoices, one for scheduling, another for reviews, another for ads. Each one demands attention in a different tab.
 
-A small business that lives in your phone.
+Penelope collapses that into a single Telegram chat. You talk to your business the way you'd text a very competent employee. She handles the rest — routing customer messages, triggering follow-ups, dispatching content generation, keeping an audit trail — while you stay focused on the actual work.
 
-You point Penelope at your Facebook Page, your SMS line, your email, and your calendar. She handles inbound DMs, qualifies leads, drafts quotes within your pricing rules, books appointments, follows up on payments, asks for reviews, and pings you with a daily brief.
+## What Penelope does
 
-You only see the parts that need you. Everything else happens in one telegram chat with your agent.
+- **Handles customer DMs** — replies to Facebook Page Messenger (24-hour-window aware), SMS, and Instagram (stub); escalates to you when a human decision is needed
+- **Manages follow-ups** — detects dormant leads, drafts re-engagement messages within your approval rules, sends when you confirm
+- **Generates content** — produces before/after imagery and short-form copy from job photos via FAL.ai and Nano Banana adapter stubs; schedules posts
+- **Keeps marketing running** — Marketing specialist dispatches campaigns on the internal bus; no Ads Manager required
+- **Tracks everything** — per-tenant audit log with a tamper-detect hash chain; memory layer scoped to user, session, and agent
+- **Runs multiple businesses** — multi-tenant from day one; each tenant gets isolated secrets, bus, audit log, and dashboard
+- **Exposes a dashboard** — Odysseus-themed vanilla JS PWA at `localhost:18900`; no separate login, tenant-branded
 
-## features
+What is not shipped yet (roadmap): WhatsApp inbound, Instagram inbound beyond stub, per-tenant Stripe billing, Social/Finance/Team specialists.
 
-### messaging across every channel
-- Facebook Page Messenger (Graph API, 24h-window aware)
-- Twilio SMS (real per-tenant number) or TextNow DOM (free until you upgrade)
-- Email via IMAP/SMTP (App Password or OAuth)
-- Instagram DMs (stub, Meta Graph)
-- Owner to agent: Telegram bot (per tenant)
-
-### lead handling
-- Per-vertical qualifying flow defined as a YAML procedure you can edit
-- Auto-quote within configurable pricing caps (no quoting outside floor/ceiling, no fixed tiers)
-- Calendar booking via Calendly or direct Google Calendar OAuth
-- Post-job review-ask with platform-specific links (Google / Facebook)
-- Payment reconciliation from Stripe and Square
-
-### one telegram chat, every workflow
-- "what's today look like" runs the daily brief and returns 8 bullets
-- "send linnell the quote" looks up the customer, drafts, confirms before sending
-- "draft a quote for a 2018 silverado pair, heavy oxidation" runs the quote-builder, returns the number
-- "pause autopilot for the day" flips the flag, customer messages stack in a shadow queue
-- "status" shows which channels are alive, queue depth, last inbound
-
-### owner dashboard (secondary surface)
-- Vanilla-JS, Odysseus-themed, PWA-installable on iOS / Android home screen
-- Home brief, unified inbox, shadow-mode review queue, customer 360, quotes and bookings, money, agents, procedures, connectors, settings
-- Tenant-themed (each business picks its own accent color)
-- Runs locally at `http://localhost:18900` after install
-
-### built-in compliance
-- Per-tenant do-not-contact list
-- No proactive outbound between 22:00 and 09:00 local (configurable)
-- One-click opt-out injection in outbound
-- 24-hour FB-window enforcement
-- Append-only per-tenant audit log with tamper-detect hash chain
-
-### marketplace + extensions
-- Hermes connector loader, register any service with an OpenAPI spec
-- Community-contributed connectors and procedure templates (sandbox-mode default, TOTP to promote)
-- Procedure replay harness: test prompt/procedure changes against recorded threads before shipping
-
-### multi-tenant from day one
-- One business = one tenant directory under `tenants/<slug>/`
-- Per-tenant bus, per-tenant secrets, per-tenant audit log
-- Run multiple businesses from a single Penelope install
-
-### voice (when you're driving)
-- Voice memo to Whisper transcription to owner-agent
-- Owner-agent to Smallest.ai TTS to voice reply
-- Per-tenant voice character
-
-## quickstart
+## Quick start
 
 ```bash
-npx penelope init
-# 5 questions, 90 seconds. you're running.
+git clone https://github.com/Mushisushi28/penelope.git
+cd penelope
+npm install
+cp .env.example .env          # fill in your Telegram bot token
+npm run start --workspace @penelope/cli
 ```
 
-Full walkthrough in [docs/QUICKSTART.md](docs/QUICKSTART.md).
+Full walkthrough with tenant setup: [docs/DEPLOY.md](docs/DEPLOY.md)
 
-## install paths
+## Architecture
 
-| path        | best for                                | command                    |
-|-------------|-----------------------------------------|----------------------------|
-| `npx`       | trying it out, single tenant, your box  | `npx penelope init`        |
-| `npm -g`    | running on a server you own             | `npm i -g penelope`        |
-| Docker      | running in production, multi-tenant     | `docker compose up -d`     |
-| Web wizard  | onboarding a non-technical friend       | deploy `packages/onboarding-web` to Vercel |
+Penelope (head agent) is the only agent that talks to the owner on Telegram. She reads your message, decides what work needs doing, and dispatches to specialists on the internal loom-a2a bus. Specialists are bus-only — they never contact you directly. Each tenant is a directory under `tenants/<id>/` with its own SQLite bus, secrets file, procedures, and audit log.
 
-Detailed steps for every path: [INSTALL.md](INSTALL.md).
+```mermaid
+graph LR
+    Owner((Owner)) -- Telegram --> Penelope
+    Penelope -- bus --> FollowUp
+    Penelope -- bus --> Marketing
+    Penelope -- bus --> Content
+    Penelope -- bus --> Browser
+    Penelope -- bus --> MCPHost["MCP Host"]
+    FollowUp --> DB[(SQLite)]
+    Marketing --> DB
+    Content --> DB
+```
 
-## architecture (one page)
+Connector discovery runs a cascade: MCP server → hand-coded API skill → Hermes OpenAPI auto-loader → Stagehand browser specialist → computer-use. The cheapest path that works is the one Penelope uses.
 
-The owner uses one telegram chat. Their Penelope agent (head agent) reads tenant config and routes commands to specialist agents (customer, booking, quoting, payments, reviews, marketing, daily-brief) via the internal loom-a2a bus. Penelope is the only agent that talks to the owner on Telegram — specialists are bus-only. Each tenant gets its own SQLite bus, procedures, audit log, and secrets. The Odysseus dashboard is a secondary surface for deep dives.
+## Specialists shipped
 
-Full architecture, tenancy model, security model, and extension guide in [ARCHITECTURE.md](ARCHITECTURE.md).
+| Specialist | What it does |
+|---|---|
+| **FollowUp** | Detects dormant leads, drafts re-engagement, fires on schedule |
+| **Marketing** | Campaign dispatch; no Ads Manager access required |
+| **Content** | Before/after image generation (FAL.ai + Nano Banana stubs), post scheduling |
+| **Browser** | Stagehand-based, sandboxed per tenant; used when no API exists |
+| **MCP Host** | Loads up to 300+ MCP servers; tenants declare which ones they need |
 
-## packages
+## Connectors out of the box
 
-| package                       | what it does                                                     |
-|-------------------------------|------------------------------------------------------------------|
-| `@penelope/cli`               | `penelope init / up / status / tenant / send / doctor`           |
-| `@penelope/core`              | tenant model, procedure YAML loader, schema validation           |
-| `@penelope/adapters`          | telegram-owner (Penelope-only), fb-page, twilio-sms, imap-smtp, instagram, loom-a2a |
-| `@penelope/agents`            | Penelope head agent + 7 specialists                              |
-| `@penelope/dashboard`         | per-tenant Odysseus-themed PWA owner app                         |
-| `@penelope/hermes`            | OpenAPI connector loader (Stripe / Calendly / Twilio)            |
-| `@penelope/marketplace`       | community connector + procedure registry, sandbox to TOTP promote |
-| `@penelope/procedure-eval`    | replay harness for procedure / prompt changes                    |
-| `@penelope/telemetry`         | opt-in usage meter (counts only, never content)                  |
-| `@penelope/audit-log`         | append-only per-tenant tamper-detect log                         |
-| `@penelope/onboarding-web`    | Next.js install wizard for non-CLI users                         |
+Full catalog with tier and status in [docs/CONNECTORS.md](docs/CONNECTORS.md).
 
-## verticals shipped
+- **Messaging** — Facebook Page Messenger (T2 API-skill, full), WhatsApp Business (T2, full), Instagram DM (T2, stub), Telegram owner bot (per-tenant)
+- **SMS** — Twilio (T2, stub), TextNow DOM (T4 browser, stub)
+- **Payments** — Stripe via MCP (T1, full), Square (T2, stub)
+- **Calendar** — Google Calendar (T1 MCP + T2, stub), Calendly (T3 Hermes, stub)
+- **Email** — IMAP/SMTP (T2, stub), Gmail MCP (T1, stub)
+- **OpenAPI (Hermes)** — register any service with an OpenAPI spec; no code required
 
-- `examples/auto-service` - full reference tenant (headlight restoration / mobile detailing pattern)
-- `examples/home-services` - cleaning / lawn / handyman starter
-- `examples/personal-services` - barber / salon starter
+## Packages
 
-Plug your own vertical: copy any example, edit `tenant.json` and `procedures/`, run `penelope tenant add`.
+| Package | Role |
+|---|---|
+| `@penelope/core` | Tenant model, procedure YAML loader, Zod validation |
+| `@penelope/agents` | Penelope head agent + specialists (FollowUp, Marketing, Content, Browser) |
+| `@penelope/adapters` | Channel adapters: Telegram owner bot, FB Page, Twilio, IMAP/SMTP, Instagram, WhatsApp, loom-a2a |
+| `@penelope/cli` | `penelope init / up / status / tenant / send / doctor` |
+| `@penelope/dashboard` | Odysseus-themed PWA owner app, runs at localhost:18900 |
+| `@penelope/hermes` | Auto-loads connectors from OpenAPI specs |
+| `@penelope/memory` | mem0-style memory layer; user/session/agent scopes; Node 22 native sqlite |
+| `@penelope/connector-discovery` | Connector cascade orchestrator |
+| `@penelope/audit-log` | Append-only per-tenant tamper-detect log |
+| `@penelope/secrets` | Per-tenant secrets loader |
+| `@penelope/billing` | Billing hooks (managed tier, roadmap) |
+| `@penelope/marketplace` | Community connector + procedure registry, sandbox-to-TOTP-promote |
+| `@penelope/procedure-eval` | Replay harness for testing procedure/prompt changes against recorded threads |
+| `@penelope/onboarding-web` | Next.js install wizard for non-CLI users |
+| `@penelope/telemetry` | Opt-in usage meter (counts only, never content) |
 
-## status
+## Reference tenant
 
-**Pre-alpha.** v0.1 ships the foundations:
+`tenants/dhr/` is a working reference tenant for a mobile auto-service business (headlight restoration). It includes a `tenant.json` with brand config, pricing rules, and example procedures. Use it as the template for your first vertical.
 
-- Tenant model + procedure loader
-- Channel adapters (telegram, fb-page, twilio, smtp; instagram stub)
-- Owner-agent + 7 specialists
-- CLI + Docker deploy
-- Marketplace + procedure eval
-- Per-tenant owner dashboard
-- Web onboarding wizard
-- Hermes connector loader
-- Audit log + opt-in telemetry
+Example vertical starters in `examples/`: `auto-service`, `home-services`, `personal-services`.
 
-What's not in v0.1 (coming in v0.2 - v0.4):
+## Deploying your own tenant
 
-- Per-tenant Stripe billing (managed tier)
-- WhatsApp adapter
-- Instagram inbound (currently stub)
-- Per-tenant secrets vault on OS keychain
-- Shadow to live auto-promotion threshold
-- Visual node-canvas procedure editor (drag-and-drop, lazy-loaded, round-trip YAML) — **shipped in v0.1.1**
-- IDE-grade raw YAML editing with syntax validation
+See [docs/DEPLOY.md](docs/DEPLOY.md) for the full guide:
+- Node 22 + sqlite + optional ffmpeg
+- Clone, install, create tenant
+- Configure Telegram bot via @BotFather
+- Start and verify
 
-See [milestones](https://github.com/Mushisushi28/penelope/milestones) for the live roadmap.
+## Self-host vs hosted
 
-## companion projects
+Self-hosting is free — clone the repo, run `npm install`, configure a tenant, start. A managed hosted tier (where Penelope runs on our infrastructure, billing per tenant) is on the roadmap but not available yet. For now, you own the stack.
 
-- [loom](https://github.com/Mushisushi28/loom) - the multi-agent engine Penelope runs on
-- [odysseus](https://github.com/Mushisushi28/odysseus) - the self-hosted AI workspace whose design language Penelope's dashboard uses
-
-## contributing
-
-PRs welcome on bugs, new channel adapters, new vertical templates, and procedure improvements. See [CONTRIBUTING.md](CONTRIBUTING.md).
-
-## license
+## License
 
 MIT. See [LICENSE](LICENSE).
 
-## security
+## Security
 
 Report vulnerabilities via [GitHub Security Advisories](https://github.com/Mushisushi28/penelope/security/advisories/new). Details in [SECURITY.md](SECURITY.md).
+
+## Contributing
+
+PRs welcome on bugs, new channel adapters, vertical templates, and procedure improvements. See [CONTRIBUTING.md](CONTRIBUTING.md).
+
+---
+
+Built on [Loom](https://github.com/Mushisushi28/loom), the private multi-agent engine that powers Penelope's bus, specialist dispatch, and tenant isolation.
