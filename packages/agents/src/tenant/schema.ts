@@ -99,7 +99,7 @@ export class TenantConfigError extends Error {
 }
 
 export function validateAgentConfig(config: TenantConfig): void {
-  const agents = (config as Record<string, unknown>)["agents"] as AgentConfig | undefined;
+  const agents = (config as unknown as Record<string, unknown>)["agents"] as AgentConfig | undefined;
 
   if (!agents) {
     throw new TenantConfigError(

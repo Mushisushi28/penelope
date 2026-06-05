@@ -68,12 +68,9 @@ async function buildRealClient(): Promise<ComputerUseClient> {
       return {
         sessionId,
         async run(goalPrompt: string): Promise<ComputerUseAction[]> {
-          const tools: import("@anthropic-ai/sdk").Tool[] = [
-            // @ts-expect-error — computer_20250124 is a beta tool type
+          const tools: unknown[] = [
             { type: "computer_20250124", name: "computer", display_width_px: 1280, display_height_px: 960, display_number: 1 },
-            // @ts-expect-error — bash_20250124 is a beta tool type
             { type: "bash_20250124", name: "bash" },
-            // @ts-expect-error — text_editor_20250124 is a beta tool type
             { type: "text_editor_20250124", name: "str_replace_editor" },
           ];
 

@@ -46,3 +46,5 @@ export {
 export type { UsageSample, PromotionSuggestion } from "./auto-promote.js";
 
 export { seedConnectors } from "./seed-connectors.js";
+
+export { StripeMcpConnector } from "./connectors/stripe-mcp.js";
