@@ -19,7 +19,7 @@ jobs:
           node-version: ${{ matrix.node }}
           cache: 'npm'
       - run: npm ci
-      - run: npm run build --workspaces --if-present
+      - run: npm run build
       - run: npm test --workspaces --if-present
       - name: CLI smoke test
         run: |
