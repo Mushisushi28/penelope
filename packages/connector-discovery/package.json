@@ -1,0 +1,86 @@
+{
+  "name": "@penelope/connector-discovery",
+  "version": "0.2.0",
+  "description": "Self-adding connector discovery pipeline — MCP → API-skill → OpenAPI → browser recipe → computer-use fallback",
+  "license": "MIT",
+  "author": "Isaac Dobson",
+  "homepage": "https://github.com/Mushisushi28/penelope#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Mushisushi28/penelope.git"
+  },
+  "bugs": "https://github.com/Mushisushi28/penelope/issues",
+  "type": "module",
+  "engines": { "node": ">=20" },
+  "bin": {
+    "penelope-discover": "./dist/bin.js"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./cascade": {
+      "import": "./dist/cascade.js",
+      "types": "./dist/cascade.d.ts"
+    },
+    "./types": {
+      "import": "./dist/types.js",
+      "types": "./dist/types.d.ts"
+    },
+    "./recipe-builder": {
+      "import": "./dist/recipe-builder.js",
+      "types": "./dist/recipe-builder.d.ts"
+    },
+    "./promote": {
+      "import": "./dist/promote.js",
+      "types": "./dist/promote.d.ts"
+    },
+    "./cli": {
+      "import": "./dist/cli.js",
+      "types": "./dist/cli.d.ts"
+    }
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "tsc --noEmit"
+  },
+  "dependencies": {
+    "commander": "^12.1.0",
+    "js-yaml": "^4.1.0"
+  },
+  "devDependencies": {
+    "@anthropic-ai/sdk": "^0.27.0",
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^20.14.0",
+    "typescript": "^5.4.5",
+    "vitest": "^1.6.0"
+  },
+  "peerDependencies": {
+    "@penelope/connectors": "*",
+    "@penelope/hermes": "*"
+  },
+  "peerDependenciesMeta": {
+    "@penelope/connectors": { "optional": true },
+    "@penelope/hermes": { "optional": true }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "penelope",
+    "connector",
+    "discovery",
+    "mcp",
+    "openapi",
+    "computer-use",
+    "browser-recipe",
+    "agents"
+  ]
+}
