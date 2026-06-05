@@ -146,7 +146,8 @@ What's not in v0.1 (coming in v0.2 - v0.4):
 - Instagram inbound (currently stub)
 - Per-tenant secrets vault on OS keychain
 - Shadow to live auto-promotion threshold
-- Full IDE-grade procedure YAML editor in the dashboard
+- Visual node-canvas procedure editor (drag-and-drop, lazy-loaded, round-trip YAML) — **shipped in v0.1.1**
+- IDE-grade raw YAML editing with syntax validation
 
 See [milestones](https://github.com/Mushisushi28/penelope/milestones) for the live roadmap.
 

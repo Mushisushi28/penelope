@@ -25,6 +25,13 @@ export const getSettings    = ()         => req('GET', '/api/settings');
 export const saveSettings   = (data)     => req('POST', '/api/settings', data);
 export const busAction      = (action, payload) => req('POST', '/api/action', { action, ...payload });
 
+// v2 inbox API — two-pane omnichannel inbox
+export const getInboxThreads  = (ch)         => req('GET', `/api/inbox/threads${ch ? '?channel=' + encodeURIComponent(ch) : ''}`);
+export const getInboxMessages = (id)         => req('GET', `/api/inbox/${id}/thread`);
+export const takeoverThread   = (id)         => req('POST', `/api/inbox/threads/${id}/takeover`);
+export const resumeThread     = (id)         => req('POST', `/api/inbox/threads/${id}/resume`);
+export const replyToThread    = (id, text, draftId) => req('POST', `/api/inbox/threads/${id}/reply`, { text, draft_id: draftId ?? null });
+
 export const approveQueueItem = (id) => req('POST', `/api/shadow-queue/${id}/approve`);
 export const declineQueueItem = (id) => req('POST', `/api/shadow-queue/${id}/decline`);
 export const editQueueItem    = (id, text) => req('POST', `/api/shadow-queue/${id}/edit`, { text });
