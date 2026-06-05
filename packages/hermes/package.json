@@ -1,0 +1,43 @@
+{
+  "name": "@penelope/hermes",
+  "version": "0.1.0",
+  "description": "Self-extending API connector system for Penelope",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./registry": {
+      "import": "./dist/registry.js",
+      "types": "./dist/registry.d.ts"
+    },
+    "./invoke": {
+      "import": "./dist/invoke.js",
+      "types": "./dist/invoke.d.ts"
+    },
+    "./stripe": {
+      "import": "./dist/specialists/stripe-helpers.js",
+      "types": "./dist/specialists/stripe-helpers.d.ts"
+    }
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "axios": "^1.7.2",
+    "js-yaml": "^4.1.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^20.14.2",
+    "msw": "^2.3.1",
+    "typescript": "^5.4.5",
+    "vitest": "^1.6.0"
+  }
+}
