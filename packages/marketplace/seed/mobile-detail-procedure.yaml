@@ -1,0 +1,93 @@
+##MANIFEST## {"id":"mobile-detail-v1","name":"Mobile Detail — Lead Response","kind":"procedure","version":"1.0.0","author":"Penelope Community","license":"MIT","sha256":"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855","description":"End-to-end lead handling for mobile auto-detailing. Captures vehicle, address, desired service, quotes on the spot, books.","tags":["detailing","automotive","mobile","booking"],"payloadUrl":"","vertical":"detailing","avgTurns":6,"createdAt":"2026-06-04T00:00:00Z"} ##END##
+
+# Mobile Detailing — Lead Response Procedure
+# Version: 1.0.0
+# Vertical: Automotive Detailing
+
+metadata:
+  id: mobile-detail-v1
+  name: Mobile Detail — Lead Response
+  vertical: detailing
+  version: "1.0.0"
+  avg_turns: 6
+
+steps:
+  - id: greet
+    role: agent
+    template: |
+      Hey {customer_first_name}! Thanks for reaching out to {business_name}.
+      I'd love to get your car looking its best. Quick question — what kind of
+      vehicle do you have? (Year/Make/Model is helpful.)
+
+  - id: capture_vehicle
+    role: customer
+    extract:
+      - field: vehicle_year
+        hint: "4-digit year"
+      - field: vehicle_make
+      - field: vehicle_model
+      - field: vehicle_condition
+        hint: "light/moderate/heavy"
+        optional: true
+
+  - id: capture_service
+    role: agent
+    template: |
+      Nice! What service are you looking for?
+      - Exterior wash & clay bar
+      - Interior deep clean
+      - Full detail (interior + exterior + polish)
+      - Paint correction
+      Something else? Just let me know.
+
+  - id: extract_service
+    role: customer
+    extract:
+      - field: service_requested
+
+  - id: capture_location
+    role: agent
+    template: |
+      Perfect. We come to you — what's your address or general area?
+      (City/neighbourhood is fine if you prefer.)
+
+  - id: extract_location
+    role: customer
+    extract:
+      - field: customer_address
+
+  - id: quote
+    role: agent
+    template: |
+      Here's a quick estimate for a {service_requested} on your {vehicle_year}
+      {vehicle_make} {vehicle_model}:
+
+      {quote_line}
+
+      Price can shift slightly once we see the vehicle in person (heavy pet hair,
+      deep stains, etc.), but that's the ballpark. Want to lock in a time?
+
+  - id: booking_confirm
+    role: customer
+    extract:
+      - field: wants_booking
+        hint: "yes/no/maybe"
+
+  - id: book_or_followup
+    role: agent
+    branch:
+      if: "wants_booking == 'yes'"
+      then:
+        template: |
+          Awesome! What days/times work best for you this week?
+          We'll send a confirmed booking link once we have a slot.
+      else:
+        template: |
+          No worries — I'll drop you a follow-up in a day or two.
+          Feel free to message us anytime. Have a great one!
+
+pricing_guide:
+  exterior_wash: "$80–$120 depending on vehicle size"
+  interior_deep_clean: "$100–$150"
+  full_detail: "$200–$350"
+  paint_correction: "$400–$800 (stage 1–3)"

@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "tenant_id": "dhr-auto-service",
+  "name": "Dobson Headlight Restoration",
+  "vertical": "auto-service",
+  "brand": {
+    "display_name": "Dobson Headlight Restoration",
+    "brand_color": "#1E40AF",
+    "tagline": "Crystal-clear headlights. Fast, mobile, guaranteed.",
+    "voice_notes": "lowercase, conversational, 1-2 sentences. no corporate speak."
+  },
+  "address": {
+    "city": "Calgary",
+    "province": "AB",
+    "country": "CA"
+  },
+  "hours": {
+    "timezone": "America/Edmonton",
+    "schedule": {
+      "monday":    { "open": "08:00", "close": "18:00" },
+      "tuesday":   { "open": "08:00", "close": "18:00" },
+      "wednesday": { "open": "08:00", "close": "18:00" },
+      "thursday":  { "open": "08:00", "close": "18:00" },
+      "friday":    { "open": "08:00", "close": "18:00" },
+      "saturday":  { "open": "09:00", "close": "16:00" },
+      "sunday":    null
+    }
+  },
+  "channels": [
+    {
+      "type": "fb-page",
+      "enabled": true,
+      "credential_env": "DHR_FB_PAGE_TOKEN",
+      "config": {
+        "page_id_env": "DHR_FB_PAGE_ID"
+      }
+    },
+    {
+      "type": "sms-textnow",
+      "enabled": true,
+      "credential_env": "DHR_TEXTNOW_SESSION"
+    }
+  ],
+  "pricing": [
+    {
+      "id": "regular",
+      "label": "Standard headlight restoration",
+      "currency": "CAD",
+      "floor": 99,
+      "ceiling": 200,
+      "auto_quote_band": [99, 150],
+      "qualifier_question": "What's the make, model, and year of your vehicle, and roughly how foggy are the headlights?"
+    },
+    {
+      "id": "ceramic",
+      "label": "Ceramic-coated headlight restoration",
+      "currency": "CAD",
+      "floor": 200,
+      "ceiling": 250,
+      "auto_quote_band": [200, 240],
+      "qualifier_question": "What's the make, model, and year? And are you interested in the ceramic coating that lasts 2-3x longer?"
+    }
+  ],
+  "approval_gates": {
+    "default_level": "auto",
+    "above_band_level": "owner_telegram_confirm",
+    "complaint_level": "owner_telegram_confirm"
+  },
+  "review_platforms": [
+    { "name": "Google", "url_env": "DHR_GOOGLE_REVIEW_URL" },
+    { "name": "Facebook", "url_env": "DHR_FB_REVIEW_URL" }
+  ],
+  "payment_processors": [
+    { "name": "square", "credential_env": "DHR_SQUARE_ACCESS_TOKEN" }
+  ],
+  "quiet_hours": {
+    "start": "21:00",
+    "end": "08:00"
+  },
+  "budget": {
+    "max_usd_per_day": 2.00,
+    "max_usd_per_month": 40.00,
+    "alert_threshold_pct": 80
+  }
+}

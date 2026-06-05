@@ -1,0 +1,65 @@
+schema_version: 1
+procedure_id: quote-builder
+description: Compute a headlight restoration quote from vehicle info and condition. Selects regular vs ceramic pricing tier, applies per-vehicle modifiers, returns final quote within auto-quote band.
+owner_team: auto-service
+specialist_class: pricing-engine
+trigger:
+  kind: bus_event
+  event: compute_quote_requested
+inputs:
+  required:
+    - thread_id
+    - vehicle_info
+    - pricing_rule_id
+  optional:
+    - condition_notes
+    - num_lights
+runtime_budget:
+  max_tokens_per_run: 2000
+  max_usd_per_run: 0.05
+  max_runs_per_thread_per_day: 20
+states:
+  - id: evaluate_vehicle
+    label: Assess vehicle and condition
+    actions:
+      - kind: lookup_external
+        provider: vehicle_db
+        query: "{{vehicle_info}}"
+        store_as: vehicle_details
+      - kind: set_state
+        key: num_lights
+        value: "{{vehicle_details.num_headlights | default: 2}}"
+    next: compute_base_price
+
+  - id: compute_base_price
+    label: Apply pricing rule and compute quote
+    when:
+      - vehicle_details
+    actions:
+      - kind: compute_quote
+        pricing_rule_id: "{{pricing_rule_id}}"
+        store_as: final_quote
+        modifiers:
+          per_extra_light: 25
+          num_lights_key: num_lights
+          base_lights: 2
+        out_of_band_approval: owner_telegram_confirm
+      - kind: log_audit
+        event: quote_computed
+        detail: "rule={{pricing_rule_id}} vehicle={{vehicle_info}} quote={{final_quote}}"
+    next: emit_result
+
+  - id: emit_result
+    label: Emit quote result back to caller
+    actions:
+      - kind: emit_bus_event
+        event: quote_computed
+        payload:
+          thread_id: "{{thread_id}}"
+          pricing_rule_id: "{{pricing_rule_id}}"
+          final_quote: "{{final_quote}}"
+          vehicle_info: "{{vehicle_info}}"
+
+outputs:
+  - final_quote
+  - vehicle_details

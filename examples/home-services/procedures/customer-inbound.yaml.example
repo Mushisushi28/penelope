@@ -1,0 +1,47 @@
+# Stub — copy and customize for your home-services business.
+# See examples/auto-service/procedures/customer-inbound-fb.yaml for a full worked example.
+schema_version: 1
+procedure_id: customer-inbound
+description: Handle inbound customer messages for a home-services business.
+owner_team: home-services
+specialist_class: customer-frontend
+trigger:
+  kind: inbound_message
+  channel: sms-generic
+inputs:
+  required:
+    - thread_id
+    - inbound_message_text
+states:
+  - id: qualify
+    actions:
+      - kind: ask_question
+        question: "hi! what service are you looking for and where are you located?"
+        store_as: service_request
+      - kind: mark_job_status
+        status: qualifying
+    next: quote
+  - id: quote
+    when:
+      - customer_state.service_request
+    actions:
+      - kind: compute_quote
+        pricing_rule_id: standard-visit
+        store_as: quote_amount
+      - kind: send_message
+        template: "for {{service_request}} we're looking at around ${{quote_amount}} — want to lock in a time?"
+      - kind: mark_job_status
+        status: quoted
+    next: book
+  - id: book
+    when:
+      - customer_state.intent_to_book
+    actions:
+      - kind: offer_booking_link
+        provider: calendly
+        message_template: "here's a link to pick a time: {{calendly_link}}"
+      - kind: mark_job_status
+        status: booked
+outputs:
+  - quote_amount
+  - booking_confirmed

@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "tenant_id": "example-home-services",
+  "name": "Example Home Services Co.",
+  "vertical": "home-services",
+  "brand": {
+    "display_name": "Example Home Services",
+    "brand_color": "#16A34A"
+  },
+  "hours": {
+    "timezone": "America/Toronto",
+    "schedule": {
+      "monday":    { "open": "08:00", "close": "17:00" },
+      "tuesday":   { "open": "08:00", "close": "17:00" },
+      "wednesday": { "open": "08:00", "close": "17:00" },
+      "thursday":  { "open": "08:00", "close": "17:00" },
+      "friday":    { "open": "08:00", "close": "17:00" },
+      "saturday":  { "open": "09:00", "close": "14:00" },
+      "sunday":    null
+    }
+  },
+  "channels": [
+    {
+      "type": "sms-generic",
+      "enabled": true,
+      "credential_env": "HOME_SERVICES_SMS_TOKEN"
+    }
+  ],
+  "pricing": [
+    {
+      "id": "standard-visit",
+      "label": "Standard service visit",
+      "currency": "CAD",
+      "floor": 150,
+      "ceiling": 500,
+      "auto_quote_band": [150, 300]
+    }
+  ]
+}

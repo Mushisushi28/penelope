@@ -1,0 +1,47 @@
+# Stub — copy and customize for your personal-services business.
+# See examples/auto-service/procedures/customer-inbound-fb.yaml for a full worked example.
+schema_version: 1
+procedure_id: customer-inbound
+description: Handle inbound customer messages for a personal-services business.
+owner_team: personal-services
+specialist_class: customer-frontend
+trigger:
+  kind: inbound_message
+  channel: instagram-dm
+inputs:
+  required:
+    - thread_id
+    - inbound_message_text
+states:
+  - id: qualify
+    actions:
+      - kind: ask_question
+        question: "hey! what service are you interested in and when are you looking to book?"
+        store_as: service_request
+      - kind: mark_job_status
+        status: qualifying
+    next: quote
+  - id: quote
+    when:
+      - customer_state.service_request
+    actions:
+      - kind: compute_quote
+        pricing_rule_id: single-session
+        store_as: quote_amount
+      - kind: send_message
+        template: "a session runs ${{quote_amount}} — want me to send you a booking link?"
+      - kind: mark_job_status
+        status: quoted
+    next: book
+  - id: book
+    when:
+      - customer_state.intent_to_book
+    actions:
+      - kind: offer_booking_link
+        provider: calendly
+        message_template: "here you go: {{calendly_link}}"
+      - kind: mark_job_status
+        status: booked
+outputs:
+  - quote_amount
+  - booking_confirmed
