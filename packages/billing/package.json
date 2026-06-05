@@ -1,0 +1,73 @@
+{
+  "name": "@penelope/billing",
+  "version": "0.2.0",
+  "description": "Per-tenant Stripe billing with plan quotas and metered usage for Penelope",
+  "license": "MIT",
+  "author": "Isaac Dobson",
+  "homepage": "https://github.com/Mushisushi28/penelope#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Mushisushi28/penelope.git"
+  },
+  "bugs": "https://github.com/Mushisushi28/penelope/issues",
+  "type": "module",
+  "engines": { "node": ">=20" },
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./types": {
+      "import": "./dist/types.js",
+      "types": "./dist/types.d.ts"
+    },
+    "./plans": {
+      "import": "./dist/plans.js",
+      "types": "./dist/plans.d.ts"
+    },
+    "./quota-middleware": {
+      "import": "./dist/quota-middleware.js",
+      "types": "./dist/quota-middleware.d.ts"
+    },
+    "./usage-collector": {
+      "import": "./dist/usage-collector.js",
+      "types": "./dist/usage-collector.d.ts"
+    },
+    "./webhook-handler": {
+      "import": "./dist/webhook-handler.js",
+      "types": "./dist/webhook-handler.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "tsc --noEmit",
+    "prepublishOnly": "npm run build && npm test"
+  },
+  "dependencies": {},
+  "peerDependencies": {
+    "stripe": ">=14.0.0"
+  },
+  "peerDependenciesMeta": {
+    "stripe": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "stripe": "^16.0.0",
+    "typescript": "^5.4.5",
+    "vitest": "^1.6.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": ["penelope", "billing", "stripe", "saas", "metered-usage", "quota", "subscription"]
+}

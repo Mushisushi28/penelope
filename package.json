@@ -17,9 +17,9 @@
     "examples/*"
   ],
   "scripts": {
-    "build": "echo 'workspace build — wired in v0.1'",
-    "test": "echo 'tests added per-package'",
-    "lint": "echo 'lint added per-package'"
+    "build": "npm run build --workspaces --if-present",
+    "test": "npm test --workspaces --if-present",
+    "lint": "echo 'TODO: lint'"
   },
   "keywords": ["telegram", "small-business", "agents", "loom", "odysseus", "automation", "crm", "fb-messenger", "self-hosted"],
   "bin": {
