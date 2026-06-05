@@ -1,0 +1,719 @@
+/* Procedure Canvas Editor — Penelope Dashboard
+   Brand tokens: --penelope-loom #1a1e14, --penelope-shuttle #b87333,
+                 --penelope-thread #dde3d0, --penelope-warp #2e3424 */
+
+/* ── Shell layout ──────────────────────────────────────────────────────── */
+.pcanvas-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  background: var(--penelope-loom, #1a1e14);
+  color: var(--penelope-thread, #dde3d0);
+  font-family: var(--font-mono, 'IBM Plex Mono', monospace);
+  font-size: 13px;
+  overflow: hidden;
+}
+
+/* ── Top bar ───────────────────────────────────────────────────────────── */
+.pcanvas-topbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 16px;
+  height: 48px;
+  min-height: 48px;
+  background: var(--penelope-warp, #2e3424);
+  border-bottom: 1px solid rgba(221, 227, 208, 0.12);
+  flex-shrink: 0;
+}
+
+.pcanvas-topbar-title {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--penelope-thread, #dde3d0);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: 0.02em;
+}
+
+.pcanvas-topbar-title .pcanvas-id-badge {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 1px 6px;
+  background: rgba(184, 115, 51, 0.2);
+  border: 1px solid rgba(184, 115, 51, 0.4);
+  border-radius: 3px;
+  font-size: 11px;
+  color: var(--penelope-shuttle, #b87333);
+  vertical-align: middle;
+}
+
+.pcanvas-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  background: transparent;
+  border: 1px solid rgba(221, 227, 208, 0.2);
+  border-radius: 4px;
+  color: var(--penelope-thread, #dde3d0);
+  font-family: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.12s, border-color 0.12s;
+}
+
+.pcanvas-btn:hover {
+  background: rgba(221, 227, 208, 0.08);
+  border-color: rgba(221, 227, 208, 0.35);
+}
+
+.pcanvas-btn.pcanvas-btn-primary {
+  background: var(--penelope-shuttle, #b87333);
+  border-color: var(--penelope-shuttle, #b87333);
+  color: #fff;
+  font-weight: 600;
+}
+
+.pcanvas-btn.pcanvas-btn-primary:hover {
+  background: #cb8a45;
+  border-color: #cb8a45;
+}
+
+.pcanvas-btn.pcanvas-btn-danger {
+  border-color: rgba(220, 80, 60, 0.4);
+  color: #e07060;
+}
+
+.pcanvas-btn.pcanvas-btn-danger:hover {
+  background: rgba(220, 80, 60, 0.12);
+  border-color: rgba(220, 80, 60, 0.6);
+}
+
+/* ── Body (palette | viewport | inspector) ─────────────────────────────── */
+.pcanvas-body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* ── Palette rail ──────────────────────────────────────────────────────── */
+.pcanvas-palette-rail {
+  width: 160px;
+  min-width: 160px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  background: var(--penelope-warp, #2e3424);
+  border-right: 1px solid rgba(221, 227, 208, 0.1);
+  overflow-y: auto;
+  overflow-x: hidden;
+  flex-shrink: 0;
+}
+
+.pcanvas-palette-heading {
+  padding: 10px 12px 6px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(221, 227, 208, 0.45);
+  border-bottom: 1px solid rgba(221, 227, 208, 0.08);
+  margin-bottom: 4px;
+}
+
+.pcanvas-palette-card {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 3px 8px;
+  padding: 7px 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--node-border, rgba(221, 227, 208, 0.15));
+  border-left: 3px solid var(--node-color, rgba(221, 227, 208, 0.3));
+  border-radius: 4px;
+  cursor: grab;
+  transition: background 0.1s, transform 0.1s, box-shadow 0.1s;
+  user-select: none;
+}
+
+.pcanvas-palette-card:hover {
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateX(2px);
+  box-shadow: -2px 0 0 var(--node-color, #b87333);
+}
+
+.pcanvas-palette-card:active {
+  cursor: grabbing;
+  opacity: 0.75;
+}
+
+.pcanvas-palette-icon {
+  font-size: 14px;
+  color: var(--node-color, #b87333);
+  flex-shrink: 0;
+}
+
+.pcanvas-palette-label {
+  font-size: 11px;
+  color: var(--penelope-thread, #dde3d0);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Viewport ──────────────────────────────────────────────────────────── */
+.pcanvas-viewport {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  background: var(--penelope-loom, #1a1e14);
+  background-image:
+    radial-gradient(circle, rgba(221, 227, 208, 0.06) 1px, transparent 1px);
+  background-size: 24px 24px;
+  cursor: default;
+}
+
+.pcanvas-viewport.pcanvas-panning {
+  cursor: grabbing;
+}
+
+.pcanvas-canvas-wrap {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+  will-change: transform;
+}
+
+/* ── Edges SVG layer ───────────────────────────────────────────────────── */
+.pcanvas-edges-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.pcanvas-edge-path {
+  fill: none;
+  stroke: rgba(221, 227, 208, 0.3);
+  stroke-width: 2;
+  pointer-events: visibleStroke;
+  transition: stroke 0.15s;
+  cursor: pointer;
+}
+
+.pcanvas-edge-path:hover,
+.pcanvas-edge-path.pcanvas-edge-selected {
+  stroke: var(--penelope-shuttle, #b87333);
+  stroke-width: 2.5;
+}
+
+.pcanvas-edge-arrow {
+  fill: rgba(221, 227, 208, 0.3);
+}
+
+.pcanvas-edge-path:hover ~ .pcanvas-edge-arrow,
+.pcanvas-edge-path.pcanvas-edge-selected ~ .pcanvas-edge-arrow {
+  fill: var(--penelope-shuttle, #b87333);
+}
+
+/* Draft edge drawn while dragging from a handle */
+.pcanvas-draft-edge {
+  fill: none;
+  stroke: var(--penelope-shuttle, #b87333);
+  stroke-width: 2;
+  stroke-dasharray: 5 3;
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+/* ── Nodes layer ───────────────────────────────────────────────────────── */
+.pcanvas-nodes-layer {
+  position: relative;
+  width: 0;
+  height: 0;
+}
+
+/* ── Node ──────────────────────────────────────────────────────────────── */
+.pcanvas-node {
+  position: absolute;
+  width: 180px;
+  background: var(--penelope-warp, #2e3424);
+  border: 1.5px solid var(--node-border, rgba(221, 227, 208, 0.2));
+  border-top: 3px solid var(--node-color, #b87333);
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+  user-select: none;
+  cursor: grab;
+  transition: box-shadow 0.12s, border-color 0.12s;
+}
+
+.pcanvas-node:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5), 0 0 0 1px var(--node-color, #b87333);
+}
+
+.pcanvas-node.pcanvas-node-selected {
+  border-color: var(--node-color, #b87333);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5), 0 0 0 2px var(--node-color, #b87333);
+}
+
+.pcanvas-node:active,
+.pcanvas-node.pcanvas-node-dragging {
+  cursor: grabbing;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+  z-index: 1000;
+}
+
+.pcanvas-node-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 10px 6px;
+  border-bottom: 1px solid rgba(221, 227, 208, 0.1);
+}
+
+.pcanvas-node-icon {
+  font-size: 12px;
+  color: var(--node-color, #b87333);
+  flex-shrink: 0;
+}
+
+.pcanvas-node-type-badge {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--node-color, #b87333);
+  opacity: 0.8;
+}
+
+.pcanvas-node-body {
+  padding: 6px 10px 8px;
+}
+
+.pcanvas-node-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--penelope-thread, #dde3d0);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pcanvas-node-desc {
+  font-size: 10px;
+  color: rgba(221, 227, 208, 0.5);
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Handles ───────────────────────────────────────────────────────────── */
+.pcanvas-handle {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--penelope-warp, #2e3424);
+  border: 2px solid var(--node-color, #b87333);
+  cursor: crosshair;
+  z-index: 10;
+  transition: transform 0.1s, background 0.1s;
+}
+
+.pcanvas-handle:hover {
+  transform: scale(1.4);
+  background: var(--node-color, #b87333);
+}
+
+.pcanvas-handle-target {
+  top: 50%;
+  left: -6px;
+  transform: translateY(-50%);
+}
+
+.pcanvas-handle-source {
+  top: 50%;
+  right: -6px;
+  transform: translateY(-50%);
+}
+
+.pcanvas-handle-target:hover {
+  transform: translateY(-50%) scale(1.4);
+}
+
+.pcanvas-handle-source:hover {
+  transform: translateY(-50%) scale(1.4);
+}
+
+/* Condition node has two outputs */
+.pcanvas-handle-source-true {
+  bottom: 14px;
+  right: -6px;
+  top: auto;
+  transform: none;
+  border-color: #4e8a42;
+}
+
+.pcanvas-handle-source-false {
+  bottom: -6px;
+  right: 50%;
+  top: auto;
+  transform: translateX(50%);
+  border-color: #b84242;
+}
+
+/* ── Inspector rail ────────────────────────────────────────────────────── */
+.pcanvas-inspector-rail {
+  width: 240px;
+  min-width: 240px;
+  display: flex;
+  flex-direction: column;
+  background: var(--penelope-warp, #2e3424);
+  border-left: 1px solid rgba(221, 227, 208, 0.1);
+  overflow-y: auto;
+  overflow-x: hidden;
+  flex-shrink: 0;
+}
+
+.pcanvas-inspector-empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: rgba(221, 227, 208, 0.3);
+  font-size: 12px;
+  text-align: center;
+  padding: 24px;
+}
+
+.pcanvas-inspector-empty-icon {
+  font-size: 28px;
+  opacity: 0.4;
+}
+
+.pcanvas-inspector-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px 8px;
+  border-bottom: 1px solid rgba(221, 227, 208, 0.1);
+  flex-shrink: 0;
+}
+
+.pcanvas-inspector-node-icon {
+  font-size: 14px;
+  color: var(--node-color, #b87333);
+}
+
+.pcanvas-inspector-node-type {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--node-color, #b87333);
+}
+
+.pcanvas-inspector-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 4px 0 12px;
+}
+
+.pcanvas-field {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 8px 12px;
+  border-bottom: 1px solid rgba(221, 227, 208, 0.06);
+}
+
+.pcanvas-field:last-child {
+  border-bottom: none;
+}
+
+.pcanvas-field label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(221, 227, 208, 0.5);
+}
+
+.pcanvas-field input[type="text"],
+.pcanvas-field input[type="number"],
+.pcanvas-field select,
+.pcanvas-field textarea {
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(221, 227, 208, 0.15);
+  border-radius: 3px;
+  color: var(--penelope-thread, #dde3d0);
+  font-family: var(--font-mono, 'IBM Plex Mono', monospace);
+  font-size: 12px;
+  padding: 5px 8px;
+  width: 100%;
+  box-sizing: border-box;
+  transition: border-color 0.12s, background 0.12s;
+}
+
+.pcanvas-field input:focus,
+.pcanvas-field select:focus,
+.pcanvas-field textarea:focus {
+  outline: none;
+  border-color: var(--penelope-shuttle, #b87333);
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.pcanvas-field select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23dde3d0' opacity='.5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  padding-right: 24px;
+  cursor: pointer;
+}
+
+.pcanvas-field textarea {
+  resize: vertical;
+  min-height: 56px;
+  line-height: 1.4;
+}
+
+/* ── YAML overlay ──────────────────────────────────────────────────────── */
+.pcanvas-yaml-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: rgba(26, 30, 20, 0.96);
+  z-index: 200;
+  backdrop-filter: blur(2px);
+}
+
+.pcanvas-yaml-overlay-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-bottom: 1px solid rgba(221, 227, 208, 0.12);
+  flex-shrink: 0;
+}
+
+.pcanvas-yaml-overlay-title {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--penelope-thread, #dde3d0);
+}
+
+.pcanvas-yaml-textarea {
+  flex: 1;
+  min-height: 0;
+  padding: 16px;
+  background: transparent;
+  border: none;
+  color: var(--penelope-thread, #dde3d0);
+  font-family: var(--font-mono, 'IBM Plex Mono', monospace);
+  font-size: 12px;
+  line-height: 1.6;
+  resize: none;
+  outline: none;
+  tab-size: 2;
+}
+
+/* ── Minimap ───────────────────────────────────────────────────────────── */
+.pcanvas-minimap {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  width: 140px;
+  height: 90px;
+  background: rgba(26, 30, 20, 0.85);
+  border: 1px solid rgba(221, 227, 208, 0.15);
+  border-radius: 4px;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 50;
+}
+
+.pcanvas-minimap-node {
+  position: absolute;
+  background: var(--node-color, rgba(184, 115, 51, 0.6));
+  border-radius: 1px;
+  opacity: 0.7;
+}
+
+.pcanvas-minimap-viewport {
+  position: absolute;
+  border: 1px solid rgba(184, 115, 51, 0.6);
+  background: rgba(184, 115, 51, 0.06);
+  pointer-events: none;
+}
+
+/* ── Zoom controls ─────────────────────────────────────────────────────── */
+.pcanvas-zoom-controls {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 4px;
+  z-index: 50;
+}
+
+.pcanvas-zoom-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: var(--penelope-warp, #2e3424);
+  border: 1px solid rgba(221, 227, 208, 0.18);
+  border-radius: 4px;
+  color: rgba(221, 227, 208, 0.7);
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.1s, color 0.1s;
+}
+
+.pcanvas-zoom-btn:hover {
+  background: rgba(221, 227, 208, 0.1);
+  color: var(--penelope-thread, #dde3d0);
+}
+
+.pcanvas-zoom-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 8px;
+  height: 28px;
+  background: var(--penelope-warp, #2e3424);
+  border: 1px solid rgba(221, 227, 208, 0.18);
+  border-radius: 4px;
+  font-size: 11px;
+  color: rgba(221, 227, 208, 0.6);
+  min-width: 48px;
+  text-align: center;
+}
+
+/* ── Status / toast ────────────────────────────────────────────────────── */
+.pcanvas-toast {
+  position: absolute;
+  bottom: 50px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 7px 16px;
+  background: var(--penelope-warp, #2e3424);
+  border: 1px solid rgba(221, 227, 208, 0.25);
+  border-radius: 20px;
+  font-size: 12px;
+  color: var(--penelope-thread, #dde3d0);
+  z-index: 300;
+  white-space: nowrap;
+  pointer-events: none;
+  animation: pcanvas-toast-in 0.18s ease-out;
+}
+
+.pcanvas-toast.pcanvas-toast-success {
+  border-color: rgba(78, 138, 66, 0.5);
+  color: #7ec870;
+}
+
+.pcanvas-toast.pcanvas-toast-error {
+  border-color: rgba(220, 80, 60, 0.5);
+  color: #e07060;
+}
+
+@keyframes pcanvas-toast-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(8px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+/* ── Loading / error states ────────────────────────────────────────────── */
+.pcanvas-loading {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 12px;
+  color: rgba(221, 227, 208, 0.4);
+  font-size: 13px;
+}
+
+.pcanvas-loading-spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid rgba(221, 227, 208, 0.1);
+  border-top-color: var(--penelope-shuttle, #b87333);
+  border-radius: 50%;
+  animation: pcanvas-spin 0.7s linear infinite;
+}
+
+@keyframes pcanvas-spin {
+  to { transform: rotate(360deg); }
+}
+
+.pcanvas-error {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 8px;
+  color: #e07060;
+  font-size: 13px;
+  padding: 24px;
+  text-align: center;
+}
+
+.pcanvas-error-icon {
+  font-size: 28px;
+  opacity: 0.7;
+}
+
+/* ── Unsupported node variant ──────────────────────────────────────────── */
+.pcanvas-node[data-type="unsupported"] {
+  opacity: 0.65;
+}
+
+.pcanvas-node[data-type="unsupported"] .pcanvas-node-type-badge {
+  color: #7a8a65;
+}
+
+/* ── Selection marquee (future) ────────────────────────────────────────── */
+.pcanvas-marquee {
+  position: absolute;
+  border: 1px dashed rgba(184, 115, 51, 0.6);
+  background: rgba(184, 115, 51, 0.04);
+  pointer-events: none;
+  z-index: 5;
+}
+
+/* ── Scrollbars ────────────────────────────────────────────────────────── */
+.pcanvas-palette-rail::-webkit-scrollbar,
+.pcanvas-inspector-rail::-webkit-scrollbar {
+  width: 4px;
+}
+
+.pcanvas-palette-rail::-webkit-scrollbar-track,
+.pcanvas-inspector-rail::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.pcanvas-palette-rail::-webkit-scrollbar-thumb,
+.pcanvas-inspector-rail::-webkit-scrollbar-thumb {
+  background: rgba(221, 227, 208, 0.15);
+  border-radius: 2px;
+}
