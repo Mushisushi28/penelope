@@ -57,7 +57,7 @@ Status: **Full** = live implementation. **Stub** = metadata + routing registered
 |----|--------------|------|--------|
 | `facebook-page` | Facebook Page Inbox | T2 API-skill | Stub |
 | `instagram` | Instagram DM | T2 API-skill | Stub |
-| `whatsapp-business` | WhatsApp Business | T3 Hermes | Stub |
+| `whatsapp-business` | WhatsApp Business | T2 API-skill | IMPLEMENTED |
 | `telegram-bot` | Telegram Bot | T2 API-skill | Stub |
 | `beeper-matrix` | Beeper / Matrix | T1 MCP | Stub |
 

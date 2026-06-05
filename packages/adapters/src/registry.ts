@@ -19,6 +19,7 @@ import { TwilioSmsAdapter, type TwilioSmsAdapterOptions } from './twilio-sms.js'
 import { ImapSmtpAdapter, type ImapSmtpAdapterOptions } from './imap-smtp.js';
 import { InstagramAdapter, type InstagramAdapterOptions } from './instagram.js';
 import { LoomA2aAdapter, type LoomA2aAdapterOptions } from './loom-a2a.js';
+import { WhatsappBusinessAdapter, type WhatsappBusinessAdapterOptions } from './whatsapp-business.js';
 
 // ---------------------------------------------------------------------------
 // Channel config shapes
@@ -89,6 +90,17 @@ export interface LoomA2aChannelConfig {
   poll_interval_ms?: number;
 }
 
+export interface WhatsappBusinessChannelConfig {
+  enabled: boolean;
+  phone_number_id: string;
+  business_account_id: string;
+  permanent_access_token: string;
+  graph_version?: string;
+  window_mode?: 'enforce' | 'warn' | 'off';
+  webhook_secret?: string;
+  poll_interval_ms?: number;
+}
+
 export interface TenantChannelConfig {
   telegram?: TelegramChannelConfig;
   'fb-page'?: FbPageChannelConfig;
@@ -96,6 +108,7 @@ export interface TenantChannelConfig {
   email?: EmailChannelConfig;
   instagram?: InstagramChannelConfig;
   'loom-a2a'?: LoomA2aChannelConfig;
+  'whatsapp-business'?: WhatsappBusinessChannelConfig;
 }
 
 // ---------------------------------------------------------------------------
@@ -148,6 +161,10 @@ export class AdapterRegistry {
 
     if (this.config['loom-a2a']?.enabled) {
       adapters.push(this.buildLoomA2a(this.config['loom-a2a']));
+    }
+
+    if (this.config['whatsapp-business']?.enabled) {
+      adapters.push(this.buildWhatsappBusiness(this.config['whatsapp-business']));
     }
 
     return adapters;
@@ -232,5 +249,19 @@ export class AdapterRegistry {
       pollIntervalMs: cfg.poll_interval_ms,
       logger: this.opts.logger,
     } satisfies LoomA2aAdapterOptions);
+  }
+
+  private buildWhatsappBusiness(cfg: WhatsappBusinessChannelConfig): WhatsappBusinessAdapter {
+    return new WhatsappBusinessAdapter({
+      tenant_id: this.tenantId,
+      phone_number_id: cfg.phone_number_id,
+      business_account_id: cfg.business_account_id,
+      permanent_access_token: cfg.permanent_access_token,
+      graph_version: cfg.graph_version,
+      window_mode: cfg.window_mode,
+      webhook_secret: cfg.webhook_secret,
+      pollIntervalMs: cfg.poll_interval_ms,
+      logger: this.opts.logger,
+    } satisfies WhatsappBusinessAdapterOptions);
   }
 }

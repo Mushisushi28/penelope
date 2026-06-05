@@ -12,6 +12,7 @@ Reusable channel adapters for Penelope tenants. Each adapter implements the `Cha
 | `email` | `ImapSmtpAdapter` | Working | IMAP idle + poll | SMTP via nodemailer |
 | `instagram` | `InstagramAdapter` | Stub | TODO (needs App Review) | TODO |
 | `loom-a2a` | `LoomA2aAdapter` | Working | Poll bus SQLite | Write to bus |
+| `whatsapp-business` | `WhatsappBusinessAdapter` | Working | Webhook (+ poll-mode stub) | text / template / reaction |
 
 ## Installation
 
@@ -130,6 +131,78 @@ const app = express();
 app.use(express.urlencoded({ extended: false }));
 app.post('/webhooks/sms', sms.webhookHandler());
 // TODO: add Twilio signature validation middleware before webhookHandler()
+```
+
+## WhatsApp Business (Cloud API)
+
+Configure in 3 commands:
+
+```bash
+penelope tenant <slug> secret set WHATSAPP_TOKEN <permanent_token>
+penelope tenant <slug> secret set WHATSAPP_PHONE_NUMBER_ID <id>
+penelope tenant <slug> channels enable whatsapp-business
+```
+
+Then in your tenant config:
+
+```ts
+import { AdapterRegistry } from '@penelope/adapters';
+
+const registry = new AdapterRegistry('my-tenant', {
+  'whatsapp-business': {
+    enabled: true,
+    phone_number_id: process.env.WHATSAPP_PHONE_NUMBER_ID!,
+    business_account_id: process.env.WHATSAPP_BUSINESS_ACCOUNT_ID!,
+    permanent_access_token: process.env.WHATSAPP_TOKEN!,
+    window_mode: 'enforce', // throws WindowExpiredError outside 24h; use a template instead
+    webhook_secret: process.env.WHATSAPP_WEBHOOK_SECRET,
+  },
+});
+```
+
+Mount the webhook handler in Express:
+
+```ts
+import express from 'express';
+import { WhatsappBusinessAdapter } from '@penelope/adapters';
+
+const wa = new WhatsappBusinessAdapter({ ... });
+await wa.start(async (msg) => { /* route inbound */ });
+
+const app = express();
+app.use(express.json());
+// Raw body needed for HMAC verification
+app.use((req, _res, next) => { req.rawBody = JSON.stringify(req.body); next(); });
+app.use('/webhooks/whatsapp', wa.createWebhookHandler('my-hub-verify-token'));
+```
+
+### 24-hour window & templates
+
+WhatsApp only allows free-form text replies within 24 hours of the last customer message.
+Outside that window, pass a `template` in `OutboundMessage.meta`:
+
+```ts
+import { WhatsappBusinessAdapter, WindowExpiredError } from '@penelope/adapters';
+
+try {
+  await wa.send({ ..., external_thread_id: customerWaId, text: 'Hi!' });
+} catch (err) {
+  if (err instanceof WindowExpiredError) {
+    // Window expired — use an approved template
+    await wa.send({
+      ...,
+      external_thread_id: customerWaId,
+      text: '',
+      meta: {
+        template: {
+          name: 'appointment_reminder',
+          language: 'en_US',
+          components: [{ type: 'body', parameters: [{ type: 'text', text: 'John' }] }],
+        },
+      },
+    });
+  }
+}
 ```
 
 ## Adding a new adapter

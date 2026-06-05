@@ -243,12 +243,13 @@ export function seedConnectors(): void {
   stub({
     id: "whatsapp-business",
     displayName: "WhatsApp Business",
-    description: "WhatsApp Business Cloud API via OpenAPI spec.",
-    tier: "hermes-openapi",
+    description: "WhatsApp Business Cloud API — text + template + webhook + 24h-window enforcement. Implemented in @penelope/adapters WhatsappBusinessAdapter.",
+    tier: "api-skill",
     category: "messaging",
-    capabilities: ["send-message", "receive-message"],
-    implementationStatus: "stub",
+    capabilities: ["send-message", "receive-message", "webhook", "template-message", "reaction"],
+    implementationStatus: "full",
   });
+  registerApiSkillAvailable("whatsapp-business");
 
   stub({
     id: "telegram-bot",
