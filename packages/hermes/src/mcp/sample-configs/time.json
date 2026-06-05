@@ -1,0 +1,8 @@
+[
+  {
+    "name": "time",
+    "transport": "stdio",
+    "command": "npx",
+    "args": ["-y", "@modelcontextprotocol/server-time"]
+  }
+]
