@@ -68,21 +68,21 @@
       "id": "standard",
       "label": "Standard headlight restoration",
       "currency": "CAD",
-      "floor": 100,
+      "floor": 99,
       "ceiling": 200,
-      "auto_quote_band": [100, 150],
+      "auto_quote_band": [99, 150],
       "qualifier_question": "are they pretty hazy or just starting to yellow?",
-      "notes": "base $50/light x2; condition mild/moderate/heavy adds 0-50; truck/suv +10-20; euro luxury +10-20; 1-year warranty"
+      "notes": "$99 minimum floor (canonical). Scales per vehicle size + light condition up to $200 ceiling. 1-year warranty."
     },
     {
       "id": "ceramic",
       "label": "Ceramic-coated headlight restoration",
       "currency": "CAD",
-      "floor": 200,
-      "ceiling": 250,
-      "auto_quote_band": [200, 240],
+      "floor": 240,
+      "ceiling": 350,
+      "auto_quote_band": [240, 280],
       "qualifier_question": "want the ceramic coat that lasts 3x longer, or standard?",
-      "notes": "standard result + $80-100 ceramic surcharge; 3-year warranty"
+      "notes": "$240 minimum floor (canonical). Scales per vehicle size + light condition up to $350 ceiling. 3-year warranty."
     }
   ],
   "payment_processors": ["square"],
