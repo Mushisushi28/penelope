@@ -27,7 +27,8 @@ export type SpecialistRole =
   | 'review-ask'
   | 'marketing'
   | 'daily-brief'
-  | 'browser';
+  | 'browser'
+  | 'follow-up';
 
 export interface SpecialistConfig {
   role: SpecialistRole;

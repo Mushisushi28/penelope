@@ -160,5 +160,12 @@
     "channels": ["fb-page", "instagram"],
     "voice_notes": "casual, mobile-business angle, no emoji spam",
     "approval_required": true
+  },
+  "followup": {
+    "enabled": true,
+    "min_days_silent": 7,
+    "max_days_silent": 180,
+    "approval_required": true,
+    "stages": ["quoted_no_booking", "booked_no_show", "paid_rebook"]
   }
 }
