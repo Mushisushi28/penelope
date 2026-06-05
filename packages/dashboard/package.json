@@ -7,7 +7,8 @@
   "scripts": {
     "start": "node serve.mjs",
     "dev": "PENELOPE_DASHBOARD_PORT=18900 node serve.mjs",
-    "build": "echo \"@penelope/dashboard: no build needed (vanilla JS)\""
+    "build": "echo \"@penelope/dashboard: no build needed (vanilla JS)\"",
+    "test": "node --test __tests__/inbox.test.mjs"
   },
   "engines": {
     "node": ">=20"
