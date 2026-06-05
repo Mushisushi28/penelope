@@ -1,0 +1,8 @@
+id: customer-frontend
+display_name: DHR Customer Frontend
+specialist_class: customer-frontend
+procedures:
+  - customer-inbound-fb
+tone: lowercase, conversational, brief
+escalation_targets:
+  - owner_telegram_confirm

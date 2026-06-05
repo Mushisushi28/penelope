@@ -1,0 +1,138 @@
+{
+  "schema_version": 1,
+  "tenant_id": "dhr",
+  "name": "Dobson Headlight Restoration",
+  "vertical": "auto-service",
+  "brand": {
+    "display_name": "Dobson Headlight Restoration",
+    "brand_color": "#B91C1C",
+    "tagline": "Crystal-clear headlights. Mobile. Guaranteed.",
+    "voice_notes": "lowercase, conversational, 1-2 sentences. no corporate speak. no intro openers. match customer energy. mobile differentiator: 'we come to you'."
+  },
+  "address": {
+    "city": "Lethbridge",
+    "province": "AB",
+    "country": "CA",
+    "service_area": "Lethbridge AB and Southern Alberta"
+  },
+  "hours": {
+    "timezone": "America/Edmonton",
+    "schedule": {
+      "monday":    { "open": "09:00", "close": "21:00" },
+      "tuesday":   { "open": "09:00", "close": "21:00" },
+      "wednesday": { "open": "09:00", "close": "21:00" },
+      "thursday":  { "open": "09:00", "close": "21:00" },
+      "friday":    { "open": "09:00", "close": "21:00" },
+      "saturday":  { "open": "09:00", "close": "21:00" },
+      "sunday":    { "open": "09:00", "close": "21:00" }
+    }
+  },
+  "quiet_hours": {
+    "start": "22:00",
+    "end": "09:00",
+    "notes": "Proactive outbound deferred outside this window. Reactive replies (inbound <15 min ago) OK anytime."
+  },
+  "channels": [
+    {
+      "type": "telegram-owner",
+      "enabled": true,
+      "credential_env": "DHR_JARVIS_BOT_TOKEN",
+      "config": {
+        "chat_id_env": "DHR_OWNER_CHAT_ID",
+        "description": "JARVIS bot — escalation and owner notifications"
+      }
+    },
+    {
+      "type": "fb-page",
+      "enabled": true,
+      "credential_env": "DHR_FB_PAGE_TOKEN",
+      "config": {
+        "page_id_env": "DHR_FB_PAGE_ID",
+        "page_id_placeholder": "815642964958116",
+        "description": "Dobson Headlight Restoration Facebook Page"
+      }
+    },
+    {
+      "type": "sms-textnow",
+      "enabled": true,
+      "credential_env": "DHR_TEXTNOW_SESSION",
+      "config": {
+        "description": "TextNow stub — SMS follow-ups and review asks"
+      }
+    }
+  ],
+  "pricing": [
+    {
+      "id": "standard",
+      "label": "Standard headlight restoration",
+      "currency": "CAD",
+      "floor": 100,
+      "cap": 200,
+      "warranty_years": 1,
+      "auto_quote_band": [100, 150],
+      "modifiers": {
+        "base_per_light": 50,
+        "condition": {
+          "mild": 0,
+          "moderate": { "min": 15, "max": 25 },
+          "heavy_cracked_clear_coat": { "min": 30, "max": 50 }
+        },
+        "size": {
+          "sedan": 0,
+          "truck_suv_van": { "min": 10, "max": 20 }
+        },
+        "brand": {
+          "audi_bmw_euro": { "min": 10, "max": 20 }
+        }
+      },
+      "qualifier_question": "are they pretty hazy or just starting to yellow?"
+    },
+    {
+      "id": "ceramic",
+      "label": "Ceramic-coated headlight restoration",
+      "currency": "CAD",
+      "floor": 200,
+      "cap": 250,
+      "warranty_years": 3,
+      "auto_quote_band": [200, 240],
+      "surcharge_on_standard": { "min": 80, "max": 100 },
+      "qualifier_question": "want the ceramic coat that lasts 3x longer, or standard?"
+    }
+  ],
+  "booking": {
+    "provider": "calendly",
+    "url_env": "DHR_CALENDLY_URL",
+    "url_placeholder": "https://calendly.com/dobsonheadlights/headlight-restoration-appointment",
+    "available_slots": "fridays and saturdays, 11am-5pm"
+  },
+  "payment_processors": [
+    {
+      "name": "square",
+      "credential_env": "DHR_SQUARE_ACCESS_TOKEN",
+      "location_id_env": "DHR_SQUARE_LOCATION_ID"
+    }
+  ],
+  "review_platforms": [
+    { "name": "Google", "url_env": "DHR_GOOGLE_REVIEW_URL" },
+    { "name": "Facebook", "url_env": "DHR_FB_REVIEW_URL" }
+  ],
+  "approval_gates": {
+    "default_level": "auto",
+    "above_band_level": "owner_telegram_confirm",
+    "complaint_level": "owner_telegram_confirm",
+    "escalation_contacts": [
+      {
+        "id": "jarvis-owner",
+        "type": "telegram",
+        "description": "JARVIS bot — Isaac's primary escalation channel",
+        "credential_env": "DHR_JARVIS_BOT_TOKEN"
+      }
+    ]
+  },
+  "approval_required": [],
+  "budget": {
+    "max_usd_per_day": 2.00,
+    "max_usd_per_month": 40.00,
+    "alert_threshold_pct": 80
+  }
+}
