@@ -38,6 +38,27 @@ if (stripe) {
 }
 ```
 
+## Configured Stripe in 3 Commands
+
+```bash
+# 1. Store your Stripe secret key in the tenant's secret store
+penelope tenant <slug> secret set STRIPE_SECRET_KEY sk_test_...
+
+# 2. Enable the stripe-mcp connector for the tenant
+penelope tenant <slug> connectors enable stripe-mcp
+
+# 3. Verify the connection (lists first 10 customers via MCP)
+penelope tenant <slug> connectors test stripe-mcp list_customers
+```
+
+The connector spawns `npx @stripe/mcp --tools=all` as a child process on first
+use. All 8 operations (`list_customers`, `create_customer`, `list_payments`,
+`create_payment_link`, `list_subscriptions`, `create_subscription`,
+`refund_payment`, `list_invoices`) are available immediately. If the MCP server
+is unavailable, the `payment-reconciler` specialist falls back automatically to
+`@penelope/billing`'s direct Stripe wrapper for `create_customer` and
+`list_invoices`.
+
 ## Adding a New Connector
 
 ### Tier 1 — MCP

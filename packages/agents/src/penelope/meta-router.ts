@@ -66,7 +66,7 @@ export function classifyIntent(text: string): Intent {
   if (/\bbook(ing)?\b|\bschedul/.test(t)) return 'booking';
   if (/\bpayment\b|\bpaid\b|\breconcil/.test(t)) return 'payment';
   if (/\breview\b|\bask.*review/.test(t)) return 'review';
-  if (/\bmarketing\b|\bcampaign\b/.test(t)) return 'marketing';
+  if (/\bmarketing\b|\bcampaign\b|\bdraft.*post\b|\bpost.*this week\b|\bwhat should i post\b|\bsocial post\b/.test(t)) return 'marketing';
   if (/\bbrief\b|\btoday\b|\bmorning/.test(t)) return 'brief';
   if (/\bstatus\b/.test(t)) return 'status';
   if (/\bautopilot\b|\bpause\b/.test(t)) return 'autopilot';

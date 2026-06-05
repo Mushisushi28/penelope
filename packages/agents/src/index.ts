@@ -13,3 +13,11 @@ export type { TelegramOwnerConfig, OutboundOwnerMessage } from "./adapters/teleg
 // Tenant schema
 export { validateAgentConfig, TenantConfigError } from "./tenant/schema.js";
 export type { TenantConfig, AgentConfig, PenelopeAgentConfig, SpecialistAgentConfig, AgentRole } from "./tenant/schema.js";
+
+// Marketing specialist
+export { MarketingSpecialist, isQuietHours, FbPageAdapter, InstagramAdapter, TwitterAdapter } from "./specialists/marketing.js";
+export type { PostInput, GeneratedPost, MarketingDraft, MarketingConfig, MarketingSpecialistConfig, PublishResult, ChannelAdapter } from "./specialists/marketing.js";
+
+// Marketing scheduler
+export { MarketingScheduler, parseCadence, shouldFire, getMondayOfWeek, todayUTC } from "./specialists/marketing-scheduler.js";
+export type { SchedulerConfig, SchedulerState } from "./specialists/marketing-scheduler.js";
