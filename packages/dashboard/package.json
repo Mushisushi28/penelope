@@ -6,12 +6,21 @@
   "main": "serve.mjs",
   "scripts": {
     "start": "node serve.mjs",
-    "dev": "PENELOPE_DASHBOARD_PORT=18900 node serve.mjs"
+    "dev": "PENELOPE_DASHBOARD_PORT=18900 node serve.mjs",
+    "build": "echo \"@penelope/dashboard: no build needed (vanilla JS)\""
   },
-  "engines": { "node": ">=20" },
+  "engines": {
+    "node": ">=20"
+  },
   "dependencies": {
     "better-sqlite3": "^12.9.0"
   },
-  "keywords": ["penelope", "dashboard", "owner", "loom", "odysseus"],
+  "keywords": [
+    "penelope",
+    "dashboard",
+    "owner",
+    "loom",
+    "odysseus"
+  ],
   "license": "MIT"
 }
