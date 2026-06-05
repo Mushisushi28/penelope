@@ -53,6 +53,8 @@ async function buildRealClient(): Promise<BrowserClient> {
 
   if (mcpUrl) {
     // HTTP/SSE transport — connect to running MCP server
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore — browser/http-client.js is an optional peer file not shipped in core
     const { OpenClaudeHttpClient } = await import("./browser/http-client.js").catch(() => {
       throw new Error(
         `open-claude-in-chrome HTTP client not found.  ` +
@@ -64,6 +66,8 @@ async function buildRealClient(): Promise<BrowserClient> {
   }
 
   // stdio mode — spawn the MCP binary
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore — browser/stdio-client.js is an optional peer file not shipped in core
   const { OpenClaudeStdioClient } = await import("./browser/stdio-client.js").catch(() => {
     throw new Error(
       `open-claude-in-chrome stdio client not found.  ` +
