@@ -42,3 +42,26 @@ export { yelpReviewCountRecipe } from "./specialists/browser-recipes/yelp-review
 export type { YelpReviewData } from "./specialists/browser-recipes/yelp-review-count.js";
 export { nextdoorPostRecipe } from "./specialists/browser-recipes/nextdoor-post.js";
 export type { NextdoorPostData } from "./specialists/browser-recipes/nextdoor-post.js";
+
+// Follow-up specialist
+export {
+  FollowUpSpecialist,
+  StubChannelAdapter,
+  hasOptedOut,
+  isQuietHours,
+  withinRateLimit,
+  nextQuietEnd,
+} from "./specialists/follow-up.js";
+export type {
+  FollowUpStage,
+  CustomerThread,
+  FollowUpDraft,
+  FollowUpConfig,
+  FollowUpSpecialistConfig,
+  FindDormantOptions,
+  ChannelSendAdapter,
+} from "./specialists/follow-up.js";
+
+// Follow-up scheduler
+export { FollowUpScheduler, todayUTC } from "./specialists/follow-up-scheduler.js";
+export type { SchedulerState, SchedulerRunResult } from "./specialists/follow-up-scheduler.js";

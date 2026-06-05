@@ -36,6 +36,8 @@ export type Intent =
   | 'payment'
   | 'review'
   | 'marketing'
+  | 'followup'
+  | 'dormant'
   | 'brief'
   | 'status'
   | 'autopilot'
@@ -49,6 +51,8 @@ export const INTENT_TOPIC_MAP: Record<Intent, string> = {
   payment: 'payment.queried',
   review: 'review.ask.requested',
   marketing: 'marketing.dispatch',
+  followup: 'followup.draft.requested',
+  dormant: 'followup.dormant.requested',
   brief: 'brief.requested',
   status: 'system.status.requested',
   autopilot: 'system.autopilot.toggle',
@@ -67,6 +71,8 @@ export function classifyIntent(text: string): Intent {
   if (/\bpayment\b|\bpaid\b|\breconcil/.test(t)) return 'payment';
   if (/\breview\b|\bask.*review/.test(t)) return 'review';
   if (/\bmarketing\b|\bcampaign\b|\bdraft.*post\b|\bpost.*this week\b|\bwhat should i post\b|\bsocial post\b/.test(t)) return 'marketing';
+  if (/\bfollow.?up\b.*\bwith\b|\bdraft.*follow.?up\b|\bfollow.?up.*to\b/.test(t)) return 'followup';
+  if (/\bwho.*nudge\b|\bwho.*dormant\b|\bdormant\b|\bnudge\b/.test(t)) return 'dormant';
   if (/\bbrief\b|\btoday\b|\bmorning/.test(t)) return 'brief';
   if (/\bstatus\b/.test(t)) return 'status';
   if (/\bautopilot\b|\bpause\b/.test(t)) return 'autopilot';

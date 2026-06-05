@@ -81,5 +81,12 @@
     "max_usd_per_day": 2.00,
     "max_usd_per_month": 40.00,
     "alert_threshold_pct": 80
+  },
+  "followup": {
+    "enabled": true,
+    "min_days_silent": 7,
+    "max_days_silent": 180,
+    "approval_required": true,
+    "stages": ["quoted_no_booking", "booked_no_show", "paid_rebook"]
   }
 }
