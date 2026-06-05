@@ -5,10 +5,16 @@
 import { randomUUID } from 'node:crypto';
 import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
-// @ts-expect-error node:sqlite not yet in bundled @types/node
-import { DatabaseSync } from 'node:sqlite';
+import { createRequire } from 'node:module';
 import type { MemoryEntry, MemoryScope, RememberOptions } from './types.js';
 import type { MemoryStore } from './store.js';
+
+// Load node:sqlite via createRequire to bypass Vite 5's static ESM analysis,
+// which strips the 'node:' prefix and fails to resolve 'sqlite' as a module.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const { DatabaseSync } = (createRequire(import.meta.url) as any)('node:sqlite') as {
+  DatabaseSync: new (path: string) => any;
+};
 
 const SCHEMA = `
 CREATE TABLE IF NOT EXISTS memory_entries (

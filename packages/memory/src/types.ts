@@ -1,37 +1,29 @@
 /**
- * @penelope/memory — type definitions
+ * @penelope/memory — core types
  */
 
-/** The three memory scopes available in Penelope. */
 export type MemoryScope = 'user' | 'session' | 'agent';
 
-/** A single memory entry stored in the memory layer. */
 export interface MemoryEntry {
-  /** Unique identifier (UUID v4). */
+  /** Unique ID for this entry */
   id: string;
-  /** Scope that owns this entry. */
   scope: MemoryScope;
-  /**
-   * Scope-specific identifier:
-   * - user: psid / customer identifier
-   * - session: conversation / thread id
-   * - agent: specialist role name (e.g. "quote-builder")
-   */
+  /** Scope-specific identifier: PSID for user, thread-id for session, specialist-id for agent */
   scope_id: string;
-  /** Logical key, e.g. "preferred_service", "vehicle", "seasonal_note". */
+  /** Logical key within the scope (e.g. "vehicle", "last_intent") */
   key: string;
-  /** Stored value — always a string; encode JSON for structured data. */
+  /** Serialized value — store JSON.stringify for structured data */
   value: string;
-  /** Arbitrary tags for filtering (e.g. ["pricing", "vehicle"]). */
+  /** Arbitrary labels for filtering / cross-referencing */
   tags: string[];
-  /** Optional TTL in milliseconds. Undefined = no expiry. */
+  /** Optional TTL in milliseconds from created_at. Absent = no expiry. */
   ttl_ms?: number;
-  /** Unix epoch ms when this entry was created. */
+  /** Unix epoch ms when the entry was last written */
   created_at: number;
 }
 
-/** Options accepted by remember(). */
 export interface RememberOptions {
   tags?: string[];
+  /** TTL in milliseconds. After this duration the entry is treated as expired. */
   ttl_ms?: number;
 }
