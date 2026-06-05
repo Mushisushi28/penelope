@@ -1,0 +1,211 @@
+/**
+ * Penelope — Brand Palette
+ * v1.0 · 2026-06-04
+ *
+ * Naming follows the mythology of the loom:
+ *   --penelope-loom      The structure: the primary brand color (deep olive)
+ *   --penelope-thread    The story woven through it: accent gold/copper
+ *   --penelope-shuttle   The tool: interactive highlights, links, hover
+ *   --penelope-warp      Vertical structure: neutrals, text
+ *   --penelope-weft      Horizontal voice: surfaces, cards, backgrounds
+ *
+ * Design rationale:
+ *   Deep olive (#2D4A3E) evokes the wine-dark Aegean sea and olive groves of Ithaca.
+ *   Warm gold (#C9983F) is the thread — the craft, the intelligence, the patience.
+ *   Bone-white (#F6F3EC) is the weaving on the loom: the home, the canvas.
+ *   Copper accent (#A0522D) is the shuttle: action, interactivity, warmth.
+ */
+
+/* ─────────────────────────────────────────
+   PRIMITIVE TOKENS (raw values, not for
+   direct use in components — use semantics)
+   ───────────────────────────────────────── */
+:root {
+  /* Core brand primaries */
+  --penelope-olive-900: #1A2E24;
+  --penelope-olive-800: #22382C;
+  --penelope-olive-700: #2D4A3E; /* primary — deep Ithaca olive */
+  --penelope-olive-600: #3A5C4E;
+  --penelope-olive-500: #4E7060;
+  --penelope-olive-400: #6A8E7E;
+  --penelope-olive-300: #90ACA0;
+  --penelope-olive-200: #BDD0C9;
+  --penelope-olive-100: #DDE9E5;
+  --penelope-olive-50:  #EEF4F2;
+
+  /* Gold thread — the weave */
+  --penelope-gold-900: #6B4A10;
+  --penelope-gold-800: #8A6018;
+  --penelope-gold-700: #A97820;
+  --penelope-gold-600: #C9983F; /* accent — warm gold */
+  --penelope-gold-500: #D4A84E;
+  --penelope-gold-400: #DFB96D;
+  --penelope-gold-300: #EAC98A;
+  --penelope-gold-200: #F0D8AE;
+  --penelope-gold-100: #F6ECD5;
+  --penelope-gold-50:  #FBF5E9;
+
+  /* Copper shuttle — action */
+  --penelope-copper-900: #5C2A0F;
+  --penelope-copper-700: #8B3A1A;
+  --penelope-copper-500: #A0522D; /* sienna-copper */
+  --penelope-copper-300: #C07850;
+  --penelope-copper-100: #EDD4C3;
+
+  /* Bone white — the canvas */
+  --penelope-bone-50:  #FDFCFA;
+  --penelope-bone-100: #F6F3EC; /* primary surface */
+  --penelope-bone-200: #EDE8DC;
+  --penelope-bone-300: #DDD5C6;
+
+  /* Charcoal warp — text */
+  --penelope-charcoal-900: #141410;
+  --penelope-charcoal-800: #1E1E18;
+  --penelope-charcoal-700: #2B2B22;
+  --penelope-charcoal-600: #3D3D30;
+  --penelope-charcoal-500: #555548;
+  --penelope-charcoal-400: #6F6F60;
+  --penelope-charcoal-300: #8C8C7C;
+  --penelope-charcoal-200: #B0B0A0;
+  --penelope-charcoal-100: #D0D0C4;
+}
+
+/* ─────────────────────────────────────────
+   SEMANTIC TOKENS — LIGHT THEME
+   ───────────────────────────────────────── */
+:root,
+[data-theme="light"] {
+  /* The loom — primary identity surface */
+  --penelope-loom:           var(--penelope-olive-700);   /* #2D4A3E */
+  --penelope-loom-light:     var(--penelope-olive-500);
+  --penelope-loom-dark:      var(--penelope-olive-900);
+  --penelope-loom-subtle:    var(--penelope-olive-50);
+
+  /* The thread — accent, highlights, decorative */
+  --penelope-thread:         var(--penelope-gold-600);    /* #C9983F */
+  --penelope-thread-light:   var(--penelope-gold-300);
+  --penelope-thread-dark:    var(--penelope-gold-900);
+  --penelope-thread-subtle:  var(--penelope-gold-50);
+
+  /* The shuttle — interactive, links, CTAs */
+  --penelope-shuttle:        var(--penelope-copper-500);  /* #A0522D */
+  --penelope-shuttle-light:  var(--penelope-copper-300);
+  --penelope-shuttle-dark:   var(--penelope-copper-900);
+  --penelope-shuttle-subtle: var(--penelope-copper-100);
+
+  /* The warp — text hierarchy */
+  --penelope-warp-high:      var(--penelope-charcoal-900);
+  --penelope-warp-default:   var(--penelope-charcoal-700);
+  --penelope-warp-muted:     var(--penelope-charcoal-400);
+  --penelope-warp-faint:     var(--penelope-charcoal-200);
+  --penelope-warp-inverse:   var(--penelope-bone-50);
+
+  /* The weft — surface / background layers */
+  --penelope-weft-base:      var(--penelope-bone-50);     /* page bg */
+  --penelope-weft-raised:    var(--penelope-bone-100);    /* cards */
+  --penelope-weft-sunken:    var(--penelope-bone-200);    /* inputs */
+  --penelope-weft-border:    var(--penelope-bone-300);
+  --penelope-weft-inverse:   var(--penelope-olive-700);   /* dark bg sections */
+
+  /* Semantic status colors */
+  --penelope-success:        #3A7D44;
+  --penelope-success-light:  #EAF4EB;
+  --penelope-warning:        #C9983F;  /* = thread accent */
+  --penelope-warning-light:  var(--penelope-gold-50);
+  --penelope-error:          #A0362D;
+  --penelope-error-light:    #FAECEB;
+  --penelope-info:           #2D5B8E;
+  --penelope-info-light:     #EBF1FA;
+
+  /* Focus ring */
+  --penelope-focus:          var(--penelope-gold-600);
+  --penelope-focus-ring:     0 0 0 3px color-mix(in srgb, var(--penelope-gold-600) 35%, transparent);
+}
+
+/* ─────────────────────────────────────────
+   SEMANTIC TOKENS — DARK THEME
+   ───────────────────────────────────────── */
+[data-theme="dark"],
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --penelope-loom:           var(--penelope-olive-300);
+    --penelope-loom-light:     var(--penelope-olive-200);
+    --penelope-loom-dark:      var(--penelope-olive-400);
+    --penelope-loom-subtle:    #1A2520;
+
+    --penelope-thread:         var(--penelope-gold-400);
+    --penelope-thread-light:   var(--penelope-gold-200);
+    --penelope-thread-dark:    var(--penelope-gold-700);
+    --penelope-thread-subtle:  #241C0A;
+
+    --penelope-shuttle:        var(--penelope-copper-300);
+    --penelope-shuttle-light:  var(--penelope-copper-100);
+    --penelope-shuttle-dark:   var(--penelope-copper-700);
+    --penelope-shuttle-subtle: #1E100A;
+
+    --penelope-warp-high:      var(--penelope-bone-50);
+    --penelope-warp-default:   var(--penelope-bone-100);
+    --penelope-warp-muted:     var(--penelope-charcoal-300);
+    --penelope-warp-faint:     var(--penelope-charcoal-500);
+    --penelope-warp-inverse:   var(--penelope-charcoal-900);
+
+    --penelope-weft-base:      #111410;
+    --penelope-weft-raised:    #181D14;
+    --penelope-weft-sunken:    #0E120C;
+    --penelope-weft-border:    #2A3024;
+    --penelope-weft-inverse:   var(--penelope-bone-100);
+
+    --penelope-success:        #5BAF68;
+    --penelope-success-light:  #0F2212;
+    --penelope-warning:        var(--penelope-gold-400);
+    --penelope-warning-light:  #221608;
+    --penelope-error:          #D4685E;
+    --penelope-error-light:    #220E0D;
+    --penelope-info:           #6EA0D4;
+    --penelope-info-light:     #0D1722;
+
+    --penelope-focus:          var(--penelope-gold-400);
+  }
+}
+
+/* ─────────────────────────────────────────
+   UTILITY: override data-theme="dark"
+   without media query condition
+   ───────────────────────────────────────── */
+[data-theme="dark"] {
+  --penelope-loom:           var(--penelope-olive-300);
+  --penelope-loom-light:     var(--penelope-olive-200);
+  --penelope-loom-dark:      var(--penelope-olive-400);
+  --penelope-loom-subtle:    #1A2520;
+
+  --penelope-thread:         var(--penelope-gold-400);
+  --penelope-thread-light:   var(--penelope-gold-200);
+  --penelope-thread-dark:    var(--penelope-gold-700);
+  --penelope-thread-subtle:  #241C0A;
+
+  --penelope-shuttle:        var(--penelope-copper-300);
+  --penelope-shuttle-light:  var(--penelope-copper-100);
+  --penelope-shuttle-dark:   var(--penelope-copper-700);
+  --penelope-shuttle-subtle: #1E100A;
+
+  --penelope-warp-high:      var(--penelope-bone-50);
+  --penelope-warp-default:   var(--penelope-bone-100);
+  --penelope-warp-muted:     var(--penelope-charcoal-300);
+  --penelope-warp-faint:     var(--penelope-charcoal-500);
+  --penelope-warp-inverse:   var(--penelope-charcoal-900);
+
+  --penelope-weft-base:      #111410;
+  --penelope-weft-raised:    #181D14;
+  --penelope-weft-sunken:    #0E120C;
+  --penelope-weft-border:    #2A3024;
+  --penelope-weft-inverse:   var(--penelope-bone-100);
+
+  --penelope-success:        #5BAF68;
+  --penelope-success-light:  #0F2212;
+  --penelope-warning:        var(--penelope-gold-400);
+  --penelope-warning-light:  #221608;
+  --penelope-error:          #D4685E;
+  --penelope-error-light:    #220E0D;
+  --penelope-info:           #6EA0D4;
+  --penelope-info-light:     #0D1722;
+}

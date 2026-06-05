@@ -1,0 +1,307 @@
+/**
+ * Penelope — Typography System
+ * v1.0 · 2026-06-04
+ *
+ * Pairing rationale:
+ *   Display / headlines:  Cormorant Garamond — 16th-century Garamond revival,
+ *                          narrow elegant proportions, strong italics. Classical
+ *                          without being costume. The Queen of Ithaca speaks in this.
+ *   Body / UI:            IBM Plex Sans — neutral, readable, technical. The loom
+ *                          running the business. Pairs cleanly with serif display.
+ *   Monospace / code:     JetBrains Mono — clear ligatures, good at CLI output.
+ *                          The thread on the shuttle: precise, mechanical, honest.
+ */
+
+/* ─────────────────────────────────────────
+   FONT IMPORTS (Google Fonts CDN)
+   Pin to display=swap for FOUT tolerance.
+   ───────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500;1,600&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+/* ─────────────────────────────────────────
+   FONT FAMILY TOKENS
+   ───────────────────────────────────────── */
+:root {
+  --font-serif:  'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  --font-sans:   'IBM Plex Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono:   'JetBrains Mono', 'Fira Code', 'Consolas', 'Liberation Mono', monospace;
+}
+
+/* ─────────────────────────────────────────
+   BASE SCALE TOKENS
+   8pt grid. Scale: 12 14 16 20 24 32 40 52 68
+   ───────────────────────────────────────── */
+:root {
+  /* Fluid scaling: clamp(min, preferred, max) */
+  --text-xs:    0.75rem;   /* 12px — legal, timestamps */
+  --text-sm:    0.875rem;  /* 14px — captions, metadata */
+  --text-base:  1rem;      /* 16px — body default */
+  --text-md:    1.125rem;  /* 18px — comfortable reading (prose) */
+  --text-lg:    1.25rem;   /* 20px — lead / intro copy */
+  --text-xl:    1.5rem;    /* 24px — h5 */
+  --text-2xl:   2rem;      /* 32px — h4 */
+  --text-3xl:   2.5rem;    /* 40px — h3 */
+  --text-4xl:   3.25rem;   /* 52px — h2 */
+  --text-5xl:   4.25rem;   /* 68px — h1 */
+
+  /* Line heights */
+  --leading-tight:    1.15;  /* display headings */
+  --leading-snug:     1.3;   /* subheadings */
+  --leading-normal:   1.5;   /* body */
+  --leading-relaxed:  1.7;   /* prose / long-form */
+  --leading-loose:    2;     /* captions, small text */
+
+  /* Letter spacing */
+  --tracking-tight:   -0.02em;  /* large display */
+  --tracking-normal:   0;
+  --tracking-wide:     0.04em;  /* small sans labels */
+  --tracking-widest:   0.12em;  /* ALL CAPS tags, badges */
+
+  /* Weights */
+  --weight-light:   300;
+  --weight-regular: 400;
+  --weight-medium:  500;
+  --weight-semibold: 600;
+  --weight-bold:    700;
+}
+
+/* ─────────────────────────────────────────
+   BASE RESETS
+   ───────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  font-weight: var(--weight-regular);
+  line-height: var(--leading-normal);
+  color: var(--penelope-warp-default, #2B2B22);
+  background-color: var(--penelope-weft-base, #FDFCFA);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* ─────────────────────────────────────────
+   HEADING SCALE — Serif display type
+   ───────────────────────────────────────── */
+h1,
+.h1 {
+  font-family: var(--font-serif);
+  font-size: clamp(2.5rem, 5vw, var(--text-5xl));
+  font-weight: var(--weight-light);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+  color: var(--penelope-warp-high, #141410);
+}
+
+h2,
+.h2 {
+  font-family: var(--font-serif);
+  font-size: clamp(2rem, 4vw, var(--text-4xl));
+  font-weight: var(--weight-light);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+  color: var(--penelope-warp-high, #141410);
+}
+
+h3,
+.h3 {
+  font-family: var(--font-serif);
+  font-size: clamp(1.75rem, 3vw, var(--text-3xl));
+  font-weight: var(--weight-regular);
+  line-height: var(--leading-snug);
+  letter-spacing: -0.01em;
+  color: var(--penelope-warp-high, #141410);
+}
+
+h4,
+.h4 {
+  font-family: var(--font-serif);
+  font-size: clamp(1.5rem, 2.5vw, var(--text-2xl));
+  font-weight: var(--weight-regular);
+  line-height: var(--leading-snug);
+  color: var(--penelope-warp-high, #141410);
+}
+
+h5,
+.h5 {
+  font-family: var(--font-sans);
+  font-size: var(--text-xl);
+  font-weight: var(--weight-medium);
+  line-height: var(--leading-snug);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--penelope-loom, #2D4A3E);
+}
+
+h6,
+.h6 {
+  font-family: var(--font-sans);
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-snug);
+  color: var(--penelope-warp-default, #2B2B22);
+}
+
+/* ─────────────────────────────────────────
+   BODY TEXT
+   ───────────────────────────────────────── */
+p {
+  font-size: var(--text-base);
+  line-height: var(--leading-relaxed);
+  color: var(--penelope-warp-default, #2B2B22);
+  max-width: 70ch;  /* readable measure */
+}
+
+.lead {
+  font-family: var(--font-serif);
+  font-size: var(--text-lg);
+  font-style: italic;
+  line-height: var(--leading-relaxed);
+  color: var(--penelope-warp-muted, #6F6F60);
+}
+
+.caption {
+  font-size: var(--text-sm);
+  line-height: var(--leading-loose);
+  letter-spacing: var(--tracking-wide);
+  color: var(--penelope-warp-muted, #6F6F60);
+}
+
+small,
+.text-xs {
+  font-size: var(--text-xs);
+  line-height: var(--leading-loose);
+  color: var(--penelope-warp-muted, #6F6F60);
+}
+
+/* ─────────────────────────────────────────
+   INLINE ELEMENTS
+   ───────────────────────────────────────── */
+strong,
+b {
+  font-weight: var(--weight-semibold);
+}
+
+em,
+i {
+  font-style: italic;
+  /* Cormorant Garamond italic is expressive — let it breathe */
+}
+
+/* The golden accent underline — for key terms, pull quotes */
+.penelope-accent {
+  font-style: italic;
+  color: var(--penelope-thread, #C9983F);
+}
+
+a {
+  color: var(--penelope-shuttle, #A0522D);
+  text-decoration-color: color-mix(in srgb, var(--penelope-shuttle) 40%, transparent);
+  text-underline-offset: 0.2em;
+  transition: color 0.15s ease, text-decoration-color 0.15s ease;
+}
+
+a:hover {
+  color: var(--penelope-shuttle-dark, #5C2A0F);
+  text-decoration-color: var(--penelope-shuttle);
+}
+
+a:focus-visible {
+  outline: none;
+  box-shadow: var(--penelope-focus-ring);
+  border-radius: 2px;
+}
+
+/* ─────────────────────────────────────────
+   CODE / MONOSPACE
+   ───────────────────────────────────────── */
+code,
+kbd,
+samp {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  background: var(--penelope-weft-sunken, #EDE8DC);
+  color: var(--penelope-loom, #2D4A3E);
+  padding: 0.1em 0.35em;
+  border-radius: 3px;
+  border: 1px solid var(--penelope-weft-border, #DDD5C6);
+}
+
+pre {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  line-height: var(--leading-relaxed);
+  background: var(--penelope-weft-raised, #F6F3EC);
+  color: var(--penelope-warp-default, #2B2B22);
+  border: 1px solid var(--penelope-weft-border, #DDD5C6);
+  border-left: 3px solid var(--penelope-thread, #C9983F);
+  padding: 1.25rem 1.5rem;
+  border-radius: 4px;
+  overflow-x: auto;
+  white-space: pre;
+}
+
+pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: inherit;
+  color: inherit;
+}
+
+/* Terminal / CLI output style */
+.terminal {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  line-height: var(--leading-relaxed);
+  background: var(--penelope-charcoal-900, #141410);
+  color: var(--penelope-olive-200, #BDD0C9);
+  padding: 1.5rem;
+  border-radius: 6px;
+  border-top: 2px solid var(--penelope-thread, #C9983F);
+}
+
+.terminal .prompt {
+  color: var(--penelope-thread, #C9983F);
+  user-select: none;
+}
+
+/* ─────────────────────────────────────────
+   DISPLAY / HERO UTILITIES
+   ───────────────────────────────────────── */
+.display-serif {
+  font-family: var(--font-serif);
+  font-weight: var(--weight-light);
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--leading-tight);
+}
+
+.label {
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  color: var(--penelope-warp-muted, #6F6F60);
+}
+
+.label-accent {
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  color: var(--penelope-thread, #C9983F);
+}
