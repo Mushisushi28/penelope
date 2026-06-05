@@ -1,83 +1,66 @@
 {
   "schema_version": 1,
   "tenant_id": "dhr",
-  "name": "Dobson Headlight Restoration",
+  "name": "Dobson Headlight Restoration Lethbridge",
   "vertical": "auto-service",
   "brand": {
-    "display_name": "Dobson Headlight Restoration",
+    "name": "Dobson Headlight Restoration",
     "brand_color": "#B91C1C",
-    "tagline": "Crystal-clear headlights. Mobile. Guaranteed.",
-    "voice_notes": "lowercase, conversational, 1-2 sentences. no corporate speak. no intro openers. match customer energy. mobile differentiator: 'we come to you'."
+    "service_area": "Lethbridge and Southern Alberta",
+    "voice_tone": "lowercase, conversational, 1-2 sentences. no corporate speak. no intro openers. match customer energy. mobile differentiator: we come to you.",
+    "forbidden_phrases": [
+      "I'd be happy to",
+      "Of course!",
+      "Absolutely!",
+      "Great question!",
+      "No problem!",
+      "Hello!",
+      "Hi there!"
+    ],
+    "emoji_policy": "match-customer"
   },
   "address": {
     "city": "Lethbridge",
-    "province": "AB",
-    "country": "CA",
-    "service_area": "Lethbridge AB and Southern Alberta"
+    "province_state": "AB",
+    "country": "CA"
   },
   "hours": {
     "timezone": "America/Edmonton",
-    "schedule": {
-      "monday":    { "open": "09:00", "close": "21:00" },
-      "tuesday":   { "open": "09:00", "close": "21:00" },
-      "wednesday": { "open": "09:00", "close": "21:00" },
-      "thursday":  { "open": "09:00", "close": "21:00" },
-      "friday":    { "open": "09:00", "close": "21:00" },
-      "saturday":  { "open": "09:00", "close": "21:00" },
-      "sunday":    { "open": "09:00", "close": "21:00" }
-    }
+    "monday":    { "open": "09:00", "close": "21:00" },
+    "tuesday":   { "open": "09:00", "close": "21:00" },
+    "wednesday": { "open": "09:00", "close": "21:00" },
+    "thursday":  { "open": "09:00", "close": "21:00" },
+    "friday":    { "open": "09:00", "close": "21:00" },
+    "saturday":  { "open": "09:00", "close": "21:00" },
+    "sunday":    { "open": "09:00", "close": "21:00" },
+    "quiet_before": "09:00",
+    "quiet_after": "22:00"
   },
   "quiet_hours": {
-    "start": "22:00",
-    "end": "09:00",
-    "notes": "Proactive outbound deferred outside this window. Reactive replies (inbound <15 min ago) OK anytime."
-  },
-  "agents": {
-    "penelope": {
-      "role": "penelope",
-      "telegram_owner": {
-        "bot_token_env": "DHR_JARVIS_BOT_TOKEN",
-        "owner_chat_id_env": "DHR_OWNER_CHAT_ID"
-      },
-      "voice_character": "en_female_professional"
-    },
-    "specialists": [
-      { "role": "customer-frontend", "enabled": true },
-      { "role": "booking",           "enabled": true },
-      { "role": "quoting",           "enabled": true },
-      { "role": "payment-reconciler","enabled": true },
-      { "role": "review-ask",        "enabled": true },
-      { "role": "marketing",         "enabled": true },
-      { "role": "daily-brief",       "enabled": true }
-    ]
+    "enabled": true,
+    "respect_business_hours": true
   },
   "channels": [
     {
       "type": "telegram-owner",
       "enabled": true,
       "credential_env": "DHR_JARVIS_BOT_TOKEN",
-      "config": {
-        "chat_id_env": "DHR_OWNER_CHAT_ID",
-        "description": "JARVIS bot — escalation and owner notifications"
+      "settings": {
+        "chat_id_env": "DHR_OWNER_CHAT_ID"
       }
     },
     {
       "type": "fb-page",
       "enabled": true,
       "credential_env": "DHR_FB_PAGE_TOKEN",
-      "config": {
-        "page_id_env": "DHR_FB_PAGE_ID",
-        "page_id_placeholder": "815642964958116",
-        "description": "Dobson Headlight Restoration Facebook Page"
+      "settings": {
+        "page_id": "815642964958116"
       }
     },
     {
       "type": "sms-textnow",
       "enabled": true,
-      "credential_env": "DHR_TEXTNOW_SESSION",
-      "config": {
-        "description": "TextNow stub — SMS follow-ups and review asks"
-      }
+      "credential_env": "DHR_TEXTNOW_SESSION"
     }
   ],
   "pricing": [
@@ -85,87 +68,109 @@
       "id": "standard",
       "label": "Standard headlight restoration",
       "currency": "CAD",
-      "floor": 100,
-      "cap": 200,
-      "warranty_years": 1,
-      "auto_quote_band": [100, 150],
-      "modifiers": {
-        "base_per_light": 50,
-        "condition": {
-          "mild": 0,
-          "moderate": { "min": 15, "max": 25 },
-          "heavy_cracked_clear_coat": { "min": 30, "max": 50 }
-        },
-        "size": {
-          "sedan": 0,
-          "truck_suv_van": { "min": 10, "max": 20 }
-        },
-        "brand": {
-          "audi_bmw_euro": { "min": 10, "max": 20 }
-        }
-      },
-      "qualifier_question": "are they pretty hazy or just starting to yellow?"
+      "floor": 99,
+      "ceiling": 200,
+      "auto_quote_band": [99, 150],
+      "qualifier_question": "are they pretty hazy or just starting to yellow?",
+      "notes": "$99 minimum floor (canonical). Scales per vehicle size + light condition up to $200 ceiling. 1-year warranty."
     },
     {
       "id": "ceramic",
       "label": "Ceramic-coated headlight restoration",
       "currency": "CAD",
-      "floor": 200,
-      "cap": 250,
-      "warranty_years": 3,
-      "auto_quote_band": [200, 240],
-      "surcharge_on_standard": { "min": 80, "max": 100 },
-      "qualifier_question": "want the ceramic coat that lasts 3x longer, or standard?"
+      "floor": 240,
+      "ceiling": 350,
+      "auto_quote_band": [240, 280],
+      "qualifier_question": "want the ceramic coat that lasts 3x longer, or standard?",
+      "notes": "$240 minimum floor (canonical). Scales per vehicle size + light condition up to $350 ceiling. 3-year warranty."
     }
   ],
-  "booking": {
-    "provider": "calendly",
-    "url_env": "DHR_CALENDLY_URL",
-    "url_placeholder": "https://calendly.com/dobsonheadlights/headlight-restoration-appointment",
-    "available_slots": "fridays and saturdays, 11am-5pm"
-  },
-  "payment_processors": [
-    {
-      "name": "square",
-      "credential_env": "DHR_SQUARE_ACCESS_TOKEN",
-      "location_id_env": "DHR_SQUARE_LOCATION_ID"
-    }
-  ],
+  "payment_processors": ["square"],
   "review_platforms": [
-    { "name": "Google", "url_env": "DHR_GOOGLE_REVIEW_URL" },
-    { "name": "Facebook", "url_env": "DHR_FB_REVIEW_URL" }
+    {
+      "type": "google",
+      "label": "Google",
+      "url": "https://g.page/r/placeholder-dhr-google-review"
+    },
+    {
+      "type": "facebook",
+      "label": "Facebook",
+      "url": "https://www.facebook.com/dobsonheadlightss/reviews"
+    }
   ],
-  "approval_gates": {
-    "default_level": "auto",
-    "above_band_level": "owner_telegram_confirm",
-    "complaint_level": "owner_telegram_confirm",
-    "escalation_contacts": [
-      {
-        "id": "jarvis-owner",
-        "type": "telegram",
-        "description": "JARVIS bot — Isaac's primary escalation channel",
-        "credential_env": "DHR_JARVIS_BOT_TOKEN"
-      }
-    ]
-  },
-  "approval_required": [],
+  "approval_gates": [
+    {
+      "action": "quote_above_band",
+      "level": "owner_telegram_confirm",
+      "conditions": ["quote_amount > auto_quote_band[1]"],
+      "notes": "Escalate to Isaac via Telegram when quote exceeds the auto-band ceiling"
+    },
+    {
+      "action": "price_objection",
+      "level": "owner_telegram_confirm",
+      "notes": "Customer pushes back on price — pause thread, notify Isaac"
+    },
+    {
+      "action": "complaint",
+      "level": "owner_telegram_confirm",
+      "notes": "Any complaint or refund request escalates immediately"
+    }
+  ],
   "budget": {
-    "max_usd_per_day": 2.00,
-    "max_usd_per_month": 40.00,
-    "alert_threshold_pct": 80
+    "daily_usd_cap": 2.00,
+    "monthly_usd_cap": 40.00,
+    "alert_at_pct": 80
   },
-  "marketing": {
-    "cadence": "3/week",
-    "preferred_time_local": "10:30",
-    "channels": ["fb-page", "instagram"],
-    "voice_notes": "casual, mobile-business angle, no emoji spam",
-    "approval_required": true
+  "shadow_mode": {
+    "enabled": false
   },
-  "followup": {
-    "enabled": true,
-    "min_days_silent": 7,
-    "max_days_silent": 180,
-    "approval_required": true,
-    "stages": ["quoted_no_booking", "booked_no_show", "paid_rebook"]
+  "connectors": {
+    "facebook_messenger": {
+      "page_id": "815642964958116",
+      "page_token_secret": "DHR_FB_PAGE_TOKEN"
+    },
+    "calendly": {
+      "url": "https://calendly.com/dobsonheadlights/headlight-restoration-appointment"
+    },
+    "square": {
+      "access_token_secret": "DHR_SQUARE_ACCESS_TOKEN",
+      "location_id_secret": "DHR_SQUARE_LOCATION_ID"
+    }
+  },
+  "meta": {
+    "owner": {
+      "name": "Isaac Dobson",
+      "telegram_chat_id": "7949309437",
+      "email": "dobsonheadlights@gmail.com"
+    },
+    "followup": {
+      "enabled": true,
+      "min_days_silent": 7,
+      "max_days_silent": 180,
+      "rate_limit_days": 14,
+      "approval_required": true,
+      "stages": ["quoted_no_booking", "booked_no_show", "paid_rebook"]
+    },
+    "marketing": {
+      "enabled": false,
+      "cadence": "3/week",
+      "preferred_time_local": "10:30",
+      "channels": ["fb-page", "instagram"],
+      "approval_required": true,
+      "_note": "awaiting Isaac green-light"
+    },
+    "booking": {
+      "provider": "calendly",
+      "url_env": "DHR_CALENDLY_URL",
+      "available_slots": "fridays and saturdays, 11am-5pm"
+    },
+    "content": {
+      "enabled": true,
+      "providers": { "image_gen": "fal-ai", "static_promo": "nano-banana", "vision": "claude" },
+      "daily_sort_at_utc": "03:00",
+      "watermark_targets": ["dhr logo on lens"],
+      "object_removal_defaults": ["tape", "masking tape", "tools", "hands"],
+      "output_folder": "sorted"
+    }
   }
 }
