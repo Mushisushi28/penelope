@@ -104,7 +104,7 @@ export class PaymentReconcilerSpecialist extends SpecialistAgent {
       // Lazily load from @penelope/connectors if available in the runtime.
       try {
         const { StripeMcpConnector } = await import(
-          "@penelope/connectors/src/connectors/stripe-mcp.js"
+          "@penelope/connectors"
         );
         this._mcpConnector = new StripeMcpConnector() as McpLikeConnector;
       } catch {
