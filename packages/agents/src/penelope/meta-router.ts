@@ -41,6 +41,7 @@ export type Intent =
   | 'brief'
   | 'status'
   | 'autopilot'
+  | 'content'
   | 'unknown';
 
 /** Maps a parsed intent to the bus topic Penelope publishes on. */
@@ -56,6 +57,7 @@ export const INTENT_TOPIC_MAP: Record<Intent, string> = {
   brief: 'brief.requested',
   status: 'system.status.requested',
   autopilot: 'system.autopilot.toggle',
+  content: 'content.generation.requested',
   unknown: 'penelope.unrecognised',
 };
 
@@ -76,6 +78,12 @@ export function classifyIntent(text: string): Intent {
   if (/\bbrief\b|\btoday\b|\bmorning/.test(t)) return 'brief';
   if (/\bstatus\b/.test(t)) return 'status';
   if (/\bautopilot\b|\bpause\b/.test(t)) return 'autopilot';
+  // Content specialist intent recognition
+  if (
+    /\bmake.*before.?after\b|\bgenerate.*before.?after\b|\bbefore.?after.*photo\b|\bbefore.?after.*image\b/.test(t) ||
+    /\bclean up.*photo\b|\bclean.*this.*photo\b|\bremove.*tape.*from\b|\bremove.*watermark\b/.test(t) ||
+    /\bsort.*today.*photos\b|\bsort.*photos\b|\bmake.*promo.*image\b|\bgenerate.*promo\b/.test(t)
+  ) return 'content';
   if (/\bcustomer\b|\blead\b|\bdm\b|\bmessage\b/.test(t)) return 'customer';
   return 'unknown';
 }
@@ -86,7 +94,20 @@ export function classifyIntent(text: string): Intent {
  */
 export function route(msg: InboundOwnerMessage): BusDispatch {
   const intent = classifyIntent(msg.text);
-  const topic = INTENT_TOPIC_MAP[intent];
+  const t = msg.text.toLowerCase();
+
+  // For content intent, resolve a more specific sub-topic based on phrasing.
+  let topic = INTENT_TOPIC_MAP[intent];
+  if (intent === 'content') {
+    if (/\bremove.*watermark\b|\bwatermark\b/.test(t)) {
+      topic = 'content.cleanup.requested';
+    } else if (/\bsort.*photos\b|\bsort.*today\b/.test(t)) {
+      topic = 'content.sort.requested';
+    } else if (/\bremove.*tape\b|\bremove.*tool\b|\bclean.*photo\b/.test(t)) {
+      topic = 'content.cleanup.requested';
+    }
+    // Default: content.generation.requested (before/after, promo)
+  }
 
   return {
     topic,

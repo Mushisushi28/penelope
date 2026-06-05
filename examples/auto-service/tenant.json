@@ -88,5 +88,13 @@
     "max_days_silent": 180,
     "approval_required": true,
     "stages": ["quoted_no_booking", "booked_no_show", "paid_rebook"]
+  },
+  "content": {
+    "enabled": true,
+    "providers": { "image_gen": "fal-ai", "static_promo": "nano-banana", "vision": "claude" },
+    "daily_sort_at_utc": "03:00",
+    "watermark_targets": ["dhr logo on lens"],
+    "object_removal_defaults": ["tape", "masking tape", "tools", "hands"],
+    "output_folder": "sorted"
   }
 }
