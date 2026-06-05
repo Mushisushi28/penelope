@@ -1,0 +1,34 @@
+{
+  "name": "Penelope Dashboard",
+  "short_name": "Penelope",
+  "description": "Per-tenant owner dashboard for your Penelope business agent.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "theme_color": "#1a1e14",
+  "background_color": "#1a1e14",
+  "categories": ["business", "productivity"],
+  "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Review Queue",
+      "short_name": "Queue",
+      "url": "/#/shadow-queue",
+      "description": "Review pending drafted messages"
+    },
+    {
+      "name": "Inbox",
+      "short_name": "Inbox",
+      "url": "/#/inbox",
+      "description": "Unified customer messages"
+    }
+  ]
+}

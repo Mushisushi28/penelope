@@ -1,0 +1,30 @@
+{
+  "name": "@penelope/audit-log",
+  "version": "0.1.0",
+  "description": "Append-only per-tenant audit log with sha256 tamper detection for Penelope. Every customer-facing outbound message is logged locally; no data is sent anywhere.",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "tsc --noEmit"
+  },
+  "dependencies": {
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "typescript": "^5.4.5",
+    "vitest": "^1.6.0"
+  }
+}

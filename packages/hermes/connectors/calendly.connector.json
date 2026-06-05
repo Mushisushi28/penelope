@@ -1,0 +1,3701 @@
+{
+  "id": "calendly",
+  "name": "Calendly",
+  "version": "2.0.0",
+  "discoveredAt": "2026-06-05T05:19:30.865Z",
+  "discoveryStrategy": "openapi",
+  "baseUrl": "https://api.calendly.com",
+  "authStrategy": {
+    "type": "api-key",
+    "placement": "header",
+    "headerName": "Authorization",
+    "prefix": "Bearer ",
+    "envVar": "CALENDLY_API_KEY"
+  },
+  "operations": [
+    {
+      "operationId": "getScheduled_eventsByUuidInvitees",
+      "method": "GET",
+      "path": "/scheduled_events/{uuid}/invitees",
+      "summary": "List Event Invitees",
+      "description": "Returns a list of Invitees for an event.\n\n<!-- theme: info -->\n  > #### Required scopes: `scheduled_events:read`",
+      "tags": [
+        "Scheduled Events"
+      ],
+      "parameters": [
+        {
+          "name": "uuid",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "status",
+          "in": "query",
+          "required": false,
+          "description": "Indicates if the invitee \"canceled\" or still \"active\"",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "active",
+              "canceled"
+            ]
+          }
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "required": false,
+          "description": "Order results by the **created_at** field and direction specified: ascending (\"asc\") or descending (\"desc\")",
+          "schema": {
+            "type": "string",
+            "default": "created_at:asc"
+          }
+        },
+        {
+          "name": "email",
+          "in": "query",
+          "required": false,
+          "description": "Indicates if the results should be filtered by email address",
+          "schema": {
+            "type": "string",
+            "format": "email",
+            "example": "bob@example.com"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "type": "object",
+          "description": "Service response",
+          "properties": {
+            "collection": {
+              "type": "array",
+              "description": "The set of event invitees matching the criteria",
+              "items": {
+                "$ref": "#/components/schemas/Invitee"
+              }
+            },
+            "pagination": {
+              "$ref": "models/Pagination.yaml"
+            }
+          },
+          "required": [
+            "collection",
+            "pagination"
+          ]
+        }
+      }
+    },
+    {
+      "operationId": "getScheduled_events",
+      "method": "GET",
+      "path": "/scheduled_events",
+      "summary": "List Events",
+      "description": "Returns a list of  Events.\n\n* Pass `organization` parameter to return events for that organization (requires admin/owner privilege)\n* Pass `user` parameter to return events for a specific User\n* Pass `group` parameter to return events for a specific Group (requires organization admin/owner or group admin privilege)\n\n**NOTES:**\n* If you are the admin/owner of the organization, you can use both `organization` and `user` to get a list of events for a specific user within your organization.\n* If you are the admin/owner of the organization, you can use both `organization` and `group` to get a list of events for a specific group within your organization.\n\n* `user` can only be used alone when requesting your own personal events. This will return your events within any organization that you are currently in or were a part of in the past.\n\n<!-- theme: info -->\n  > #### Required scopes: `scheduled_events:read`",
+      "tags": [
+        "Scheduled Events"
+      ],
+      "parameters": [
+        {
+          "name": "user",
+          "in": "query",
+          "required": false,
+          "description": "Return events that are scheduled with the user associated with this URI",
+          "schema": {
+            "type": "string",
+            "format": "uri",
+            "example": "https://api.calendly.com/users/EBHAAFHDCAEQTSEZ"
+          }
+        },
+        {
+          "name": "organization",
+          "in": "query",
+          "required": false,
+          "description": "Return events that are scheduled with the organization associated with this URI",
+          "schema": {
+            "type": "string",
+            "format": "uri",
+            "example": "https://api.calendly.com/organizations/EBHAAFHDCAEQTSEZ"
+          }
+        },
+        {
+          "name": "invitee_email",
+          "in": "query",
+          "required": false,
+          "description": "Return events that are scheduled with the invitee associated with this email address",
+          "schema": {
+            "type": "string",
+            "format": "email",
+            "example": "alice@example.com"
+          }
+        },
+        {
+          "name": "status",
+          "in": "query",
+          "required": false,
+          "description": "Whether the scheduled event is `active` or `canceled`",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "active",
+              "canceled"
+            ]
+          }
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "required": false,
+          "description": "Order results by the specified field and direction. Accepts comma-separated list of {field}:{direction} values.\nSupported fields are: start_time.\nSort direction is specified as: asc, desc.",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "min_start_time",
+          "in": "query",
+          "required": false,
+          "description": "Include events with start times after this time (sample time format: \"2020-01-02T03:04:05.678123Z\"). This time should use the UTC timezone.",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "max_start_time",
+          "in": "query",
+          "required": false,
+          "description": "Include events with start times prior to this time (sample time format: \"2020-01-02T03:04:05.678123Z\"). This time should use the UTC timezone.",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "group",
+          "in": "query",
+          "required": false,
+          "description": "Return events that are scheduled with the group associated with this URI",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "type": "object",
+          "description": "Service response",
+          "required": [
+            "collection",
+            "pagination"
+          ],
+          "properties": {
+            "collection": {
+              "type": "array",
+              "description": "The set of scheduled events matching the criteria",
+              "items": {
+                "$ref": "#/components/schemas/Event"
+              }
+            },
+            "pagination": {
+              "$ref": "models/Pagination.yaml"
+            }
+          }
+        }
+      }
+    },
+    {
+      "operationId": "getEvent_types",
+      "method": "GET",
+      "path": "/event_types",
+      "summary": "List User's Event Types",
+      "description": "Returns all Event Types associated with a specified User. Use:\n\n* `organization` to look up all Event Types that belong to the organization\n\n* `user` to look up a user's Event Types in an organization\n\nEither `organization` or `user` are required query params when using this endpoint.\n\n<!-- theme: info -->\n  > #### Required scopes: `event_types:read`",
+      "tags": [
+        "Event Types"
+      ],
+      "parameters": [
+        {
+          "name": "active",
+          "in": "query",
+          "required": false,
+          "description": "Return only active event types if true, only inactive if false, or all event types if this parameter is omitted.",
+          "schema": {
+            "type": "boolean"
+          }
+        },
+        {
+          "name": "organization",
+          "in": "query",
+          "required": false,
+          "description": "View available personal, team, and organization event types associated with the organization's URI.",
+          "schema": {
+            "type": "string",
+            "format": "uri"
+          }
+        },
+        {
+          "name": "user",
+          "in": "query",
+          "required": false,
+          "description": "View available personal, team, and organization event types associated with the user's URI.",
+          "schema": {
+            "type": "string",
+            "format": "uri"
+          }
+        },
+        {
+          "name": "user_availability_schedule",
+          "in": "query",
+          "required": false,
+          "description": "Used in conjunction with `user` parameter, returns a filtered list of Event Types that use the given primary availability schedule.",
+          "schema": {
+            "type": "string",
+            "format": "uri"
+          }
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "required": false,
+          "description": "Order results by the specified field and direction. Accepts comma-separated list of {field}:{direction} values.Supported fields are: name, position, created_at, updated_at. Sort direction is specified as: asc, desc.",
+          "schema": {
+            "type": "string",
+            "default": "name:asc"
+          }
+        },
+        {
+          "name": "admin_managed",
+          "in": "query",
+          "required": false,
+          "description": "Return only admin managed event types if true, exclude admin managed event types if false, or include all event types if this parameter is omitted.",
+          "schema": {
+            "type": "boolean"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "type": "object",
+          "description": "Service response",
+          "properties": {
+            "collection": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/EventType"
+              }
+            },
+            "pagination": {
+              "$ref": "models/Pagination.yaml"
+            }
+          },
+          "required": [
+            "collection",
+            "pagination"
+          ]
+        }
+      }
+    },
+    {
+      "operationId": "postEvent_types",
+      "method": "POST",
+      "path": "/event_types",
+      "summary": "Create Event Type",
+      "description": "Create a new Event Type\n\n**NOTE:**\n* Currently, this endpoint only supports one-on-one event types (kind: \"solo\").\n\n<!-- theme: info -->\n  > #### Required scopes: `event_types:write`",
+      "tags": [
+        "Event Types"
+      ],
+      "parameters": [],
+      "requestBody": {
+        "type": "object",
+        "required": [
+          "owner",
+          "name"
+        ],
+        "properties": {
+          "active": {
+            "type": "boolean",
+            "description": "Indicates if the event type is active or not",
+            "default": false
+          },
+          "owner": {
+            "type": "string",
+            "description": "The owner for this event type",
+            "format": "uri",
+            "example": "https://api.calendly.com/users/AAAAAAAAAAAAAAAA"
+          },
+          "name": {
+            "type": "string",
+            "description": "The event type name",
+            "example": "15 Minute Meeting"
+          },
+          "description": {
+            "type": "string",
+            "description": "The event type description",
+            "example": "15 Minute Meeting"
+          },
+          "duration": {
+            "type": "integer",
+            "description": "The length of sessions booked with this event type. Must be one of the duration options if they're provided.",
+            "example": 15,
+            "minimum": 1,
+            "maximum": 720
+          },
+          "duration_options": {
+            "type": "array",
+            "example": [
+              1,
+              13,
+              15,
+              720
+            ],
+            "description": "A maximum of 4 unique options is allowed. Each option must be >= 1 and <= 720.",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "locations": {
+            "type": "array",
+            "description": "Configuration information for each possible location for this event type",
+            "items": {
+              "$ref": "#/components/schemas/LocationConfiguration"
+            }
+          },
+          "color": {
+            "type": "string",
+            "x-stoplight": {
+              "id": "lu1stb7rwvql4"
+            },
+            "description": "The hexadecimal color value of the event type's scheduling page",
+            "pattern": "^#[a-f\\d]{6}$",
+            "example": "#fff200"
+          },
+          "locale": {
+            "type": "string",
+            "x-stoplight": {
+              "id": "mzonzpruv2cad"
+            },
+            "enum": [
+              "de",
+              "en",
+              "es",
+              "fr",
+              "it",
+              "nl",
+              "pt",
+              "uk"
+            ],
+            "example": "de",
+            "description": "The locale on the event type, used to determine the language of the event type's scheduling page"
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "type": "object",
+          "properties": {
+            "resource": {
+              "$ref": "#/components/schemas/EventType"
+            }
+          },
+          "required": [
+            "resource"
+          ]
+        }
+      }
+    },
+    {
+      "operationId": "getUsersByUuid",
+      "method": "GET",
+      "path": "/users/{uuid}",
+      "summary": "Get user",
+      "description": "Returns information about a specified User.\n\n<!-- theme: info -->\n  > #### Required scopes: `users:read`",
+      "tags": [
+        "Users"
+      ],
+      "parameters": [
+        {
+          "name": "uuid",
+          "in": "path",
+          "required": true,
+          "description": "User unique identifier, or the constant \"me\" to reference the caller",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "type": "object",
+          "description": "Service response",
+          "properties": {
+            "resource": {
+              "$ref": "#/components/schemas/User"
+            }
+          },
+          "required": [
+            "resource"
+          ]
+        }
+      }
+    },
+    {
+      "operationId": "getUsersMe",
+      "method": "GET",
+      "path": "/users/me",
+      "summary": "Get current user",
+      "description": "Returns basic information about your user account.\n\n<!-- theme: info -->\n  > #### Required scopes: `users:read`",
+      "tags": [
+        "Users"
+      ],
+      "parameters": [],
+      "responses": {
+        "200": {
+          "type": "object",
+          "description": "Service response",
+          "properties": {
+            "resource": {
+              "$ref": "#/components/schemas/User"
+            }
+          },
+          "required": [
+            "resource"
+          ]
+        }
+      }
+    },
+    {
+      "operationId": "getScheduled_eventsByEvent_uuidInviteesByInvitee_uuid",
+      "method": "GET",
+      "path": "/scheduled_events/{event_uuid}/invitees/{invitee_uuid}",
+      "summary": "Get Event Invitee",
+      "description": "Returns information about a specified Invitee (person invited to an event).\n\n<!-- theme: info -->\n  > #### Required scopes: `scheduled_events:read`",
+      "tags": [
+        "Scheduled Events"
+      ],
+      "parameters": [
+        {
+          "name": "event_uuid",
+          "in": "path",
+          "required": true,
+          "description": "The event's unique identifier",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "invitee_uuid",
+          "in": "path",
+          "required": true,
+          "description": "The invitee's unique identifier",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "type": "object",
+          "properties": {
+            "resource": {
+              "$ref": "#/components/schemas/Invitee"
+            }
+          },
+          "required": [
+            "resource"
+          ]
+        }
+      }
+    },
+    {
+      "operationId": "postInvitees",
+      "method": "POST",
+      "path": "/invitees",
+      "summary": "Create Event Invitee (Scheduling API)",
+      "description": "Creates a new booking for an event invitee. Use this endpoint to book an invitee directly from your app without redirects, iframes, or Calendly-hosted UI.\n\nStandard notifications, calendar invites, reschedules, and workflows run as if booked via the Calendly UI.\n\n**NOTE:**\n* Access to this endpoint is limited to Calendly users on paid plans (Standard and above). Users on the Free plan will receive a 403 Forbidden response.\n\n<!-- theme: info -->\n  > #### Required scopes: `scheduled_events:write`",
+      "tags": [
+        "Scheduled Events"
+      ],
+      "parameters": [],
+      "requestBody": {
+        "type": "object",
+        "required": [
+          "event_type",
+          "start_time",
+          "invitee"
+        ],
+        "properties": {
+          "event_type": {
+            "type": "string",
+            "x-stoplight": {
+              "id": "a7jkew1bxxq4j"
+            },
+            "format": "uri",
+            "description": "Canonical reference (unique identifier) for the event type being scheduled ",
+            "example": "https://api.calendly.com/event_types/AAAAAAAAAAAAAAAA"
+          },
+          "start_time": {
+            "type": "string",
+            "x-stoplight": {
+              "id": "esu3e9ko2ic4f"
+            },
+            "format": "date-time",
+            "description": "The start time in UTC of the scheduled event",
+            "example": "2019-08-07T06:05:04.321123Z"
+          },
+          "invitee": {
+            "x-stoplight": {
+              "id": "33r4biixcw7aa"
+            },
+            "type": "object",
+            "required": [
+              "email",
+              "timezone"
+            ],
+            "properties": {
+              "name": {
+                "type": "string",
+                "x-stoplight": {
+                  "id": "0fmuo5ttqa3ys"
+                },
+                "description": "The full name of the invitee. **Required if** `first_name` **is not provided**",
+                "example": "John Smith"
+              },
+              "first_name": {
+                "type": "string",
+                "x-stoplight": {
+                  "id": "mtx5mufknvhuj"
+                },
+                "description": "The first name of the invitee. **Required if** `name` **is not provided**",
+                "example": "John"
+              },
+              "last_name": {
+                "type": "string",
+                "x-stoplight": {
+                  "id": "r96jzm1mdj3fv"
+                },
+                "description": "The last name of the invitee",
+                "example": "Smith"
+              },
+              "email": {
+                "type": "string",
+                "x-stoplight": {
+                  "id": "2nkp8zp5zotz0"
+                },
+                "description": "The email of the invitee",
+                "example": "test@example.com"
+              },
+              "timezone": {
+                "type": "string",
+                "x-stoplight": {
+                  "id": "gsxlntypi4xwm"
+                },
+                "description": "The timezone of the invitee",
+                "example": "America/New_York"
+              },
+              "text_reminder_number": {
+                "type": "string",
+                "x-stoplight": {
+                  "id": "up34qo0c1sxon"
+                },
+                "description": "Invitee's phone number for SMS reminders. Must be a valid phone number (e.g. +14155551234)",
+                "example": "+1 888-888-8888"
+              }
+            }
+          },
+          "location": {
+            "$ref": "./models/InviteeLocation.yaml"
+          },
+          "questions_and_answers": {
+            "type": "array",
+            "items": {
+              "$ref": "./models/InviteeQuestionAndAnswer.yaml"
+            }
+          },
+          "tracking": {
+            "$ref": "./models/InviteeTracking.yaml"
+          },
+          "event_guests": {
+            "type": "array",
+            "x-stoplight": {
+              "id": "ws09zf1b2zd2i"
+            },
+            "description": "Emails of invitee guests. Max 10.",
+            "maxItems": 10,
+            "items": {
+              "x-stoplight": {
+                "id": "fy506ehfvcubw"
+              },
+              "type": "string",
+              "format": "email",
+              "example": "janedoe@calendly.com"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "type": "object",
+          "required": [
+            "resource"
+          ],
+          "properties": {
+            "resource": {
+              "$ref": "#/components/schemas/Invitee"
+            }
+          }
+        },
+        "400": {
+          "allOf": [
+            {
+              "$ref": "models/ErrorResponse.yaml"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string",
+                  "enum": [
+                    "Invalid Argument",
+                    "Deprecated"
+                  ]
+                },
+                "message": {
+                  "type": "string",
+                  "enum": [
+                    "The supplied parameters are invalid.",
+                    "Specified location kind is not configured for this event type.",
+                    "Required Questions and Answers cannot be blank.",
+                    "Event types that require payment cannot be scheduled via the API."
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "operationId": "getScheduled_eventsByUuid",
+      "method": "GET",
+      "path": "/scheduled_events/{uuid}",
+      "summary": "Get Event",
+      "description": "Returns information about a specified Event.\n\n<!-- theme: info -->\n  > #### Required scopes: `scheduled_events:read`",
+      "tags": [
+        "Scheduled Events"
+      ],
+      "parameters": [
+        {
+          "name": "uuid",
+          "in": "path",
+          "required": true,
+          "description": "The event's unique identifier",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "type": "object",
+          "properties": {
+            "resource": {
+              "$ref": "#/components/schemas/Event"
+            }
+          },
+          "required": [
+            "resource"
+          ]
+        }
+      }
+    },
+    {
+      "operationId": "getEvent_typesByUuid",
+      "method": "GET",
+      "path": "/event_types/{uuid}",
+      "summary": "Get Event Type",
+      "description": "Returns information about a specified Event Type.\n\n<!-- theme: info -->\n  > #### Required scopes: `event_types:read`",
+      "tags": [
+        "Event Types"
+      ],
+      "parameters": [
+        {
+          "name": "uuid",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "type": "object",
+          "properties": {
+            "resource": {
+              "$ref": "#/components/schemas/EventType"
+            }
+          },
+          "required": [
+            "resource"
+          ]
+        }
+      }
+    },
+    {
+      "operationId": "patchEvent_typesByUuid",
+      "method": "PATCH",
+      "path": "/event_types/{uuid}",
+      "summary": "Update Event Type",
+      "description": "Update an existing Event Type\n\n**NOTE:**\n* Currently, this endpoint only supports one-on-one event types (kind: \"solo\").\n\n<!-- theme: info -->\n  > #### Required scopes: `event_types:write`",
+      "tags": [
+        "Event Types"
+      ],
+      "parameters": [
+        {
+          "name": "uuid",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "requestBody": {
+        "type": "object",
+        "properties": {
+          "active": {
+            "type": "boolean",
+            "description": "Indicates if the event type is active or not"
+          },
+          "name": {
+            "type": "string",
+            "description": "The event type name",
+            "example": "15 Minute Meeting"
+          },
+          "color": {
+            "description": "The hexadecimal color value of the event type's scheduling page",
+            "type": "string",
+            "pattern": "^#[a-f\\d]{6}$",
+            "example": "#fff200"
+          },
+          "description": {
+            "type": "string",
+            "description": "The event type description",
+            "example": "15 Minute Meeting"
+          },
+          "duration": {
+            "type": "integer",
+            "description": "The length of sessions booked with this event type. Must be one of the duration options if they're provided.",
+            "example": 15,
+            "minimum": 1,
+            "maximum": 720
+          },
+          "duration_options": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "example": [
+              1,
+              13,
+              15,
+              720
+            ],
+            "description": "A maximum of 4 unique options is allowed. Each option must be >= 1 and <= 720."
+          },
+          "locale": {
+            "type": "string",
+            "enum": [
+              "de",
+              "en",
+              "es",
+              "fr",
+              "it",
+              "nl",
+              "pt",
+              "uk"
+            ],
+            "example": "de",
+            "description": "The locale on the event type, used to determine the language of the event type's scheduling page"
+          },
+          "locations": {
+            "type": "array",
+            "description": "Configuration information for each possible location for this Event Type",
+            "items": {
+              "$ref": "#/components/schemas/LocationConfiguration"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "type": "object",
+          "properties": {
+            "resource": {
+              "$ref": "#/components/schemas/EventType"
+            }
+          },
+          "required": [
+            "resource"
+          ]
+        }
+      }
+    },
+    {
+      "operationId": "getOrganizationsByUuidInvitations",
+      "method": "GET",
+      "path": "/organizations/{uuid}/invitations",
+      "summary": "List Organization Invitations",
+      "description": "Returns a list of Organization Invitations that were sent to the organization's members.\n\n<!-- theme: info -->\n  > #### Required scopes: `organizations:read`",
+      "tags": [
+        "Organizations"
+      ],
+      "parameters": [
+        {
+          "name": "uuid",
+          "in": "path",
+          "required": true,
+          "description": "The organization's unique identifier",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "required": false,
+          "description": "Order results by the field name and direction specified (ascending or descending). Returns multiple sets of results in a comma-separated list.",
+          "schema": {
+            "type": "string",
+            "default": "created_at:asc"
+          }
+        },
+        {
+          "name": "email",
+          "in": "query",
+          "required": false,
+          "description": "Indicates if the results should be filtered by email address",
+          "schema": {
+            "type": "string",
+            "format": "email",
+            "example": "bob@example.com"
+          }
+        },
+        {
+          "name": "status",
+          "in": "query",
+          "required": false,
+          "description": "Indicates if the results should be filtered by status  (\"pending\", \"accepted\", or \"declined\")",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "accepted",
+              "declined"
+            ]
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "type": "object",
+          "properties": {
+            "collection": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/OrganizationInvitation"
+              }
+            },
+            "pagination": {
+              "$ref": "models/Pagination.yaml"
+            }
+          },
+          "required": [
+            "collection",
+            "pagination"
+          ]
+        }
+      }
+    },
+    {
+      "operationId": "postOrganizationsByUuidInvitations",
+      "method": "POST",
+      "path": "/organizations/{uuid}/invitations",
+      "summary": "Invite User to Organization",
+      "description": "Invites a user to an organization.\n\n<!-- theme: info -->\n  > #### Required scopes: `organizations:write`",
+      "tags": [
+        "Organizations"
+      ],
+      "parameters": [
+        {
+          "name": "uuid",
+          "in": "path",
+          "required": true,
+          "description": "The organization's unique identifier",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "requestBody": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "The email of the user being invited",
+            "format": "email",
+            "example": "alice@example.com"
+          }
+        },
+        "required": [
+          "email"
+        ]
+      },
+      "responses": {
+        "201": {
+          "type": "object",
+          "properties": {
+            "resource": {
+              "$ref": "#/components/schemas/OrganizationInvitation"
+            }
+          },
+          "required": [
+            "resource"
+          ]
+        },
+        "400": {
+          "$ref": "models/ErrorResponse.yaml"
+        }
+      }
+    },
+    {
+      "operationId": "getOrganizationsByOrg_uuidInvitationsByUuid",
+      "method": "GET",
+      "path": "/organizations/{org_uuid}/invitations/{uuid}",
+      "summary": "Get Organization Invitation",
+      "description": "Returns an Organization Invitation that was sent to the organization's members.\n\n<!-- theme: info -->\n  > #### Required scopes: `organizations:read`",
+      "tags": [
+        "Organizations"
+      ],
+      "parameters": [
+        {
+          "name": "org_uuid",
+          "in": "path",
+          "required": true,
+          "description": "The organization’s unique identifier",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "uuid",
+          "in": "path",
+          "required": true,
+          "description": "The organization invitation's unique identifier",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "type": "object",
+          "properties": {
+            "resource": {
+              "$ref": "#/components/schemas/OrganizationInvitation"
+            }
+          },
+          "required": [
+            "resource"
+          ]
+        }
+      }
+    },
+    {
+      "operationId": "deleteOrganizationsByOrg_uuidInvitationsByUuid",
+      "method": "DELETE",
+      "path": "/organizations/{org_uuid}/invitations/{uuid}",
+      "summary": "Revoke User's Organization Invitation",
+      "description": "Use this to revoke an Organization Invitation to an organization. Once revoked, the invitation link that was sent to the invitee is no longer valid.\n\n<!-- theme: info -->\n  > #### Required scopes: `organizations:write`",
+      "tags": [
+        "Organizations"
+      ],
+      "parameters": [
+        {
+          "name": "org_uuid",
+          "in": "path",
+          "required": true,
+          "description": "The organization’s unique identifier",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "uuid",
+          "in": "path",
+          "required": true,
+          "description": "The organization invitation's unique identifier",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "204": {
+          "description": "No Content"
+        },
+        "400": {
+          "$ref": "models/ErrorResponse.yaml"
+        }
+      }
+    },
+    {
+      "operationId": "getOrganization_membershipsByUuid",
+      "method": "GET",
+      "path": "/organization_memberships/{uuid}",
+      "summary": "Get Organization Membership",
+      "description": "Returns information about a user's Organization Membership\n\n<!-- theme: info -->\n  > #### Required scopes: `organizations:read`",
+      "tags": [
+        "Organizations"
+      ],
+      "parameters": [
+        {
+          "name": "uuid",
+          "in": "path",
+          "required": true,
+          "description": "The organization membership's unique identifier",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "type": "object",
+          "properties": {
+            "resource": {
+              "$ref": "#/components/schemas/OrganizationMembership"
+            }
+          },
+          "required": [
+            "resource"
+          ]
+        }
+      }
+    },
+    {
+      "operationId": "deleteOrganization_membershipsByUuid",
+      "method": "DELETE",
+      "path": "/organization_memberships/{uuid}",
+      "summary": "Remove User from Organization",
+      "description": "Removes a user from an organization.\n\nNotes:\n\n* To remove users, the caller must have admin rights for the organization\n\n* An organization owner can't be removed\n\n<!-- theme: info -->\n  > #### Required scopes: `organizations:write`",
+      "tags": [
+        "Organizations"
+      ],
+      "parameters": [
+        {
+          "name": "uuid",
+          "in": "path",
+          "required": true,
+          "description": "The organization membership's unique identifier",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "204": {
+          "description": "No Content"
+        }
+      }
+    },
+    {
+      "operationId": "getOrganization_memberships",
+      "method": "GET",
+      "path": "/organization_memberships",
+      "summary": "List Organization Memberships",
+      "description": "Use this to list the Organization Memberships for all users belonging to an organization, use:\n\n* `user` to look up a user's membership in an organization\n\n* `organization` to look up all users that belong to the organization\n\nThis endpoint can also be used to retrieve your organization URI.\n\n<!-- theme: info -->\n  > #### Required scopes: `organizations:read`",
+      "tags": [
+        "Organizations"
+      ],
+      "parameters": [
+        {
+          "name": "email",
+          "in": "query",
+          "required": false,
+          "description": "Indicates if the results should be filtered by email address",
+          "schema": {
+            "type": "string",
+            "format": "email",
+            "example": "user@example.com"
+          }
+        },
+        {
+          "name": "organization",
+          "in": "query",
+          "required": false,
+          "description": "Indicates if the results should be filtered by organization",
+          "schema": {
+            "type": "string",
+            "format": "uri",
+            "example": "https://api.calendly.com/organizations/012345678901234567890"
+          }
+        },
+        {
+          "name": "user",
+          "in": "query",
+          "required": false,
+          "description": "Indicates if the results should be filtered by user",
+          "schema": {
+            "type": "string",
+            "example": "https://api.calendly.com/users/012345678901234567890",
+            "format": "uri"
+          }
+        },
+        {
+          "name": "role",
+          "in": "query",
+          "required": false,
+          "description": "Indicates if the results should be filtered by role",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "owner",
+              "admin",
+              "user"
+            ],
+            "example": "owner"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "type": "object",
+          "description": "Service response",
+          "properties": {
+            "collection": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/OrganizationMembership"
+              }
+            },
+            "pagination": {
+              "$ref": "models/Pagination.yaml"
+            }
+          },
+          "required": [
+            "collection",
+            "pagination"
+          ]
+        }
+      }
+    },
+    {
+      "operationId": "getWebhook_subscriptions",
+      "method": "GET",
+      "path": "/webhook_subscriptions",
+      "summary": "List Webhook Subscriptions",
+      "description": "Get a list of Webhook Subscriptions for a specified Organization, User, or Group.\n\n<!-- theme: info -->\n  > #### Required scopes: `webhooks:read`",
+      "tags": [
+        "Webhooks"
+      ],
+      "parameters": [
+        {
+          "name": "organization",
+          "in": "query",
+          "required": true,
+          "description": "The given organization that owns the subscriptions being returned. This field is always required.",
+          "schema": {
+            "type": "string",
+            "format": "uri",
+            "example": "https://api.calendly.com/organizations/AAAAAAAAAAAAAAAA"
+          }
+        },
+        {
+          "name": "user",
+          "in": "query",
+          "required": false,
+          "description": "Indicates if the results should be filtered by user. This parameter is only required if the `scope` parameter is set to `user`.",
+          "schema": {
+            "type": "string",
+            "format": "uri",
+            "example": "https://api.calendly.com/users/AAAAAAAAAAAAAAAA"
+          }
+        },
+        {
+          "name": "group",
+          "in": "query",
+          "required": false,
+          "description": "Indicates if the results should be filtered by group. This parameter is only required if the `scope` parameter is set to `group`.",
+          "schema": {
+            "type": "string",
+            "format": "uri",
+            "example": "https://api.calendly.com/groups/AAAAAAAAAAAAAAAA"
+          }
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "required": false,
+          "description": "Order results by the specified field and direction. Accepts comma-separated list of {field}:{direction} values.\nSupported fields are: created_at.\nSort direction is specified as: asc, desc.",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "scope",
+          "in": "query",
+          "required": true,
+          "description": "Filter the list by organization, user, or group",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "organization",
+              "user",
+              "group"
+            ]
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "type": "object",
+          "properties": {
+            "collection": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/WebhookSubscription"
+              }
+            },
+            "pagination": {
+              "$ref": "models/Pagination.yaml"
+            }
+          },
+          "required": [
+            "collection",
+            "pagination"
+          ]
+        }
+      }
+    },
+    {
+      "operationId": "createwebhooks",
+      "method": "POST",
+      "path": "/webhook_subscriptions",
+      "summary": "Create Webhook Subscription",
+      "description": "Create a Webhook Subscription for an Organization, User, or Group.\n\n* The `organization` subscription scope triggers the webhook for all subscribed events within the organization.\n* The `user` subscription scope only triggers the webhook for subscribed events that belong to the specific user.\n* The `group` subscription scope only triggers the webhook for subscribed events that belong to the specfic group.\n\n| Event | Allowed Subscription Scopes | Required Auth Scope |\n| ----- | ----- | ----- |\n| invitee.created | `organization` `user` `group` | `scheduled_events:read` |\n| invitee.canceled | `organization` `user` `group` | `scheduled_events:read` |\n| invitee_no_show.created | `organization` `user` `group` | `scheduled_events:read` |\n| invitee_no_show.deleted | `organization` `user` `group` | `scheduled_events:read` |\n| event_type.created | `organization` `user` `group` | `event_types:read` |\n| event_type.deleted | `organization` `user` `group` | `event_types:read` |\n| event_type.updated | `organization` `user` `group` | `event_types:read` |\n| routing_form_submission.created | `organization` <br /> <small>Create separate Webhook Subscriptions for events with different subscription scopes.</small> | `routing_forms:read` |\n| contact.created | `organization` `user` `group` | `contacts:read` |\n| contact.updated | `organization` `user` `group` | `contacts:read` |\n| contact.deleted | `organization` `user` `group` | `contacts:read` |\n\n<!-- theme: info -->\n  > #### Required scopes: `webhooks:write`",
+      "tags": [
+        "Webhooks"
+      ],
+      "parameters": [],
+      "requestBody": {
+        "type": "object",
+        "required": [
+          "url",
+          "events",
+          "organization",
+          "scope"
+        ],
+        "properties": {
+          "url": {
+            "type": "string",
+            "description": "The URL where you want to receive POST requests for events you are subscribed to.",
+            "format": "uri"
+          },
+          "events": {
+            "type": "array",
+            "description": "List of user events to subscribe to.",
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "enum": [
+                "invitee.canceled",
+                "invitee.created",
+                "invitee_no_show.created",
+                "invitee_no_show.deleted",
+                "routing_form_submission.created",
+                "contact.created",
+                "contact.updated",
+                "contact.deleted"
+              ]
+            }
+          },
+          "organization": {
+            "type": "string",
+            "description": "The unique reference to the organization that the webhook will be tied to.",
+            "format": "uri"
+          },
+          "user": {
+            "type": "string",
+            "description": "The unique reference to the user that the webhook will be tied to.",
+            "format": "uri"
+          },
+          "group": {
+            "type": "string",
+            "x-stoplight": {
+              "id": "8057a9uhym5v9"
+            },
+            "format": "uri",
+            "description": "The unique reference to the group that the webhook will be tied to."
+          },
+          "scope": {
+            "type": "string",
+            "enum": [
+              "organization",
+              "user",
+              "group"
+            ],
+            "description": "Indicates whether the webhook subscription scope is `organization`, `user`, or `group`"
+          },
+          "signing_key": {
+            "type": "string",
+            "description": "Optional secret key shared between your application and Calendly. See https://developer.calendly.com/api-docs/ZG9jOjM2MzE2MDM4-webhook-signatures for additional information."
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "type": "object",
+          "properties": {
+            "resource": {
+              "$ref": "#/components/schemas/WebhookSubscription"
+            }
+          },
+          "required": [
+            "resource"
+          ]
+        },
+        "409": {
+          "allOf": [
+            {
+              "$ref": "models/ErrorResponse.yaml"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string",
+                  "enum": [
+                    "Already Exists"
+                  ]
+                },
+                "message": {
+                  "type": "string",
+                  "enum": [
+                    "Hook with this url already exists"
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "operationId": "getWebhook_subscriptionsByWebhook_uuid",
+      "method": "GET",
+      "path": "/webhook_subscriptions/{webhook_uuid}",
+      "summary": "Get Webhook Subscription",
+      "description": "Get a specified Webhook Subscription.\n\n<!-- theme: info -->\n  > #### Required scopes: `webhooks:read`",
+      "tags": [
+        "Webhooks"
+      ],
+      "parameters": [
+        {
+          "name": "webhook_uuid",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "type": "object",
+          "properties": {
+            "resource": {
+              "$ref": "#/components/schemas/WebhookSubscription"
+            }
+          },
+          "required": [
+            "resource"
+          ]
+        }
+      }
+    },
+    {
+      "operationId": "deleteWebhook_subscriptionsByWebhook_uuid",
+      "method": "DELETE",
+      "path": "/webhook_subscriptions/{webhook_uuid}",
+      "summary": "Delete Webhook Subscription",
+      "description": "Delete a Webhook Subscription.\n\n<!-- theme: info -->\n  > #### Required scopes: `webhooks:write`",
+      "tags": [
+        "Webhooks"
+      ],
+      "parameters": [
+        {
+          "name": "webhook_uuid",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "204": {
+          "description": "No Content"
+        }
+      }
+    },
+    {
+      "operationId": "postScheduling_links",
+      "method": "POST",
+      "path": "/scheduling_links",
+      "summary": "Create Single-Use Scheduling Link",
+      "description": "Creates a single-use scheduling link.\n\n<!-- theme: info -->\n  > #### Required scopes: `scheduling_links:write`",
+      "tags": [
+        "Scheduling Links"
+      ],
+      "parameters": [],
+      "requestBody": {
+        "type": "object",
+        "properties": {
+          "max_event_count": {
+            "type": "number",
+            "description": "The max number of events that can be scheduled using this scheduling link.",
+            "enum": [
+              1
+            ],
+            "example": 1
+          },
+          "owner": {
+            "type": "string",
+            "description": "A link to the resource that owns this Scheduling Link (currently, this is always an Event Type)",
+            "format": "uri",
+            "example": "https://api.calendly.com/event_types/012345678901234567890"
+          },
+          "owner_type": {
+            "type": "string",
+            "example": "EventType",
+            "enum": [
+              "EventType"
+            ],
+            "description": "Resource type (currently, this is always EventType)"
+          }
+        },
+        "required": [
+          "max_event_count",
+          "owner",
+          "owner_type"
+        ]
+      },
+      "responses": {
+        "201": {
+          "type": "object",
+          "properties": {
+            "resource": {
+              "type": "object",
+              "required": [
+                "booking_url"
+              ],
+              "properties": {
+                "booking_url": {
+                  "type": "string",
+                  "description": "Scheduling link url",
+                  "format": "uri",
+                  "example": "https://calendly.com/d/abcd-brv8/15-minute-meeting"
+                },
+                "owner": {
+                  "type": "string",
+                  "description": "A link to the resource that owns this Scheduling Link (currently, this is always an Event Type)",
+                  "format": "uri",
+                  "example": "https://api.calendly.com/event_types/GBGBDCAADAEDCRZ2"
+                },
+                "owner_type": {
+                  "type": "string",
+                  "example": "EventType",
+                  "enum": [
+                    "EventType"
+                  ],
+                  "description": "Resource type (currently, this is always EventType)"
+                }
+              }
+            }
+          },
+          "required": [
+            "resource"
+          ]
+        }
+      }
+    },
+    {
+      "operationId": "postData_complianceDeletionInvitees",
+      "method": "POST",
+      "path": "/data_compliance/deletion/invitees",
+      "summary": "Delete Invitee Data",
+      "description": "To submit a request to remove invitee data from all previously booked events in your organization, use this endpoint. Requests for data deletion can take up to 7 days to complete.\n\n<!-- theme: info -->\n  > This endpoint requires an <strong>Enterprise</strong> subscription.\n  >\n  > #### Required scopes: `data_compliance:write`",
+      "tags": [
+        "Data Compliance"
+      ],
+      "parameters": [],
+      "requestBody": {
+        "type": "object",
+        "properties": {
+          "emails": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "email",
+              "example": "test@example.com"
+            }
+          }
+        },
+        "required": [
+          "emails"
+        ]
+      },
+      "responses": {
+        "202": {
+          "type": "object",
+          "properties": {}
+        }
+      }
+    },
+    {
+      "operationId": "getInvitee_no_showsByUuid",
+      "method": "GET",
+      "path": "/invitee_no_shows/{uuid}",
+      "summary": "Get Invitee No Show",
+      "description": "Returns information about a specified Invitee No Show.\n\n<!-- theme: info -->\n  > #### Required scopes: `scheduled_events:read`",
+      "tags": [
+        "Scheduled Events"
+      ],
+      "parameters": [
+        {
+          "name": "uuid",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "type": "object",
+          "properties": {
+            "resource": {
+              "$ref": "#/components/schemas/InviteeNoShow"
+            }
+          },
+          "required": [
+            "resource"
+          ]
+        }
+      }
+    },
+    {
+      "operationId": "deleteInvitee_no_showsByUuid",
+      "method": "DELETE",
+      "path": "/invitee_no_shows/{uuid}",
+      "summary": "Delete Invitee No Show",
+      "description": "Undoes marking an Invitee as a No Show.\n\n<!-- theme: info -->\n  > #### Required scopes: `scheduled_events:write`",
+      "tags": [
+        "Scheduled Events"
+      ],
+      "parameters": [
+        {
+          "name": "uuid",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "204": {
+          "description": "No Content"
+        }
+      }
+    },
+    {
+      "operationId": "postInvitee_no_shows",
+      "method": "POST",
+      "path": "/invitee_no_shows",
+      "summary": "Create Invitee No Show",
+      "description": "Marks an Invitee as a No Show.\n\n<!-- theme: info -->\n  > #### Required scopes: `scheduled_events:write`",
+      "tags": [
+        "Scheduled Events"
+      ],
+      "parameters": [],
+      "requestBody": {
+        "type": "object",
+        "properties": {
+          "invitee": {
+            "type": "string",
+            "format": "uri",
+            "example": "https://api.calendly.com/scheduled_events/GBGBDCAADAEDCRZ2/invitees/7c1dbe46-bd84-42e2-9b97-05e2fb379bfe"
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "type": "object",
+          "properties": {
+            "resource": {
+              "$ref": "#/components/schemas/InviteeNoShow"
+            }
+          },
+          "required": [
+            "resource"
+          ]
+        }
+      }
+    },
+    {
+      "operationId": "getGroupsByUuid",
+      "method": "GET",
+      "path": "/groups/{uuid}",
+      "summary": "Get Group",
+      "description": "Returns information about a specified Group.\n\n<!-- theme: info -->\n  > #### Required scopes: `groups:read`",
+      "tags": [
+        "Groups"
+      ],
+      "parameters": [
+        {
+          "name": "uuid",
+          "in": "path",
+          "required": true,
+          "description": "Group unique identifier",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "type": "object",
+          "description": "Service response",
+          "properties": {
+            "resource": {
+              "$ref": "#/components/schemas/Group"
+            }
+          },
+          "required": [
+            "resource"
+          ]
+        }
+      }
+    },
+    {
+      "operationId": "getGroup_relationships",
+      "method": "GET",
+      "path": "/group_relationships",
+      "summary": "List Group Relationships",
+      "description": "Returns a list of group relationships - a given owner can have one membership record, but multiple admin records\n\n<!-- theme: info -->\n  > #### Required scopes: `groups:read`",
+      "tags": [
+        "Groups"
+      ],
+      "parameters": [
+        {
+          "name": "organization",
+          "in": "query",
+          "required": false,
+          "description": "Indicates the results should be filtered by organization",
+          "schema": {
+            "type": "string",
+            "format": "uri"
+          }
+        },
+        {
+          "name": "owner",
+          "in": "query",
+          "required": false,
+          "description": "Indicates the results should be filtered by owner <br>\nOne Of:\n  - Organization Membership URI - `https://api.calendly.com/organization_memberships/AAAAAAAAAAAAAAAA`\n  - Organization Invitation URI - `https://api.calendly.com/organizations/AAAAAAAAAAAAAAAA/invitations/BBBBBBBBBBBBBBBB`\n",
+          "schema": {
+            "type": "string",
+            "format": "uri"
+          }
+        },
+        {
+          "name": "group",
+          "in": "query",
+          "required": false,
+          "description": "Indicates the results should be filtered by group",
+          "schema": {
+            "type": "string",
+            "format": "uri"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "type": "object",
+          "description": "Service response",
+          "properties": {
+            "collection": {
+              "type": "array",
+              "description": "The set of group relationship records matching the criteria",
+              "items": {
+                "$ref": "#/components/schemas/GroupRelationship"
+              }
+            },
+            "pagination": {
+              "$ref": "models/Pagination.yaml"
+            }
+          },
+          "required": [
+            "collection",
+            "pagination"
+          ]
+        }
+      }
+    },
+    {
+      "operationId": "getGroup_relationshipsByUuid",
+      "method": "GET",
+      "path": "/group_relationships/{uuid}",
+      "summary": "Get Group Relationship",
+      "description": "Returns a group relationship by uuid\n\n<!-- theme: info -->\n  > #### Required scopes: `groups:read`",
+      "tags": [
+        "Groups"
+      ],
+      "parameters": [
+        {
+          "name": "uuid",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "type": "object",
+          "description": "Service response",
+          "properties": {
+            "resource": {
+              "$ref": "#/components/schemas/GroupRelationship"
+            }
+          },
+          "required": [
+            "resource"
+          ]
+        }
+      }
+    },
+    {
+      "operationId": "getOrganizationsByUuid",
+      "method": "GET",
+      "path": "/organizations/{uuid}",
+      "summary": "Get Organization",
+      "description": "Returns the details of a specified Organization.\n\n<!-- theme: info -->\n  > #### Required scopes: `organizations:read`",
+      "tags": [
+        "Organizations"
+      ],
+      "parameters": [
+        {
+          "name": "uuid",
+          "in": "path",
+          "required": true,
+          "description": "The organization's unique identifier",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "type": "object",
+          "properties": {
+            "resource": {
+              "$ref": "#/components/schemas/Organization"
+            }
+          },
+          "required": [
+            "resource"
+          ]
+        }
+      }
+    },
+    {
+      "operationId": "postScheduled_eventsByUuidCancellation",
+      "method": "POST",
+      "path": "/scheduled_events/{uuid}/cancellation",
+      "summary": "Cancel Event",
+      "description": "Cancels specified event.\n\n<!-- theme: info -->\n  > #### Required scopes: `scheduled_events:write`",
+      "tags": [
+        "Scheduled Events"
+      ],
+      "parameters": [
+        {
+          "name": "uuid",
+          "in": "path",
+          "required": true,
+          "description": "The event's unique indentifier",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "requestBody": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "description": "Reason for cancellation",
+            "maxLength": 10000
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "type": "object",
+          "properties": {
+            "resource": {
+              "$ref": "#/components/schemas/Cancellation"
+            }
+          },
+          "required": [
+            "resource"
+          ]
+        }
+      }
+    },
+    {
+      "operationId": "getRouting_forms",
+      "method": "GET",
+      "path": "/routing_forms",
+      "summary": "List Routing Forms",
+      "description": "Get a list of Routing Forms for a specified Organization.\n\n<!-- theme: info -->\n  > #### Required scopes: `routing_forms:read`",
+      "tags": [
+        "Routing Forms"
+      ],
+      "parameters": [
+        {
+          "name": "organization",
+          "in": "query",
+          "required": true,
+          "description": "View organization routing forms associated with the organization's URI.",
+          "schema": {
+            "type": "string",
+            "example": "https://api.calendly.com/organizations/EBHAAFHDCAEQTSEZ",
+            "format": "uri"
+          }
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "required": false,
+          "description": "Order results by the specified field and direction. Accepts comma-separated list of {field}:{direction} values. Supported fields are: created_at. Sort direction is specified as: asc, desc.",
+          "schema": {
+            "type": "string",
+            "example": "created_at:asc"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "type": "object",
+          "properties": {
+            "collection": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/RoutingForm"
+              }
+            },
+            "pagination": {
+              "$ref": "models/Pagination.yaml"
+            }
+          },
+          "required": [
+            "collection",
+            "pagination"
+          ]
+        }
+      }
+    },
+    {
+      "operationId": "getRouting_formsByUuid",
+      "method": "GET",
+      "path": "/routing_forms/{uuid}",
+      "summary": "Get Routing Form",
+      "description": "Get a specified Routing Form.\n\n<!-- theme: info -->\n  > #### Required scopes: `routing_forms:read`",
+      "tags": [
+        "Routing Forms"
+      ],
+      "parameters": [
+        {
+          "name": "uuid",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "type": "object",
+          "properties": {
+            "resource": {
+              "$ref": "#/components/schemas/RoutingForm"
+            }
+          },
+          "required": [
+            "resource"
+          ]
+        }
+      }
+    },
+    {
+      "operationId": "getRouting_form_submissions",
+      "method": "GET",
+      "path": "/routing_form_submissions",
+      "summary": "List Routing Form Submissions",
+      "description": "Get a list of Routing Form Submissions for a specified Routing Form.\n\n<!-- theme: info -->\n  > #### Required scopes: `routing_forms:read`",
+      "tags": [
+        "Routing Forms"
+      ],
+      "parameters": [
+        {
+          "name": "form",
+          "in": "query",
+          "required": true,
+          "description": "View routing form submissions associated with the routing form's URI.",
+          "schema": {
+            "type": "string",
+            "format": "uri",
+            "example": "https://api.calendly.com/routing_forms/AAAAAAAAAAAAAAAA"
+          }
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "required": false,
+          "description": "Order results by the specified field and direction. Accepts comma-separated list of {field}:{direction} values. Supported fields are: created_at. Sort direction is specified as: asc, desc.",
+          "schema": {
+            "type": "string",
+            "example": "created_at:asc"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "type": "object",
+          "properties": {
+            "collection": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/RoutingFormSubmission"
+              }
+            },
+            "pagination": {
+              "$ref": "models/Pagination.yaml"
+            }
+          },
+          "required": [
+            "collection",
+            "pagination"
+          ]
+        }
+      }
+    },
+    {
+      "operationId": "getRouting_form_submissionsByUuid",
+      "method": "GET",
+      "path": "/routing_form_submissions/{uuid}",
+      "summary": "Get Routing Form Submission",
+      "description": "Get a specified Routing Form Submission.\n\n<!-- theme: info -->\n  > #### Required scopes: `routing_forms:read`",
+      "tags": [
+        "Routing Forms"
+      ],
+      "parameters": [
+        {
+          "name": "uuid",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "type": "object",
+          "properties": {
+            "resource": {
+              "$ref": "#/components/schemas/RoutingFormSubmission"
+            }
+          },
+          "required": [
+            "resource"
+          ]
+        }
+      }
+    },
+    {
+      "operationId": "getEvent_type_available_times",
+      "method": "GET",
+      "path": "/event_type_available_times",
+      "summary": "List Event Type Available Times",
+      "description": "Returns a list of available times for an event type within a specified date range.\n\nDate range can be no greater than 1 week (7 days).\n\n**NOTE:**\n* This endpoint does not support traditional keyset pagination.\n\n<!-- theme: info -->\n  > #### Required scopes: `availability:read`",
+      "tags": [
+        "Event Types"
+      ],
+      "parameters": [
+        {
+          "name": "event_type",
+          "in": "query",
+          "required": true,
+          "description": "The uri associated with the event type",
+          "schema": {
+            "type": "string",
+            "format": "uri"
+          }
+        },
+        {
+          "name": "start_time",
+          "in": "query",
+          "required": true,
+          "description": "Start time of the requested availability range. Date cannot be in the past.",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "end_time",
+          "in": "query",
+          "required": true,
+          "description": "End time of the requested availability range. Date must be in the future of start_time.",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "type": "object",
+          "description": "Service Response",
+          "properties": {
+            "collection": {
+              "type": "array",
+              "description": "The set of available times for the event type matching the criteria",
+              "items": {
+                "$ref": "#/components/schemas/EventTypeAvailableTime"
+              }
+            }
+          },
+          "required": [
+            "collection"
+          ]
+        }
+      }
+    },
+    {
+      "operationId": "getActivity_log_entries",
+      "method": "GET",
+      "path": "/activity_log_entries",
+      "summary": "List activity log entries",
+      "description": "<!-- theme: info -->\n  > This endpoint requires an <strong>Enterprise</strong> subscription.\n  >\n  > #### Required scopes: `activity_log:read`\n\nReturns a list of activity log entries",
+      "tags": [
+        "Activity Log"
+      ],
+      "parameters": [
+        {
+          "name": "organization",
+          "in": "query",
+          "required": true,
+          "description": "Return activity log entries from the organization associated with this URI",
+          "schema": {
+            "type": "string",
+            "format": "uri",
+            "example": "https://api.calendly.com/organizations/EBHAAFHDCAEQTSEZ"
+          }
+        },
+        {
+          "name": "search_term",
+          "in": "query",
+          "required": false,
+          "description": "Filters entries based on the search term.\n\nSupported operators:\n  - `|` - to allow filtering by one term or another. Example: `this | that`\n  - `+` - to allow filtering by one term and another. Example: `this + that`\n  - `\"` - to allow filtering by an exact search term. Example: `\"email@website.com\"`\n  - `-` - to omit specific terms from results. Example: `Added -User`\n  - `()` - to allow specifying precedence during a search. Example: `(this + that) OR (person + place)`\n  - `*` - to allow prefix searching. Example `*@other-website.com`\n",
+          "schema": {
+            "type": "string",
+            "maxLength": 300
+          }
+        },
+        {
+          "name": "actor",
+          "in": "query",
+          "required": false,
+          "description": "Return entries from the user(s) associated with the provided URIs",
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uri",
+              "example": "https://api.calendly.com/users/EBHAAFHDCAEQTSEZ"
+            }
+          }
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "required": false,
+          "description": "Order results by the specified field and direction. List of {field}:{direction} values.",
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "action:asc",
+                "action:desc",
+                "actor.display_name:asc",
+                "actor.display_name:desc",
+                "actor.uri:asc",
+                "actor.uri:desc",
+                "namespace:asc",
+                "namespace:desc",
+                "occurred_at:asc",
+                "occurred_at:desc"
+              ]
+            },
+            "default": [
+              "occurred_at:desc"
+            ]
+          }
+        },
+        {
+          "name": "min_occurred_at",
+          "in": "query",
+          "required": false,
+          "description": "Include entries that occurred after this time (sample time format: \"2020-01-02T03:04:05.678Z\"). This time should use the UTC timezone.",
+          "schema": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        {
+          "name": "max_occurred_at",
+          "in": "query",
+          "required": false,
+          "description": "Include entries that occurred prior to this time (sample time format: \"2020-01-02T03:04:05.678Z\"). This time should use the UTC timezone.",
+          "schema": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        {
+          "name": "page_token",
+          "in": "query",
+          "required": false,
+          "description": "The token to pass to get the next portion of the collection",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "count",
+          "in": "query",
+          "required": false,
+          "description": "The number of rows to return",
+          "schema": {
+            "type": "integer",
+            "default": 20,
+            "minimum": 1,
+            "maximum": 1000
+          }
+        },
+        {
+          "name": "namespace",
+          "in": "query",
+          "required": false,
+          "description": "The categories of the entries",
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "name": "action",
+          "in": "query",
+          "required": false,
+          "description": "The action(s) associated with the entries",
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "type": "object",
+          "description": "Activity log response",
+          "additionalProperties": false,
+          "properties": {
+            "collection": {
+              "type": "array",
+              "description": "The set of activity log entries matching the criteria",
+              "items": {
+                "$ref": "models/activity-log/Entry.yaml"
+              }
+            },
+            "pagination": {
+              "$ref": "models/Pagination.yaml"
+            },
+            "last_event_time": {
+              "type": "string",
+              "format": "date-time",
+              "nullable": true,
+              "description": "The date and time of the newest entry (format: \"2020-01-02T03:04:05.678Z\") in the collection array."
+            },
+            "total_count": {
+              "type": "integer",
+              "description": "Total number of records based on search criteria",
+              "minimum": 0
+            },
+            "exceeds_max_total_count": {
+              "type": "boolean",
+              "description": "If there are more search results than the total_count field indicates, pagination will continue to return results past the total_count field value."
+            }
+          },
+          "required": [
+            "collection",
+            "pagination",
+            "total_count",
+            "exceeds_max_total_count"
+          ]
+        }
+      }
+    },
+    {
+      "operationId": "postShares",
+      "method": "POST",
+      "path": "/shares",
+      "summary": "Create Share",
+      "description": "Endpoint for our [Customize Once and Share](https://calendly.com/help/how-to-create-a-single-use-link) feature. This allows you to customize events for a specific invitee without needing to make an entirely new event type.\n***This feature is only available for one-on-one event types.***\n**Note: Any parameter which is not provided in the request body will be copied from the target event type.**\n\n<!-- theme: info -->\n  > #### Required scopes: `shares:write`",
+      "tags": [
+        "Shares"
+      ],
+      "parameters": [],
+      "requestBody": {
+        "type": "object",
+        "properties": {
+          "event_type": {
+            "type": "string",
+            "format": "uri",
+            "example": "https://api.calendly.com/event_types/AAAAAAAAAAAAAAAA"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 55,
+            "example": "15 Minute Meeting"
+          },
+          "duration": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 720,
+            "example": 15,
+            "description": "Must be one of the provided duration options. If duration options aren't provided then duration must be one of the duration options inherited from the event type."
+          },
+          "duration_options": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "example": [
+              1,
+              13,
+              15,
+              720
+            ],
+            "description": "A maximum of 4 unique options is allowed. Each option must be >= 1 and <= 720."
+          },
+          "period_type": {
+            "type": "string",
+            "enum": [
+              "available_moving",
+              "moving",
+              "fixed",
+              "unlimited"
+            ],
+            "example": "fixed"
+          },
+          "start_date": {
+            "type": "string",
+            "format": "date",
+            "example": "2019-01-02",
+            "description": "is required when `period_type` is 'fixed'\nFormat: `YYYY-MM-DD`"
+          },
+          "end_date": {
+            "type": "string",
+            "format": "date",
+            "example": "2019-01-03",
+            "description": "is required when `period_type` is 'fixed'\nFormat: `YYYY-MM-DD`"
+          },
+          "max_booking_time": {
+            "type": "integer",
+            "example": 300,
+            "description": "is required when `period_type` is 'moving' or 'available_moving'"
+          },
+          "hide_location": {
+            "type": "boolean",
+            "description": "determines if a location is hidden until invitee books a spot, only respected when there is a single custom location configured"
+          },
+          "location_configurations": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "location": {
+                  "type": "string",
+                  "maxLength": 255,
+                  "example": "123 Abc St.",
+                  "description": "is only supported when `kind` is 'physical', 'custom' or 'ask_invitee'"
+                },
+                "additional_info": {
+                  "type": "string",
+                  "maxLength": 255,
+                  "example": "Example additional information",
+                  "description": "is only supported when `kind` is 'physical' or 'inbound_call' "
+                },
+                "phone_number": {
+                  "type": "string",
+                  "example": "+1 888-888-8888",
+                  "description": "is required when `kind` is 'inbound_call'"
+                },
+                "position": {
+                  "type": "integer",
+                  "example": 0
+                },
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "physical",
+                    "ask_invitee",
+                    "custom",
+                    "outbound_call",
+                    "inbound_call",
+                    "google_conference",
+                    "gotomeeting_conference",
+                    "microsoft_teams_conference",
+                    "webex_conference",
+                    "zoom_conference"
+                  ],
+                  "example": "physical"
+                }
+              }
+            }
+          },
+          "availability_rule": {
+            "type": "object",
+            "properties": {
+              "rules": {
+                "type": "array",
+                "description": "are required when an availability rule is provided",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "wday",
+                        "date"
+                      ],
+                      "example": "wday"
+                    },
+                    "wday": {
+                      "type": "string",
+                      "enum": [
+                        "sunday",
+                        "monday",
+                        "tuesday",
+                        "wednesday",
+                        "thursday",
+                        "friday",
+                        "saturday"
+                      ],
+                      "example": "friday",
+                      "description": "is required when `type` is 'wday'"
+                    },
+                    "date": {
+                      "type": "string",
+                      "format": "date",
+                      "example": "2019-01-02",
+                      "description": "is required when `type` is 'date'\nFormat: `YYYY-MM-DD`"
+                    },
+                    "intervals": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "from": {
+                            "type": "string",
+                            "pattern": "(\\d\\d):(\\d\\d)",
+                            "example": "07:00",
+                            "description": "Format: `\"hh:mm\"`"
+                          },
+                          "to": {
+                            "type": "string",
+                            "example": "11:00",
+                            "description": "Format: `\"hh:mm\"`",
+                            "pattern": "(\\d\\d):(\\d\\d)"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "timezone": {
+                "type": "string",
+                "example": "America/New_York",
+                "description": "is required when an availability rule is provided"
+              }
+            }
+          }
+        },
+        "required": [
+          "event_type"
+        ]
+      },
+      "responses": {
+        "201": {
+          "type": "object",
+          "properties": {
+            "resource": {
+              "$ref": "#/components/schemas/Share"
+            }
+          },
+          "required": [
+            "resource"
+          ]
+        },
+        "500": {
+          "description": "Internal Server Error"
+        }
+      }
+    },
+    {
+      "operationId": "getUser_busy_times",
+      "method": "GET",
+      "path": "/user_busy_times",
+      "summary": "List User Busy Times",
+      "description": "Returns an ascending list of user internal and external scheduled events within a specified date range.\n\nDate range can be no greater than 1 week (7 days).\n\n**NOTE:**\n* This endpoint does not support traditional keyset pagination.\n* External events will only be returned for calendars that have \"Check for conflicts\" configured.\n\n<!-- theme: info -->\n  > #### Required scopes: `availability:read`",
+      "tags": [
+        "Availability"
+      ],
+      "parameters": [
+        {
+          "name": "user",
+          "in": "query",
+          "required": true,
+          "description": "The uri associated with the user",
+          "schema": {
+            "type": "string",
+            "format": "uri"
+          }
+        },
+        {
+          "name": "start_time",
+          "in": "query",
+          "required": true,
+          "description": "Start time of the requested availability range. Date cannot be in the past.",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "end_time",
+          "in": "query",
+          "required": true,
+          "description": "End time of the requested availability range. Date must be in the future of start_time.",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "type": "object",
+          "description": "Service Response",
+          "properties": {
+            "collection": {
+              "type": "array",
+              "description": "The set of internal and external scheduled calendar events matching the criteria",
+              "items": {
+                "$ref": "#/components/schemas/UserBusyTime"
+              }
+            }
+          },
+          "required": [
+            "collection"
+          ]
+        },
+        "424": {
+          "$ref": "models/ErrorResponse.yaml"
+        }
+      }
+    },
+    {
+      "operationId": "getUser_availability_schedules",
+      "method": "GET",
+      "path": "/user_availability_schedules",
+      "summary": "List User Availability Schedules",
+      "description": "Returns the availability schedules of the given user.\n\n<!-- theme: info -->\n  > #### Required scopes: `availability:read`",
+      "tags": [
+        "Availability"
+      ],
+      "parameters": [],
+      "responses": {
+        "200": {
+          "type": "object",
+          "properties": {
+            "collection": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/AvailabilitySchedule"
+              }
+            }
+          },
+          "required": [
+            "collection"
+          ]
+        }
+      }
+    },
+    {
+      "operationId": "getUser_availability_schedulesByUuid",
+      "method": "GET",
+      "path": "/user_availability_schedules/{uuid}",
+      "summary": "Get User Availability Schedule",
+      "description": "This will return the availability schedule of the given UUID.\n\n<!-- theme: info -->\n  > #### Required scopes: `availability:read`",
+      "tags": [
+        "Availability"
+      ],
+      "parameters": [
+        {
+          "name": "uuid",
+          "in": "path",
+          "required": true,
+          "description": "The UUID of the availability schedule.",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "type": "object",
+          "properties": {
+            "resource": {
+              "$ref": "#/components/schemas/AvailabilitySchedule"
+            }
+          },
+          "required": [
+            "resource"
+          ]
+        },
+        "500": {
+          "description": "Internal Server Error"
+        }
+      }
+    },
+    {
+      "operationId": "postData_complianceDeletionEvents",
+      "method": "POST",
+      "path": "/data_compliance/deletion/events",
+      "summary": "Delete Scheduled Event Data",
+      "description": "<!-- theme: info -->\n  > This endpoint requires an <strong>Enterprise</strong> subscription.\n  >\n  > #### Required scopes: `data_compliance:write`\n\nTo submit a request to remove scheduled events data within a time range for your organization, use this endpoint. Requests for data deletion can take up to 7 days to complete.\n\nTime range can be no greater than 24 months and must occur in the past.",
+      "tags": [
+        "Data Compliance"
+      ],
+      "parameters": [],
+      "requestBody": {
+        "type": "object",
+        "properties": {
+          "start_time": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2019-01-02T03:04:05.678123Z",
+            "description": "The scheduled events UTC timestamp at which data deletion should begin."
+          },
+          "end_time": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2021-01-01T02:04:05.678123Z",
+            "description": "The scheduled events UTC timestamp at which data deletion should end."
+          }
+        },
+        "required": [
+          "start_time",
+          "end_time"
+        ]
+      },
+      "responses": {
+        "202": {
+          "type": "object",
+          "properties": {}
+        }
+      }
+    },
+    {
+      "operationId": "getEvent_type_memberships",
+      "method": "GET",
+      "path": "/event_type_memberships",
+      "summary": "List Event Type Hosts",
+      "description": "Fetch list of event type hosts\n\n<!-- theme: info -->\n  > #### Required scopes: `event_types:read`",
+      "tags": [
+        "Event Types"
+      ],
+      "parameters": [
+        {
+          "name": "event_type",
+          "in": "query",
+          "required": true,
+          "description": "The uri associated with the event type",
+          "schema": {
+            "type": "string",
+            "format": "uri",
+            "example": "https://api.calendly.com/event_types/AAAAAAAAAAAAAAAA"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "type": "object",
+          "properties": {
+            "collection": {
+              "type": "array",
+              "x-stoplight": {
+                "id": "qztuhho5x3zpv"
+              },
+              "description": "The set of hosts for a given event type",
+              "items": {
+                "x-stoplight": {
+                  "id": "kdtux9x5kmfja"
+                },
+                "allOf": [
+                  {
+                    "x-stoplight": {
+                      "id": "m4vwpxcfhqui1"
+                    },
+                    "properties": {
+                      "uri": {
+                        "type": "string",
+                        "x-stoplight": {
+                          "id": "zhhgnfh1tz02n"
+                        },
+                        "format": "uri",
+                        "example": "https://api.calendly.com/event_type_memberships/AAAAAAAAAAAAAAAA",
+                        "description": "Canonical reference (unique identifier) for the event type membership"
+                      },
+                      "event_type": {
+                        "$ref": "#/components/schemas/EventType"
+                      },
+                      "member": {
+                        "x-stoplight": {
+                          "id": "w2455rcn8o8yn"
+                        },
+                        "oneOf": [
+                          {
+                            "$ref": "#/components/schemas/User"
+                          }
+                        ],
+                        "description": "The event type host"
+                      },
+                      "updated_at": {
+                        "type": "string",
+                        "x-stoplight": {
+                          "id": "qqpzun4kqukdf"
+                        },
+                        "example": "2019-01-02T03:04:05.678123Z",
+                        "format": "date-time",
+                        "description": "Date and time of last update"
+                      },
+                      "created_at": {
+                        "type": "string",
+                        "x-stoplight": {
+                          "id": "msj0erhvp7znd"
+                        },
+                        "example": "2019-01-02T03:04:05.678123Z",
+                        "format": "date-time",
+                        "description": "Date and time of creation"
+                      }
+                    },
+                    "required": [
+                      "uri",
+                      "event_type"
+                    ]
+                  }
+                ],
+                "type": "object"
+              }
+            },
+            "pagination": {
+              "$ref": "./models/Pagination.yaml"
+            }
+          },
+          "required": [
+            "collection",
+            "pagination"
+          ]
+        }
+      }
+    },
+    {
+      "operationId": "postOne_off_event_types",
+      "method": "POST",
+      "path": "/one_off_event_types",
+      "summary": "Create One-Off Event Type",
+      "description": "Creates One-Off Event Type\n\n<!-- theme: info -->\n  > #### Required scopes: `event_types:write`",
+      "tags": [
+        "Event Types"
+      ],
+      "parameters": [],
+      "requestBody": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "x-stoplight": {
+              "id": "0tj6bpbhb3zax"
+            },
+            "description": "Event type name",
+            "example": "My Meeting",
+            "maxLength": 55
+          },
+          "host": {
+            "type": "string",
+            "x-stoplight": {
+              "id": "g80s05pbxm7bq"
+            },
+            "description": "Host user uri",
+            "example": "https://api.calendly.com/users/AAAAAAAAAAAAAAAA",
+            "format": "uri"
+          },
+          "co_hosts": {
+            "type": "array",
+            "x-stoplight": {
+              "id": "smhocxmji8deh"
+            },
+            "maxItems": 9,
+            "description": "Collection of meeting co-host(s) user URIs",
+            "items": {
+              "x-stoplight": {
+                "id": "0nqgfaej6nlv1"
+              },
+              "type": "string",
+              "format": "uri"
+            }
+          },
+          "duration": {
+            "type": "number",
+            "x-stoplight": {
+              "id": "r2qqy76sh5ikv"
+            },
+            "maximum": 720,
+            "description": "Duration of meeting in minutes"
+          },
+          "timezone": {
+            "type": "string",
+            "x-stoplight": {
+              "id": "hsu3tz8o7ykos"
+            },
+            "description": "Time zone used for meeting. Defaults to host's time zone.",
+            "example": "America/New_York"
+          },
+          "date_setting": {
+            "x-stoplight": {
+              "id": "hskuoq7f14ynp"
+            },
+            "oneOf": [
+              {
+                "$ref": "./models/date_setting/DateRange.yaml"
+              },
+              {
+                "$ref": "./models/date_setting/DaysInFuture.yaml"
+              },
+              {
+                "$ref": "./models/date_setting/Spots.yaml"
+              }
+            ]
+          },
+          "location": {
+            "oneOf": [
+              {
+                "$ref": "./models/adhoc-locations/AdhocCustomLocation.yaml"
+              },
+              {
+                "$ref": "./models/adhoc-locations/AdhocGoogleConference.yaml"
+              },
+              {
+                "$ref": "./models/adhoc-locations/AdhocGotoMeetingConference.yaml"
+              },
+              {
+                "$ref": "./models/adhoc-locations/AdhocInPersonMeeting.yaml"
+              },
+              {
+                "$ref": "./models/adhoc-locations/AdhocInboundCall.yaml"
+              },
+              {
+                "$ref": "./models/adhoc-locations/AdhocInviteeSpecifiedLocation.yaml"
+              },
+              {
+                "$ref": "./models/adhoc-locations/AdhocMicrosoftTeamsConference.yaml"
+              },
+              {
+                "$ref": "./models/adhoc-locations/AdhocOutboundCall.yaml"
+              },
+              {
+                "$ref": "./models/adhoc-locations/AdhocWebExConference.yaml"
+              },
+              {
+                "$ref": "./models/adhoc-locations/AdhocZoomConference.yaml"
+              }
+            ]
+          }
+        },
+        "required": [
+          "name",
+          "host",
+          "duration",
+          "date_setting"
+        ]
+      },
+      "responses": {
+        "201": {
+          "type": "object",
+          "properties": {
+            "resource": {
+              "$ref": "#/components/schemas/EventType"
+            }
+          },
+          "required": [
+            "resource"
+          ]
+        }
+      }
+    },
+    {
+      "operationId": "getSample_webhook_data",
+      "method": "GET",
+      "path": "/sample_webhook_data",
+      "summary": "Get sample webhook data",
+      "description": "Test your webhook subscription\n\n<!-- theme: info -->\n  > #### Required scopes: `webhooks:read`",
+      "tags": [
+        "Webhooks"
+      ],
+      "parameters": [
+        {
+          "name": "event",
+          "in": "query",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "enum": [
+              "invitee.created",
+              "invitee.canceled",
+              "invitee_no_show.created",
+              "invitee_no_show.deleted",
+              "routing_form_submission.created",
+              "event_type.created",
+              "event_type.deleted",
+              "event_type.updated",
+              "contact.created",
+              "contact.updated",
+              "contact.deleted"
+            ]
+          }
+        },
+        {
+          "name": "organization",
+          "in": "query",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uri",
+            "example": "https://api.calendly.com/organizations/AAAAAAAAAAAAAAAA"
+          }
+        },
+        {
+          "name": "user",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "format": "uri",
+            "example": "https://api.calendly.com/users/AAAAAAAAAAAAAAAA"
+          }
+        },
+        {
+          "name": "scope",
+          "in": "query",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "enum": [
+              "user",
+              "organization",
+              "group"
+            ]
+          }
+        },
+        {
+          "name": "group",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "example": "https://api.calendly.com/groups/AAAAAAAAAAAAAAAA",
+            "format": "uri"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "#/components/schemas/WebhookPayload"
+        }
+      }
+    },
+    {
+      "operationId": "getOutgoing_communications",
+      "method": "GET",
+      "path": "/outgoing_communications",
+      "summary": "List outgoing communications",
+      "description": "<!-- theme: info -->\n  > This endpoint requires an <strong>Enterprise</strong> subscription.\n  >\n  > #### Required scopes: `outgoing_communications:read`\n\nReturns a list of outgoing SMS and email communications.",
+      "tags": [
+        "Outgoing Communications"
+      ],
+      "parameters": [
+        {
+          "name": "organization",
+          "in": "query",
+          "required": true,
+          "description": "Return outgoing communications from the organization associated with this URI",
+          "schema": {
+            "type": "string",
+            "format": "uri",
+            "example": "https://api.calendly.com/organizations/EBHAAFHDCAEQTSEZ"
+          }
+        },
+        {
+          "name": "count",
+          "in": "query",
+          "required": false,
+          "description": "The number of records to return",
+          "schema": {
+            "type": "integer",
+            "default": 20,
+            "minimum": 1,
+            "maximum": 100
+          }
+        },
+        {
+          "name": "min_created_at",
+          "in": "query",
+          "required": false,
+          "description": "Include outgoing communications that were created after this time (sample time format: \"2020-01-02T03:04:05.678Z\"). This time should use the UTC timezone",
+          "schema": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        {
+          "name": "max_created_at",
+          "in": "query",
+          "required": false,
+          "description": "Include outgoing communications that were created prior to this time (sample time format: \"2020-01-02T03:04:05.678Z\"). This time should use the UTC timezone",
+          "schema": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        {
+          "name": "page_token",
+          "in": "query",
+          "required": false,
+          "description": "The token to pass to get the next portion of the collection",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "type": "object",
+          "description": "Outgoing communications response",
+          "additionalProperties": false,
+          "properties": {
+            "collection": {
+              "type": "array",
+              "description": "The communications matching the criteria",
+              "items": {
+                "anyOf": [
+                  {
+                    "$ref": "models/outgoing-communications/sms.yaml"
+                  },
+                  {
+                    "$ref": "models/outgoing-communications/email.yaml"
+                  }
+                ]
+              }
+            },
+            "pagination": {
+              "$ref": "models/Pagination.yaml"
+            },
+            "total_count": {
+              "type": "integer",
+              "description": "Total number of records based on search criteria",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "collection",
+            "pagination",
+            "total_count"
+          ]
+        }
+      }
+    },
+    {
+      "operationId": "getGroups",
+      "method": "GET",
+      "path": "/groups",
+      "summary": "List Groups",
+      "description": "Returns a list of groups.\n\n<!-- theme: info -->\n  > #### Required scopes: `groups:read`",
+      "tags": [
+        "Groups"
+      ],
+      "parameters": [
+        {
+          "name": "organization",
+          "in": "query",
+          "required": true,
+          "description": "Return groups that are associated with the organization associated with this URI",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "type": "object",
+          "required": [
+            "collection",
+            "pagination"
+          ],
+          "properties": {
+            "collection": {
+              "type": "array",
+              "x-stoplight": {
+                "id": "q0ayom0hx12xp"
+              },
+              "items": {
+                "$ref": "#/components/schemas/Group"
+              }
+            },
+            "pagination": {
+              "$ref": "./models/Pagination.yaml"
+            }
+          }
+        }
+      }
+    },
+    {
+      "operationId": "getLocations",
+      "method": "GET",
+      "path": "/locations",
+      "summary": "List User Meeting Locations",
+      "description": "Returns configured location information for a given user.\n\n<!-- theme: info -->\n  > #### Required scopes: `locations:read`",
+      "tags": [
+        "Locations"
+      ],
+      "parameters": [
+        {
+          "name": "user",
+          "in": "query",
+          "required": true,
+          "description": "The URI associated with the user",
+          "schema": {
+            "type": "string",
+            "format": "uri",
+            "example": "https://api.calendly.com/users/AAAAAAAAAAAAAAAA"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "type": "object",
+          "description": "Service response",
+          "properties": {
+            "collection": {
+              "type": "array",
+              "description": "The collection of user meeting locations",
+              "items": {
+                "$ref": "#/components/schemas/MeetingLocation"
+              }
+            }
+          },
+          "required": [
+            "collection"
+          ]
+        }
+      }
+    },
+    {
+      "operationId": "getEvent_type_availability_schedules",
+      "method": "GET",
+      "path": "/event_type_availability_schedules",
+      "summary": "List Event Type Availability Schedules",
+      "description": "Return the availability for an event type\n\n<!-- theme: info -->\n  > #### Required scopes: `availability:read`",
+      "tags": [
+        "Availability"
+      ],
+      "parameters": [
+        {
+          "name": "event_type",
+          "in": "query",
+          "required": true,
+          "description": "The URI associated with the event type",
+          "schema": {
+            "type": "string",
+            "format": "uri",
+            "example": "https://api.calendly.com/event_types/AAAAAAAAAAAAAAAA"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "type": "object",
+          "properties": {
+            "collection": {
+              "type": "array",
+              "x-stoplight": {
+                "id": "ieo7sr95bw8un"
+              },
+              "items": {
+                "$ref": "#/components/schemas/EventTypeAvailabilitySchedule"
+              }
+            },
+            "pagination": {
+              "$ref": "models/Pagination.yaml"
+            }
+          },
+          "required": [
+            "collection",
+            "pagination"
+          ]
+        }
+      }
+    },
+    {
+      "operationId": "patchEvent_type_availability_schedules",
+      "method": "PATCH",
+      "path": "/event_type_availability_schedules",
+      "summary": "Update Event Type Availability Schedules",
+      "description": "Update an event type availability schedule\n\n<!-- theme: info -->\n  > #### Required scopes: `availability:write`",
+      "tags": [
+        "Availability"
+      ],
+      "parameters": [
+        {
+          "name": "event_type",
+          "in": "query",
+          "required": true,
+          "description": "Event Type uri in which to update the availability schedule",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "requestBody": {
+        "type": "object",
+        "required": [
+          "availability_rule"
+        ],
+        "properties": {
+          "availability_rule": {
+            "type": "object",
+            "x-stoplight": {
+              "id": "1k57u40qbjcoe"
+            },
+            "required": [
+              "timezone"
+            ],
+            "properties": {
+              "timezone": {
+                "type": "string",
+                "x-stoplight": {
+                  "id": "t7ppm5kfbx3t3"
+                },
+                "description": "The timezone for which this Event Type Availability Schedule is originated in."
+              },
+              "rules": {
+                "type": "array",
+                "description": "The rules for an availability schedule.<br>  <span style=\"color:red\">Warning: </span>Updating rules will overwrite all existing rules for the event type. Use the GET endpoint to first retrieve the existing rules and then pass the modified rules to the rules object.",
+                "x-stoplight": {
+                  "id": "08tupds2jfoeg"
+                },
+                "items": {
+                  "$ref": "#/components/schemas/AvailabilityRule"
+                }
+              },
+              "user": {
+                "type": "string",
+                "x-stoplight": {
+                  "id": "mpkhqhn87jrdb"
+                },
+                "format": "uri",
+                "example": "https://api.calendly.com/users/abc123",
+                "description": "Required when an admin or org owner is making the call to update a specific users availability schedule"
+              }
+            }
+          },
+          "availability_setting": {
+            "x-stoplight": {
+              "id": "7v3rsooj36r04"
+            },
+            "enum": [
+              "host"
+            ],
+            "default": "host",
+            "description": "By default every host on the Event Type shares an identical schedule.\n"
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "type": "object",
+          "required": [
+            "resource"
+          ],
+          "properties": {
+            "resource": {
+              "$ref": "#/components/schemas/EventTypeAvailabilitySchedule"
+            }
+          }
+        }
+      }
+    },
+    {
+      "operationId": "getContacts",
+      "method": "GET",
+      "path": "/contacts",
+      "summary": "List Contacts",
+      "description": "Returns a collection of Contacts\n\n<!-- theme: info -->\n  > #### Required scopes: `contacts:read`",
+      "tags": [
+        "Contacts"
+      ],
+      "parameters": [
+        {
+          "name": "sort",
+          "in": "query",
+          "required": false,
+          "description": "Order results by the specified field and direction. Accepts comma-separated list of {field}:{direction} values. Supported fields are: created_at, updated_at. Sort direction is specified as: asc, desc.",
+          "schema": {
+            "type": "string",
+            "example": "created_at:asc"
+          }
+        },
+        {
+          "name": "email",
+          "in": "query",
+          "required": false,
+          "description": "Filter results by exact match on email address. Accepts a comma-separated list.",
+          "schema": {
+            "type": "string",
+            "example": "contact_email@example.com, another-email@example.com"
+          }
+        },
+        {
+          "name": "phone_number",
+          "in": "query",
+          "required": false,
+          "description": "Filter results by exact match on phone number. Accepts a comma-separated list.",
+          "schema": {
+            "type": "string",
+            "example": "+1 888-888-8888, +1 777-777-7777"
+          }
+        },
+        {
+          "name": "timezone",
+          "in": "query",
+          "required": false,
+          "description": "Filter results by exact match on the IANA time zone name(s). Accepts a comma-separated list of time zones.",
+          "schema": {
+            "type": "string",
+            "example": "America/Los_Angeles, America/New_York"
+          }
+        },
+        {
+          "name": "name",
+          "in": "query",
+          "required": false,
+          "description": "Filter results by partial match on name(s). Accepts a comma-separated list-- each segment is matched independently (commas in the query string separate values).",
+          "schema": {
+            "type": "string",
+            "example": "Jane Doe, John Smith"
+          }
+        },
+        {
+          "name": "job_title",
+          "in": "query",
+          "required": false,
+          "description": "Filter results by partial match on job title(s). Accepts a comma-separated list-- each segment is matched independently (commas in the query string separate values).",
+          "schema": {
+            "type": "string",
+            "example": "Account Executive, CEO"
+          }
+        },
+        {
+          "name": "company",
+          "in": "query",
+          "required": false,
+          "description": "Filter results by partial match on company name(s). Accepts a comma-separated list-- each segment is matched independently (commas in the query string separate values).",
+          "schema": {
+            "type": "string",
+            "example": "Company Name, Another Company"
+          }
+        },
+        {
+          "name": "country",
+          "in": "query",
+          "required": false,
+          "description": "Filter results by exact match on two-letter country code (ISO 3166-1 alpha-2). Accepts a comma-separated list.",
+          "schema": {
+            "type": "string",
+            "example": "US"
+          }
+        },
+        {
+          "name": "state",
+          "in": "query",
+          "required": false,
+          "description": "Filter results by exact match on state(s), province(s), or region(s). Accepts a comma-separated list of values.",
+          "schema": {
+            "type": "string",
+            "example": "NY, CA"
+          }
+        },
+        {
+          "name": "city",
+          "in": "query",
+          "required": false,
+          "description": "Filter results by partial match on city(ies). Accepts a comma-separated list-- each segment is matched independently (commas in the query string separate values).",
+          "schema": {
+            "type": "string",
+            "example": "San Francisco, Buffalo"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "type": "object",
+          "properties": {
+            "collection": {
+              "type": "array",
+              "x-stoplight": {
+                "id": "ixr0jk24d8z6g"
+              },
+              "items": {
+                "$ref": "#/components/schemas/Contact"
+              }
+            },
+            "pagination": {
+              "$ref": "./models/Pagination.yaml"
+            }
+          },
+          "required": [
+            "collection",
+            "pagination"
+          ]
+        }
+      }
+    },
+    {
+      "operationId": "postContacts",
+      "method": "POST",
+      "path": "/contacts",
+      "summary": "Create Contact",
+      "description": "Create a new Contact\n\n<!-- theme: info -->\n  > #### Required scopes: `contacts:write`",
+      "tags": [
+        "Contacts"
+      ],
+      "parameters": [],
+      "requestBody": {
+        "type": "object",
+        "required": [
+          "name",
+          "emails"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "x-stoplight": {
+              "id": "g9w09hhe14m8k"
+            }
+          },
+          "emails": {
+            "type": "array",
+            "maxItems": 10,
+            "x-stoplight": {
+              "id": "9hiknfkcvkmp7"
+            },
+            "description": "The user's email addresses. Max 10.",
+            "items": {
+              "$ref": "models/contact/Email.yaml"
+            }
+          },
+          "phone_numbers": {
+            "type": "array",
+            "maxItems": 10,
+            "x-stoplight": {
+              "id": "3hkqyr48fuubx"
+            },
+            "description": "The user's phone numbers. Max 10.",
+            "items": {
+              "$ref": "models/contact/PhoneNumber.yaml"
+            }
+          },
+          "timezone": {
+            "type": "string",
+            "x-stoplight": {
+              "id": "t6binoxwk1jys"
+            }
+          },
+          "job_title": {
+            "type": "string",
+            "x-stoplight": {
+              "id": "nbsuzgny9jc9w"
+            }
+          },
+          "company": {
+            "type": "string",
+            "x-stoplight": {
+              "id": "pq6u5jqhrzoye"
+            }
+          },
+          "country": {
+            "type": "string",
+            "x-stoplight": {
+              "id": "lzjjadjrcb8nd"
+            }
+          },
+          "state": {
+            "type": "string",
+            "x-stoplight": {
+              "id": "ssz0f6rctghai"
+            }
+          },
+          "city": {
+            "type": "string",
+            "x-stoplight": {
+              "id": "x0bqycnfu3z91"
+            }
+          },
+          "linkedin": {
+            "type": "string",
+            "x-stoplight": {
+              "id": "i4wh2csz1tw72"
+            },
+            "format": "uri"
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "type": "object",
+          "properties": {
+            "resource": {
+              "$ref": "#/components/schemas/Contact"
+            }
+          },
+          "required": [
+            "resource"
+          ]
+        }
+      }
+    },
+    {
+      "operationId": "getContactsByUuid",
+      "method": "GET",
+      "path": "/contacts/{uuid}",
+      "summary": "Get Contact",
+      "description": "Returns the details of a specified Contact.\n\n<!-- theme: info -->\n  > #### Required scopes: `contacts:read`",
+      "tags": [
+        "Contacts"
+      ],
+      "parameters": [
+        {
+          "name": "uuid",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "type": "object",
+          "required": [
+            "resource"
+          ],
+          "properties": {
+            "resource": {
+              "$ref": "#/components/schemas/Contact"
+            }
+          }
+        }
+      }
+    },
+    {
+      "operationId": "patchContactsByUuid",
+      "method": "PATCH",
+      "path": "/contacts/{uuid}",
+      "summary": "Update Contact",
+      "description": "Update an existing Contact. The body must include at least one supported field; unknown top-level properties are rejected.\n\n<!-- theme: info -->\n  > #### Required scopes: `contacts:write`",
+      "tags": [
+        "Contacts"
+      ],
+      "parameters": [
+        {
+          "name": "uuid",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "requestBody": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "x-stoplight": {
+              "id": "imhay658wwumn"
+            }
+          },
+          "emails": {
+            "type": "array",
+            "maxItems": 10,
+            "x-stoplight": {
+              "id": "qbxg0ruw1dl6f"
+            },
+            "description": "The user's email addresses. Max 10. <br>  <span style=\"color:red\">Warning: </span>Updating emails will overwrite all existing emails for the contact. Use the GET endpoint to first retrieve the existing emails and then pass the modified emails to the emails array.",
+            "items": {
+              "$ref": "models/contact/Email.yaml"
+            }
+          },
+          "phone_numbers": {
+            "type": "array",
+            "maxItems": 10,
+            "x-stoplight": {
+              "id": "tew7q707u4513"
+            },
+            "description": "The user's phone numbers. Max 10. <br>  <span style=\"color:red\">Warning: </span>Updating phone_numbers will overwrite all existing phone numbers for the contact. Use the GET endpoint to first retrieve the existing phone numbers and then pass the modified phone_numbers to the phone_numbers array.",
+            "items": {
+              "$ref": "models/contact/PhoneNumber.yaml"
+            }
+          },
+          "timezone": {
+            "type": "string",
+            "x-stoplight": {
+              "id": "h55eg0z6tbis3"
+            }
+          },
+          "job_title": {
+            "type": "string",
+            "x-stoplight": {
+              "id": "soguavocatpte"
+            }
+          },
+          "company": {
+            "type": "string",
+            "x-stoplight": {
+              "id": "7iugxrvubm4nh"
+            }
+          },
+          "country": {
+            "type": "string",
+            "x-stoplight": {
+              "id": "8k424f30luwii"
+            }
+          },
+          "state": {
+            "type": "string",
+            "x-stoplight": {
+              "id": "zpkve8oblunvn"
+            }
+          },
+          "city": {
+            "type": "string",
+            "x-stoplight": {
+              "id": "immujeeqdttxh"
+            }
+          },
+          "linkedin": {
+            "type": "string",
+            "x-stoplight": {
+              "id": "wr0nyk9qq4zz1"
+            },
+            "format": "uri"
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "type": "object",
+          "required": [
+            "resource"
+          ],
+          "properties": {
+            "resource": {
+              "$ref": "#/components/schemas/Contact"
+            }
+          }
+        }
+      }
+    },
+    {
+      "operationId": "deleteContactsByUuid",
+      "method": "DELETE",
+      "path": "/contacts/{uuid}",
+      "summary": "Delete Contact",
+      "description": "Delete an existing Contact\n\n<!-- theme: info -->\n  > #### Required scopes: `contacts:write`",
+      "tags": [
+        "Contacts"
+      ],
+      "parameters": [
+        {
+          "name": "uuid",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "204": {
+          "description": "No Content"
+        }
+      }
+    }
+  ],
+  "meta": {
+    "specUrl": "https://calendly.stoplight.io/api/v1/projects/calendly/api-docs/nodes/reference/calendly-api/openapi.yaml?fromExportButton=true",
+    "specChecksum": "80adb79d376be52f3b7928ac327f8d879d8ee8f7c9011f87943185fcc775f21a",
+    "totalOperations": 56
+  }
+}

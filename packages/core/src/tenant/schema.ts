@@ -1,218 +1,198 @@
 /**
- * Tenant configuration schema.
+ * Zod schema for TenantConfig validation.
  *
- * Every tenant has exactly one Penelope head agent and zero-or-more
- * specialists. Only Penelope may use the telegram-owner adapter.
- *
- * Org chart (locked):
- *   USER ←─── telegram-owner ───→ PENELOPE (head agent)
- *                                      │
- *          ┌──────┬──────┬────────┬────┴───┬──────┬──────────┐
- *          ▼      ▼      ▼        ▼         ▼      ▼          ▼
- *      customer booking quoting payments reviews marketing daily-brief
- *      (bus only — never touch telegram-owner)
+ * Validates the tenant.json file before it is used by any agent.
+ * Throws ZodError on malformed input; callers should catch and surface
+ * the error to the owner.
  */
 
-// ── Agent roles ──────────────────────────────────────────────────────────────
+import { z } from 'zod';
 
-/** The only role that may acquire the telegram-owner adapter. */
-export type HeadAgentRole = 'penelope';
+// ---------------------------------------------------------------------------
+// Shared enums
+// ---------------------------------------------------------------------------
 
-/** Roles that are bus-only (loom-a2a internal only, no telegram-owner access). */
-export type SpecialistRole =
-  | 'customer-frontend'
-  | 'booking'
-  | 'quoting'
-  | 'payment-reconciler'
-  | 'review-ask'
-  | 'marketing'
-  | 'daily-brief';
+const BusinessVerticalSchema = z.enum([
+  'auto-service',
+  'home-services',
+  'personal-services',
+  'food-beverage',
+  'retail',
+  'professional',
+  'fitness',
+  'custom',
+]);
 
-export type AgentRole = HeadAgentRole | SpecialistRole;
+const ChannelSchema = z.enum([
+  'fb-page',
+  'instagram-dm',
+  'sms-twilio',
+  'sms-textnow',
+  'sms-generic',
+  'email-gmail',
+  'email-outlook',
+  'email-sendgrid',
+  'whatsapp',
+  'telegram-owner',
+  'web-form',
+  'beeper',
+]);
 
-// ── Agent config shapes ───────────────────────────────────────────────────────
+const PaymentProcessorSchema = z.enum([
+  'square',
+  'stripe',
+  'paypal',
+  'manual',
+]);
 
-export interface PenelopeAgentConfig {
-  role: HeadAgentRole;
-  /** Telegram-owner channel config. Required for Penelope. */
-  telegram_owner: {
-    bot_token_env: string;
-    owner_chat_id_env: string;
-  };
-  /** Optional TTS voice for voice-in / voice-out. */
-  voice_character?: string;
-}
+const ApprovalLevelSchema = z.enum([
+  'auto',
+  'team_lead_approve',
+  'ceo_approve',
+  'owner_telegram_confirm',
+  'owner_totp',
+]);
 
-export interface SpecialistAgentConfig {
-  role: SpecialistRole;
-  enabled: boolean;
-  /** Override the persona YAML path. Defaults to built-in persona for the role. */
-  persona_override?: string;
-}
+// ---------------------------------------------------------------------------
+// Sub-schemas
+// ---------------------------------------------------------------------------
 
-export interface AgentConfig {
-  /** The head agent. Exactly one per tenant. */
-  penelope: PenelopeAgentConfig;
-  /** Specialist agents. Bus-only; never touch telegram-owner. */
-  specialists: SpecialistAgentConfig[];
-}
+const DayHoursSchema = z.object({
+  open: z.string().regex(/^\d{2}:\d{2}$/, 'Must be HH:MM format'),
+  close: z.string().regex(/^\d{2}:\d{2}$/, 'Must be HH:MM format'),
+});
 
-// ── Channel config ────────────────────────────────────────────────────────────
+const BusinessHoursSchema = z.object({
+  timezone: z.string().min(1, 'Timezone is required'),
+  monday: DayHoursSchema.nullable().optional(),
+  tuesday: DayHoursSchema.nullable().optional(),
+  wednesday: DayHoursSchema.nullable().optional(),
+  thursday: DayHoursSchema.nullable().optional(),
+  friday: DayHoursSchema.nullable().optional(),
+  saturday: DayHoursSchema.nullable().optional(),
+  sunday: DayHoursSchema.nullable().optional(),
+  quiet_before: z.string().regex(/^\d{2}:\d{2}$/).optional(),
+  quiet_after: z.string().regex(/^\d{2}:\d{2}$/).optional(),
+});
 
-export type ChannelType =
-  | 'telegram-owner'
-  | 'fb-page'
-  | 'sms-twilio'
-  | 'sms-textnow'
-  | 'sms-generic'
-  | 'imap-smtp'
-  | 'instagram-dm';
+const PricingRuleSchema = z.object({
+  id: z.string().min(1),
+  label: z.string().min(1),
+  currency: z.string().length(3, 'Must be ISO 4217 3-letter currency code'),
+  floor: z.number().nonnegative(),
+  ceiling: z.number().positive(),
+  auto_quote_band: z.tuple([z.number(), z.number()]),
+  requires_lookup: z.boolean().optional(),
+  qualifier_question: z.string().optional(),
+  notes: z.string().optional(),
+}).refine(
+  (r) => r.floor <= r.ceiling,
+  { message: 'floor must be <= ceiling', path: ['floor'] },
+).refine(
+  (r) => r.auto_quote_band[0] >= r.floor && r.auto_quote_band[1] <= r.ceiling,
+  { message: 'auto_quote_band must be within [floor, ceiling]', path: ['auto_quote_band'] },
+);
 
-export interface ChannelConfig {
-  type: ChannelType;
-  enabled: boolean;
-  credential_env: string;
-  config?: Record<string, string>;
-}
+const ApprovalGateSchema = z.object({
+  action: z.string().min(1),
+  level: ApprovalLevelSchema,
+  conditions: z.array(z.string()).optional(),
+  notes: z.string().optional(),
+});
 
-// ── Tenant config ─────────────────────────────────────────────────────────────
+const ChannelConfigSchema = z.object({
+  type: ChannelSchema,
+  enabled: z.boolean(),
+  credential_env: z.string().optional(),
+  webhook_url: z.string().url().optional(),
+  settings: z.record(z.union([z.string(), z.number(), z.boolean()])).optional(),
+});
 
-export interface TenantConfig {
-  schema_version: number;
-  tenant_id: string;
-  name: string;
-  vertical: string;
+const BrandConfigSchema = z.object({
+  name: z.string().min(1, 'Brand name is required'),
+  short_name: z.string().optional(),
+  brand_color: z.string().regex(/^#[0-9a-fA-F]{6}$/, 'Must be hex color #RRGGBB').optional(),
+  logo_url: z.string().url().optional(),
+  website_url: z.string().url().optional(),
+  service_area: z.string().optional(),
+  voice_tone: z.string().optional(),
+  forbidden_phrases: z.array(z.string()).optional(),
+  emoji_policy: z.enum(['none', 'minimal', 'match-customer']).optional(),
+});
 
-  brand: {
-    display_name: string;
-    brand_color: string;
-    tagline?: string;
-    voice_notes?: string;
-  };
+const ReviewPlatformSchema = z.object({
+  type: z.enum(['google', 'facebook', 'yelp', 'trustpilot', 'custom']),
+  label: z.string().optional(),
+  url: z.string().url(),
+});
 
-  address?: {
-    city: string;
-    province?: string;
-    country: string;
-    service_area?: string;
-  };
+// ---------------------------------------------------------------------------
+// Top-level TenantConfigSchema
+// ---------------------------------------------------------------------------
 
-  hours: {
-    timezone: string;
-    schedule: Record<string, { open: string; close: string } | null>;
-  };
+export const TenantConfigSchema = z.object({
+  schema_version: z.literal(1),
+  tenant_id: z
+    .string()
+    .min(1)
+    .regex(/^[a-z0-9][a-z0-9_-]*$/, 'tenant_id must be slug-safe: [a-z0-9_-]'),
+  name: z.string().min(1),
+  vertical: BusinessVerticalSchema,
+  brand: BrandConfigSchema,
+  address: z
+    .object({
+      street: z.string().optional(),
+      city: z.string().min(1),
+      province_state: z.string().min(1),
+      postal_code: z.string().optional(),
+      country: z.string().min(1),
+    })
+    .optional(),
+  hours: BusinessHoursSchema,
+  channels: z.array(ChannelConfigSchema).min(1, 'At least one channel required'),
+  pricing: z.array(PricingRuleSchema),
+  approval_gates: z.array(ApprovalGateSchema).optional(),
+  payment_processors: z.array(PaymentProcessorSchema).optional(),
+  review_platforms: z.array(ReviewPlatformSchema).optional(),
+  quiet_hours: z
+    .object({
+      enabled: z.boolean(),
+      respect_business_hours: z.boolean(),
+    })
+    .optional(),
+  shadow_mode: z
+    .object({
+      enabled: z.boolean(),
+      auto_promote_after: z.number().int().positive().optional(),
+    })
+    .optional(),
+  budget: z
+    .object({
+      daily_usd_cap: z.number().positive().optional(),
+      monthly_usd_cap: z.number().positive().optional(),
+      alert_at_pct: z.number().min(1).max(100).optional(),
+    })
+    .optional(),
+  connectors: z
+    .record(z.record(z.union([z.string(), z.number(), z.boolean()])))
+    .optional(),
+  meta: z.record(z.unknown()).optional(),
+});
 
-  quiet_hours?: {
-    start: string;
-    end: string;
-    notes?: string;
-  };
+export type TenantConfigInput = z.input<typeof TenantConfigSchema>;
+export type TenantConfigOutput = z.output<typeof TenantConfigSchema>;
 
-  channels: ChannelConfig[];
-
-  /** Agent configuration. Penelope is head; specialists are bus-only. */
-  agents: AgentConfig;
-
-  pricing?: Array<{
-    id: string;
-    label: string;
-    currency: string;
-    floor: number;
-    ceiling?: number;
-    cap?: number;
-    auto_quote_band?: [number, number];
-    qualifier_question?: string;
-    modifiers?: Record<string, unknown>;
-    warranty_years?: number;
-    surcharge_on_standard?: { min: number; max: number };
-  }>;
-
-  booking?: {
-    provider: string;
-    url_env: string;
-    url_placeholder?: string;
-    available_slots?: string;
-  };
-
-  payment_processors?: Array<{
-    name: string;
-    credential_env: string;
-    location_id_env?: string;
-  }>;
-
-  review_platforms?: Array<{
-    name: string;
-    url_env: string;
-  }>;
-
-  approval_gates?: {
-    default_level: string;
-    above_band_level: string;
-    complaint_level: string;
-    escalation_contacts?: Array<{
-      id: string;
-      type: string;
-      description?: string;
-      credential_env: string;
-    }>;
-  };
-
-  approval_required?: string[];
-
-  budget?: {
-    max_usd_per_day: number;
-    max_usd_per_month: number;
-    alert_threshold_pct: number;
-  };
-}
-
-// ── Validation ────────────────────────────────────────────────────────────────
-
-export class TenantConfigError extends Error {
-  constructor(message: string) {
-    super(`[TenantConfig] ${message}`);
-    this.name = 'TenantConfigError';
-  }
+/**
+ * Validate raw JSON against TenantConfigSchema.
+ * Returns parsed+typed config or throws ZodError.
+ */
+export function validateTenantConfig(raw: unknown): TenantConfigOutput {
+  return TenantConfigSchema.parse(raw);
 }
 
 /**
- * Validate that the agents block is correctly structured:
- * - Exactly one penelope head agent
- * - No specialist with role "penelope"
- * - telegram-owner channel is present and maps to penelope
+ * Safe variant — returns { success, data, error } instead of throwing.
  */
-export function validateAgentConfig(config: TenantConfig): void {
-  const { agents } = config;
-
-  if (!agents) {
-    throw new TenantConfigError(
-      `tenant "${config.tenant_id}" is missing required "agents" block. ` +
-        'Add a penelope head agent and any specialists.',
-    );
-  }
-
-  if (agents.penelope.role !== 'penelope') {
-    throw new TenantConfigError(
-      `tenant "${config.tenant_id}" agents.penelope.role must be "penelope", ` +
-        `got "${agents.penelope.role}".`,
-    );
-  }
-
-  for (const specialist of agents.specialists) {
-    if ((specialist.role as string) === 'penelope') {
-      throw new TenantConfigError(
-        `tenant "${config.tenant_id}" has a specialist with role="penelope". ` +
-          'Penelope is the head agent and cannot also be a specialist.',
-      );
-    }
-  }
-
-  // Ensure telegram-owner channel is present and wired to penelope
-  const telegramChannel = config.channels.find((c) => c.type === 'telegram-owner');
-  if (!telegramChannel) {
-    throw new TenantConfigError(
-      `tenant "${config.tenant_id}" has no telegram-owner channel. ` +
-        'Penelope requires a telegram-owner channel to communicate with the owner.',
-    );
-  }
+export function safeParseTenantConfig(raw: unknown): z.SafeParseReturnType<TenantConfigInput, TenantConfigOutput> {
+  return TenantConfigSchema.safeParse(raw);
 }
