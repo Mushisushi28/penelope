@@ -1,0 +1,52 @@
+schema_version: 1
+procedure_id: review-ask
+description: After a job is marked complete and payment confirmed, wait 1 hour then send a review request via SMS or the original channel. Tries Google first, then Facebook fallback.
+owner_team: auto-service
+specialist_class: review-driver
+trigger:
+  kind: bus_event
+  event: job_complete
+inputs:
+  required:
+    - thread_id
+  optional:
+    - customer_name
+    - channel_preference
+runtime_budget:
+  max_tokens_per_run: 500
+  max_usd_per_run: 0.01
+  max_runs_per_thread_per_day: 2
+states:
+  - id: wait_post_job
+    label: Wait 1 hour after job completion before asking
+    actions:
+      - kind: wait_for_event
+        event: review_ask_ready
+        timeout: PT1H
+    next: send_review_request
+
+  - id: send_review_request
+    label: Send review request on preferred channel
+    actions:
+      - kind: send_review_request
+        platforms:
+          - google
+          - facebook
+        message_template: "hey {{customer_name | default: 'there'}}! hope the headlights are looking great — if you get a sec, we'd really appreciate a quick review: {{review_link}}"
+        channel: "{{channel_preference | default: 'sms-textnow'}}"
+        approval: auto
+      - kind: mark_job_status
+        status: review_requested
+      - kind: log_audit
+        event: review_request_sent
+        detail: "thread={{thread_id}}"
+    next: closed
+
+  - id: closed
+    label: Review ask complete
+    actions:
+      - kind: log_audit
+        event: review_ask_procedure_complete
+
+outputs:
+  - review_sent

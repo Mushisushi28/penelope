@@ -1,0 +1,74 @@
+##MANIFEST## {"id":"barbershop-booking-v1","name":"Barbershop — Appointment Booking","kind":"procedure","version":"1.0.0","author":"Penelope Community","license":"MIT","sha256":"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855","description":"Conversational booking flow for barbershops.","tags":["barbershop","booking","appointments","hair"],"payloadUrl":"","createdAt":"2026-06-04T00:00:00Z","vertical":"barbershop","avgTurns":5} ##END##
+
+# Barbershop — Appointment Booking Procedure
+# Version: 1.0.0 | Vertical: Barbershop
+
+metadata:
+  id: barbershop-booking-v1
+  name: Barbershop — Appointment Booking
+  vertical: barbershop
+  version: "1.0.0"
+  avg_turns: 5
+
+steps:
+  - id: greet
+    role: agent
+    template: |
+      Hey {customer_first_name}! Welcome to {business_name}. Looking to book
+      a cut? What can we do for you today?
+
+  - id: capture_service
+    role: customer
+    extract:
+      - field: service_type
+        hint: "haircut, beard trim, hot shave, combo, kids cut"
+
+  - id: barber_preference
+    role: agent
+    template: |
+      Nice choice. Do you have a preferred barber, or happy with whoever's available?
+      {barber_list}
+
+  - id: extract_barber
+    role: customer
+    extract:
+      - field: preferred_barber
+        optional: true
+
+  - id: slot_offer
+    role: agent
+    template: |
+      Here are the next available slots: {available_slots}
+      Which one works for you?
+
+  - id: confirm_slot
+    role: customer
+    extract:
+      - field: chosen_slot
+
+  - id: capture_contact
+    role: agent
+    template: |
+      Got it — {chosen_slot} it is. What's the best number to confirm?
+      (We'll send a reminder the morning of.)
+
+  - id: extract_contact
+    role: customer
+    extract:
+      - field: contact_phone
+
+  - id: confirm
+    role: agent
+    template: |
+      You're all set! {chosen_slot} with {preferred_barber}.
+      We'll text {contact_phone} a reminder. See you then!
+
+cancellation_policy:
+  notice_hours: 2
+
+pricing_guide:
+  haircut: "$30-$45"
+  beard_trim: "$15-$20"
+  hot_shave: "$35"
+  combo: "$50-$65"
+  kids_cut: "$20-$25"

@@ -1,0 +1,61 @@
+##MANIFEST## {"id":"lead-recovery-v1","name":"Lead Recovery — Re-engagement","kind":"procedure","version":"1.0.0","author":"Penelope Community","license":"MIT","sha256":"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855","description":"Re-engages leads that went cold after initial inquiry. Cross-vertical.","tags":["lead-recovery","re-engagement","follow-up","crm"],"payloadUrl":"","createdAt":"2026-06-04T00:00:00Z","vertical":"cross-vertical","avgTurns":3} ##END##
+
+# Lead Recovery — Re-engagement Procedure
+# Version: 1.0.0 | Vertical: Cross-vertical
+
+metadata:
+  id: lead-recovery-v1
+  name: Lead Recovery — Re-engagement
+  vertical: cross-vertical
+  version: "1.0.0"
+  avg_turns: 3
+  trigger:
+    event: lead_stale
+    condition: "last_contact_days >= 3 AND status == 'inquiry_open'"
+
+steps:
+  - id: reopen
+    role: agent
+    template: |
+      Hey {customer_first_name}! Wanted to follow up on your inquiry from
+      {inquiry_date_relative} — did you still want to move forward with
+      {service_requested}? We have availability {next_available_window}.
+
+  - id: customer_response
+    role: customer
+    extract:
+      - field: re_engagement_status
+        hint: "interested / not_now / already_booked_elsewhere / no_response"
+        default: no_response
+
+  - id: branch
+    role: agent
+    branch:
+      if: "re_engagement_status == 'interested'"
+      then:
+        template: |
+          Great to hear! Here are a couple of slots: {available_slots}
+          Which works best?
+      if_2: "re_engagement_status == 'not_now'"
+      then_2:
+        template: |
+          Totally understand — no pressure. I'll check back in a couple weeks.
+          Feel free to message us whenever you're ready!
+      else:
+        template: |
+          I'll give this one more try next week and then mark it closed.
+          No pressure — reach out anytime if you change your mind.
+
+follow_up_schedule:
+  - day: 3
+    channel: primary_channel
+  - day: 7
+    channel: sms
+  - day: 14
+    action: close_lead
+
+close_reason_codes:
+  - unresponsive
+  - booked_elsewhere
+  - declined
+  - invalid_lead

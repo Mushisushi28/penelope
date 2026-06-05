@@ -1,0 +1,84 @@
+schema_version: 1
+procedure_id: payment-reconciler
+description: Poll Square for completed payments, match to open jobs, mark job paid in CRM, and trigger the review-ask sequence. Runs on schedule and on bus event.
+owner_team: auto-service
+specialist_class: payment-watcher
+trigger:
+  kind: payment_received
+  processor: square
+inputs:
+  required:
+    - payment_id
+    - amount_cents
+    - currency
+  optional:
+    - customer_ref
+    - note
+runtime_budget:
+  max_tokens_per_run: 1000
+  max_usd_per_run: 0.02
+  max_runs_per_thread_per_day: 50
+states:
+  - id: match_payment_to_job
+    label: Match incoming payment to an open job thread
+    actions:
+      - kind: lookup_external
+        provider: square
+        query: "payment/{{payment_id}}"
+        store_as: payment_details
+      - kind: set_state
+        key: matched_thread_id
+        value: "{{payment_details.reference_id}}"
+      - kind: log_audit
+        event: payment_received
+        detail: "payment_id={{payment_id}} amount_cents={{amount_cents}}"
+    next: mark_paid
+
+  - id: mark_paid
+    label: Update job status to paid
+    when:
+      - matched_thread_id
+    actions:
+      - kind: mark_job_status
+        status: paid
+      - kind: set_state
+        key: payment_confirmed
+        value: "true"
+      - kind: log_audit
+        event: job_marked_paid
+        detail: "thread={{matched_thread_id}}"
+    next: trigger_review_ask
+
+  - id: unmatched_payment
+    label: Payment with no matching job — escalate
+    when:
+      - matched_thread_id.is_none
+    actions:
+      - kind: escalate
+        reason: "received Square payment {{payment_id}} but could not match to an open job thread"
+        to: owner_telegram_confirm
+      - kind: log_audit
+        event: unmatched_payment_escalated
+        detail: "payment_id={{payment_id}}"
+
+  - id: trigger_review_ask
+    label: Emit event to kick off review-ask procedure
+    when:
+      - payment_confirmed
+    actions:
+      - kind: emit_bus_event
+        event: job_complete
+        payload:
+          tenant_id: dhr-auto-service
+          thread_id: "{{matched_thread_id}}"
+          payment_id: "{{payment_id}}"
+      - kind: schedule_followup
+        delay: PT1H
+        action: send_review_request
+        target_thread_id: "{{matched_thread_id}}"
+      - kind: log_audit
+        event: review_ask_scheduled
+
+outputs:
+  - matched_thread_id
+  - payment_confirmed
