@@ -48,3 +48,24 @@ export type { UsageSample, PromotionSuggestion } from "./auto-promote.js";
 export { seedConnectors } from "./seed-connectors.js";
 
 export { StripeMcpConnector } from "./connectors/stripe-mcp.js";
+
+// Image generation adapters
+export { FalAiAdapter } from "./adapters/fal-ai.js";
+export type { FalInpaintOptions, FalImageToImageOptions, FalTextToImageOptions, FalVideoFromImagesOptions, FalResult } from "./adapters/fal-ai.js";
+
+export { NanaBananaAdapter } from "./adapters/nano-banana.js";
+export type { NanaBananaGenerateOptions, NanaBananaResult } from "./adapters/nano-banana.js";
+
+// Messaging adapters
+export { FacebookMessengerAdapter } from "./adapters/facebook-messenger.js";
+export type {
+  SendMessageOptions,
+  SendMessageResult,
+  ReactToMessageOptions,
+  ThreadMessage,
+  ThreadHistoryResult,
+  Conversation,
+  ConversationListResult,
+  GetConversationsOptions,
+  MessagingType,
+} from "./adapters/facebook-messenger.js";
