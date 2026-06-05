@@ -1,0 +1,25 @@
+{
+  "name": "@penelope/core",
+  "version": "0.1.0",
+  "description": "Core tenant model and procedure YAML loader for Penelope",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./tenant": "./src/tenant/index.ts",
+    "./procedures": "./src/procedures/index.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "js-yaml": "^4.1.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.4.0",
+    "vitest": "^1.6.0"
+  }
+}

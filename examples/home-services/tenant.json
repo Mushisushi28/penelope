@@ -19,34 +19,7 @@
       "sunday":    null
     }
   },
-  "agents": {
-    "penelope": {
-      "role": "penelope",
-      "telegram_owner": {
-        "bot_token_env": "OWNER_BOT_TOKEN",
-        "owner_chat_id_env": "OWNER_CHAT_ID"
-      }
-    },
-    "specialists": [
-      { "role": "customer-frontend", "enabled": true },
-      { "role": "booking",           "enabled": true },
-      { "role": "quoting",           "enabled": true },
-      { "role": "payment-reconciler","enabled": true },
-      { "role": "review-ask",        "enabled": true },
-      { "role": "marketing",         "enabled": false },
-      { "role": "daily-brief",       "enabled": true }
-    ]
-  },
   "channels": [
-    {
-      "type": "telegram-owner",
-      "enabled": true,
-      "credential_env": "OWNER_BOT_TOKEN",
-      "config": {
-        "chat_id_env": "OWNER_CHAT_ID",
-        "description": "Penelope — owner Telegram channel"
-      }
-    },
     {
       "type": "sms-generic",
       "enabled": true,

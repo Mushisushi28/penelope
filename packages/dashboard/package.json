@@ -1,0 +1,17 @@
+{
+  "name": "@penelope/dashboard",
+  "version": "0.1.0",
+  "description": "Per-tenant owner dashboard for Penelope — Odysseus-themed, no bundler, vanilla JS.",
+  "type": "module",
+  "main": "serve.mjs",
+  "scripts": {
+    "start": "node serve.mjs",
+    "dev": "PENELOPE_DASHBOARD_PORT=18900 node serve.mjs"
+  },
+  "engines": { "node": ">=20" },
+  "dependencies": {
+    "better-sqlite3": "^12.9.0"
+  },
+  "keywords": ["penelope", "dashboard", "owner", "loom", "odysseus"],
+  "license": "MIT"
+}
