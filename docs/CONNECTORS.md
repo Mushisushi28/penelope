@@ -17,7 +17,8 @@ Status: **Full** = live implementation. **Stub** = metadata + routing registered
 
 | ID | Display Name | Tier | Status |
 |----|--------------|------|--------|
-| `stripe` | Stripe | T1 MCP (+ T3 Hermes) | Stub |
+| `stripe-mcp` | Stripe (MCP) | T1 MCP (IMPLEMENTED) + T3 Hermes fallback | Full |
+| `stripe` | Stripe (legacy stub) | T1 MCP (+ T3 Hermes) | Stub |
 | `square` | Square | T2 API-skill | Stub |
 | `paypal` | PayPal | T3 Hermes | Stub |
 | `shopify-payments` | Shopify Payments | T3 Hermes | Stub |

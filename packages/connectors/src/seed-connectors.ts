@@ -14,6 +14,7 @@
 import { register } from "./registry.js";
 import { registerOpenApiSpec, registerMcpAvailable, registerApiSkillAvailable } from "./auto-promote.js";
 import type { ConnectorDescriptor } from "./types.js";
+import { StripeMcpConnector } from "./connectors/stripe-mcp.js";
 
 function stub(d: ConnectorDescriptor): void {
   register(d);
@@ -21,6 +22,13 @@ function stub(d: ConnectorDescriptor): void {
 
 export function seedConnectors(): void {
   // ── payments ───────────────────────────────────────────────────────────────
+  // Stripe: Tier 1 MCP — real implementation via @stripe/mcp.
+  // Tier 3 Hermes fallback also registered via registerOpenApiSpec below.
+  register(new StripeMcpConnector());
+  registerMcpAvailable("stripe-mcp");
+  registerOpenApiSpec("stripe-mcp", "https://raw.githubusercontent.com/stripe/openapi/master/openapi/spec3.json");
+
+  // Legacy "stripe" stub retained so existing catalog references don't break.
   stub({
     id: "stripe",
     displayName: "Stripe",

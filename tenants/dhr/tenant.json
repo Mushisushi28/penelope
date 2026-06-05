@@ -47,7 +47,7 @@
       { "role": "quoting",           "enabled": true },
       { "role": "payment-reconciler","enabled": true },
       { "role": "review-ask",        "enabled": true },
-      { "role": "marketing",         "enabled": false },
+      { "role": "marketing",         "enabled": true },
       { "role": "daily-brief",       "enabled": true }
     ]
   },
@@ -153,5 +153,12 @@
     "max_usd_per_day": 2.00,
     "max_usd_per_month": 40.00,
     "alert_threshold_pct": 80
+  },
+  "marketing": {
+    "cadence": "3/week",
+    "preferred_time_local": "10:30",
+    "channels": ["fb-page", "instagram"],
+    "voice_notes": "casual, mobile-business angle, no emoji spam",
+    "approval_required": true
   }
 }
