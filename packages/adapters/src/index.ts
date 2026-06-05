@@ -36,6 +36,18 @@ export type { InstagramAdapterOptions } from './instagram.js';
 export { LoomA2aAdapter } from './loom-a2a.js';
 export type { LoomA2aAdapterOptions } from './loom-a2a.js';
 
+// WhatsApp Business Cloud API
+export { WhatsappBusinessAdapter, withinWhatsappWindow, verifyWebhookSignature } from './whatsapp-business.js';
+export type {
+  WhatsappBusinessAdapterOptions,
+  WaTemplate,
+  WaTemplateComponent,
+  WaTemplateParam,
+  WaMessageStatus,
+  WebhookRequest,
+  WebhookResponse,
+} from './whatsapp-business.js';
+
 // Registry
 export { AdapterRegistry } from './registry.js';
 export type {
@@ -46,5 +58,6 @@ export type {
   EmailChannelConfig,
   InstagramChannelConfig,
   LoomA2aChannelConfig,
+  WhatsappBusinessChannelConfig,
   RegistryOptions,
 } from './registry.js';
