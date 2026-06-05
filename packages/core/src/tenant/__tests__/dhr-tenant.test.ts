@@ -67,21 +67,21 @@ describe('tenants/dhr/tenant.json', () => {
     expect(fb?.enabled).toBe(true);
   });
 
-  it('has standard pricing with floor 100 and ceiling 200', () => {
+  it('has standard pricing with floor 99 and ceiling 200 (canonical)', () => {
     const config = validateTenantConfig(loadDhrTenant());
     const standard = config.pricing.find((p) => p.id === 'standard');
     expect(standard).toBeDefined();
-    expect(standard?.floor).toBe(100);
+    expect(standard?.floor).toBe(99);
     expect(standard?.ceiling).toBe(200);
     expect(standard?.currency).toBe('CAD');
   });
 
-  it('has ceramic pricing with floor 200 and ceiling 250', () => {
+  it('has ceramic pricing with floor 240 and ceiling 350 (canonical)', () => {
     const config = validateTenantConfig(loadDhrTenant());
     const ceramic = config.pricing.find((p) => p.id === 'ceramic');
     expect(ceramic).toBeDefined();
-    expect(ceramic?.floor).toBe(200);
-    expect(ceramic?.ceiling).toBe(250);
+    expect(ceramic?.floor).toBe(240);
+    expect(ceramic?.ceiling).toBe(350);
   });
 
   it('pricing auto_quote_band is within [floor, ceiling]', () => {
