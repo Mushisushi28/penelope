@@ -1,0 +1,44 @@
+{
+  "name": "@penelope/agents",
+  "version": "0.2.0",
+  "description": "Penelope head agent + specialist agents for the Penelope platform",
+  "license": "MIT",
+  "author": "Isaac Dobson",
+  "homepage": "https://github.com/Mushisushi28/penelope#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Mushisushi28/penelope.git"
+  },
+  "bugs": "https://github.com/Mushisushi28/penelope/issues",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "@types/nunjucks": "^3.2.6",
+    "typescript": "^5.9.3",
+    "vitest": "^1.6.1"
+  },
+  "dependencies": {
+    "nunjucks": "^3.2.4",
+    "zod": "^3.23.8"
+  }
+}

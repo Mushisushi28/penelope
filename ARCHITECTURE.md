@@ -6,17 +6,33 @@ Penelope is a self-hosted, Telegram-first OS for a small business. One Telegram 
 
 ---
 
+## The Org Chart
+
+```
+  USER  ←─────── telegram-owner ───────→  PENELOPE  (head agent)
+                                               │
+              ┌──────┬──────┬────────┬─────────┼──────┬──────────┐
+              ▼      ▼      ▼        ▼          ▼      ▼          ▼
+          customer booking quoting payments  reviews marketing daily-brief
+          (specialists — loom-a2a bus only, never touch telegram-owner)
+```
+
+**telegram-owner is reserved for Penelope only.** All other agents are bus-only.
+Specialists receive work from Penelope via the loom-a2a internal bus and publish
+results back to the bus. Penelope decides what (if anything) the owner sees.
+
 ## System diagram
 
 ```
   OWNER
    │
-   │ Telegram
+   │ Telegram (telegram-owner adapter — Penelope only)
    ▼
 ┌──────────────────────────────────────────────────────────────┐
-│  OWNER-AGENT (CEO bot)                                       │
+│  PENELOPE (head agent)                                       │
 │  Natural-language meta-router — biz-domain intent parser     │
 │  Per-tenant persona + config                                 │
+│  "She runs the home while Odysseus is away."                 │
 └────────────────────────────┬─────────────────────────────────┘
                              │  loom a2a bus (per-tenant SQLite)
          ┌───────────────────┼────────────────────────┐
@@ -24,7 +40,7 @@ Penelope is a self-hosted, Telegram-first OS for a small business. One Telegram 
    ┌─────▼─────┐      ┌──────▼──────┐        ┌───────▼──────┐
    │ CUSTOMER  │      │  BOOKING /  │        │  PAYMENTS /  │
    │  AGENT    │      │  QUOTING    │        │  REVIEWS /   │
-   │           │      │  AGENTS     │        │  MARKETING   │
+   │ (bus only)│      │  (bus only) │        │  MARKETING   │
    └─────┬─────┘      └──────┬──────┘        └───────┬──────┘
          │                   │                        │
          │           CHANNEL ADAPTERS                 │
@@ -82,7 +98,7 @@ customer-agent subscribes, classifies intent:
   └─ general inquiry  → drafts reply, publishes "customer.reply.ready"
         │
         ▼
-owner-agent reviews (if approval_required) or auto-sends
+Penelope (head agent) reviews (if approval_required) or auto-sends
         │
         ▼
 ChannelAdapter.send() → FB Send API response
@@ -122,7 +138,7 @@ Credentials live in `data/tenants/<slug>/.env`, never in the shared process envi
 Every outbound message, every action (quote sent, booking created, payment link generated) is written to `audit_log` in the tenant's SQLite with timestamp, agent, channel, and payload hash. Immutable append-only (no UPDATE/DELETE on audit_log).
 
 **Owner-only command surface**
-The owner-agent only accepts commands from the configured `OWNER_TELEGRAM_CHAT_ID`. All other Telegram senders are rejected at the adapter level before any LLM call.
+Penelope (head agent) only accepts commands from the configured `OWNER_TELEGRAM_CHAT_ID`. All other Telegram senders are rejected at the adapter level before any LLM call. Penelope is the only agent that may use the telegram-owner adapter — specialists are bus-only.
 
 **Quiet-hours enforcement**
 Proactive outbound (review asks, follow-ups, marketing) is blocked between 22:00–09:00 local tenant time. Configurable per tenant. Applied in the adapter before any API call.
@@ -155,9 +171,12 @@ Every inbound webhook (Facebook, Stripe, Twilio) is verified against its signing
 ### Adding a custom specialist agent
 
 1. Create `packages/agents/src/specialists/your-agent.ts`.
-2. Subscribe to the relevant bus events using `bus.subscribe('event.name', handler)`.
-3. Publish results back to the bus for downstream agents.
-4. Register the agent in `packages/agents/src/index.ts`.
+2. Extend `SpecialistAgent` from `packages/agents/src/specialists/base.ts`.
+3. Subscribe to the relevant bus events using `bus.subscribe('event.name', handler)`.
+4. Publish results back to the bus for Penelope to consume — never send to telegram-owner directly.
+5. Register the agent in `packages/agents/src/index.ts`.
+
+**Rule**: specialists are bus-only. The telegram-owner adapter is reserved for Penelope.
 
 ### Adding a custom procedure
 
@@ -186,8 +205,8 @@ steps:
 | Package | Role |
 |---|---|
 | `@penelope/core` | Tenant model, procedure loader, bus client |
-| `@penelope/agents` | Owner-agent, meta-router, specialists |
-| `@penelope/adapters` | Channel adapters (FB, Twilio, SMTP) + integration connectors |
+| `@penelope/agents` | Penelope head agent, meta-router, specialists |
+| `@penelope/adapters` | telegram-owner (Penelope-only), FB, Twilio, SMTP + integration connectors |
 | `@penelope/cli` | `penelope` CLI — `init`, `up`, `doctor`, `tenant` commands |
 | `@penelope/dashboard` | Odysseus-themed owner dashboard (vanilla JS, Node HTTP) |
 

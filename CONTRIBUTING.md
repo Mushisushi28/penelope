@@ -59,7 +59,7 @@ make dev
 penelope/
   packages/
     core/          — tenant model, bus, procedures
-    agents/        — owner-agent, meta-router, specialists
+    agents/        — Penelope head agent, meta-router, specialists
     adapters/      — channel adapters (FB, Twilio, SMTP) + integrations
     cli/           — penelope CLI binary
     dashboard/     — owner web dashboard (vanilla JS)

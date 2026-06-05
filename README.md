@@ -97,7 +97,7 @@ Detailed steps for every path: [INSTALL.md](INSTALL.md).
 
 ## architecture (one page)
 
-The owner uses one telegram chat. Their owner-agent reads tenant config and routes commands to specialist agents (customer, booking, quoting, payments, reviews, marketing, daily-brief). Each tenant gets its own SQLite bus, procedures, audit log, and secrets. The Odysseus dashboard is a secondary surface for deep dives.
+The owner uses one telegram chat. Their Penelope agent (head agent) reads tenant config and routes commands to specialist agents (customer, booking, quoting, payments, reviews, marketing, daily-brief) via the internal loom-a2a bus. Penelope is the only agent that talks to the owner on Telegram — specialists are bus-only. Each tenant gets its own SQLite bus, procedures, audit log, and secrets. The Odysseus dashboard is a secondary surface for deep dives.
 
 Full architecture, tenancy model, security model, and extension guide in [ARCHITECTURE.md](ARCHITECTURE.md).
 
@@ -107,8 +107,8 @@ Full architecture, tenancy model, security model, and extension guide in [ARCHIT
 |-------------------------------|------------------------------------------------------------------|
 | `@penelope/cli`               | `penelope init / up / status / tenant / send / doctor`           |
 | `@penelope/core`              | tenant model, procedure YAML loader, schema validation           |
-| `@penelope/adapters`          | telegram-owner, fb-page, twilio-sms, imap-smtp, instagram, loom-a2a |
-| `@penelope/agents`            | owner-agent + 7 specialists                                      |
+| `@penelope/adapters`          | telegram-owner (Penelope-only), fb-page, twilio-sms, imap-smtp, instagram, loom-a2a |
+| `@penelope/agents`            | Penelope head agent + 7 specialists                              |
 | `@penelope/dashboard`         | per-tenant Odysseus-themed PWA owner app                         |
 | `@penelope/hermes`            | OpenAPI connector loader (Stripe / Calendly / Twilio)            |
 | `@penelope/marketplace`       | community connector + procedure registry, sandbox to TOTP promote |
