@@ -65,3 +65,26 @@ export type {
 // Follow-up scheduler
 export { FollowUpScheduler, todayUTC as followUpTodayUTC } from "./specialists/follow-up-scheduler.js";
 export type { SchedulerState as FollowUpSchedulerState, SchedulerRunResult } from "./specialists/follow-up-scheduler.js";
+
+// Content specialist
+export {
+  ContentSpecialist,
+  isContentQuietHours,
+  contentTodayUTC,
+  isImageFile,
+  dateSlug,
+} from "./specialists/content.js";
+export type {
+  ImageCategory,
+  ClassifyImageResult,
+  BeforeAfterResult,
+  CleanupResult,
+  StaticPromoResult,
+  SortResult,
+  ContentConfig,
+  ContentSpecialistConfig,
+} from "./specialists/content.js";
+
+// Content scheduler
+export { ContentScheduler } from "./specialists/content-scheduler.js";
+export type { ContentSchedulerState, ContentSchedulerRunResult } from "./specialists/content-scheduler.js";

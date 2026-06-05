@@ -197,6 +197,103 @@ await specialist.approve(draft_id);
 await specialist.publish(draft_id);
 ```
 
+### Content Specialist
+
+Photo pipeline for service businesses — before/after composites, object removal
+(tape, tools, hands), watermark removal, static promo images, and daily job-photo
+sorting. See `src/specialists/content.ts`.
+
+#### Hard constraints
+
+- Never posts directly; all results are returned to the caller for queuing.
+- Claude vision used for image classification — requires `ANTHROPIC_API_KEY`.
+- FAL.ai used for inpainting/generation — requires `FAL_KEY`.
+- Nano Banana used for static promo images — requires `NANO_BANANA_API_KEY`.
+- Constructor defaults to `MockFalAiAdapter` / `MockNanaBananaAdapter` when keys are absent.
+- Never acquires the `telegram-owner` adapter — bus only.
+
+#### Capabilities
+
+| Method | What it does |
+|---|---|
+| `classifyImage(buffer, hint?)` | Claude vision → category + confidence + tags |
+| `generateBeforeAfter(beforePath, afterPath, opts?)` | Side-by-side composite with optional overlay text |
+| `removeWatermarks(imagePath, opts?)` | FAL inpaint to remove branding/overlays |
+| `removeObjects(imagePath, objects, opts?)` | FAL inpaint to remove listed items (tape, tools, etc.) |
+| `generateStaticPromo(productPath, prompt, opts?)` | Nano Banana static promo image |
+| `sortDailyPhotos(folderPath, opts?)` | Classify + rename into `sorted/<date>/<category>/` |
+
+#### Image categories
+
+`before` | `after` | `before-after` | `product-detail` | `promo` | `unrelated`
+
+#### Tenant config
+
+```json
+"content": {
+  "enabled": true,
+  "providers": { "image_gen": "fal-ai", "static_promo": "nano-banana", "vision": "claude" },
+  "daily_sort_at_utc": "03:00",
+  "watermark_targets": ["dhr logo on lens"],
+  "object_removal_defaults": ["tape", "masking tape", "tools", "hands"],
+  "output_folder": "sorted"
+}
+```
+
+#### Penelope trigger phrases
+
+| Owner says | Penelope routes to |
+|---|---|
+| "make a before/after photo" | `content.generation.requested` |
+| "clean up this photo" | `content.cleanup.requested` |
+| "remove the tape from this" | `content.cleanup.requested` |
+| "sort today's photos" | `content.sort.requested` |
+| "make a promo image" | `content.generation.requested` |
+| Daily 03:00 UTC cron | `ContentScheduler.tick()` → sorts inbox folder |
+
+#### Usage
+
+```ts
+import {
+  ContentSpecialist,
+  ContentScheduler,
+  type ContentSpecialistConfig,
+} from "@penelope/agents";
+
+// For real API calls, inject adapters from @penelope/connectors:
+// import { FalAiAdapter } from "@penelope/connectors";
+
+const config: ContentSpecialistConfig = {
+  role: "content",
+  tenant_id: "dhr",
+  tenants_root: "/app/tenants",
+  content: {
+    enabled: true,
+    providers: { image_gen: "fal-ai", static_promo: "nano-banana", vision: "claude" },
+    daily_sort_at_utc: "03:00",
+    watermark_targets: ["dhr logo on lens"],
+    object_removal_defaults: ["tape", "masking tape", "tools", "hands"],
+    output_folder: "sorted",
+  },
+  // adapterOverrides: { falAi: new FalAiAdapter(), nanoBanana: new NanaBananaAdapter() },
+};
+
+// Daily sort (called from cron at 03:00 UTC)
+const scheduler = new ContentScheduler(config, "/app/tenants/dhr/inbox");
+const result = await scheduler.tick();
+// result.ran: true | false
+// result.sort_result: { total, classified, moved, skipped, categories }
+
+// Manual before/after composite
+const specialist = new ContentSpecialist(config);
+const ba = await specialist.generateBeforeAfter("before.jpg", "after.jpg");
+// ba.compositeUrl: "https://..."
+
+// Clean up an image
+const cleaned = await specialist.removeObjects("photo.jpg", ["tape", "tools"]);
+// cleaned.cleanedUrl: "https://..."
+```
+
 ---
 
 ## Development
