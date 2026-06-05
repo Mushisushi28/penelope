@@ -19,6 +19,8 @@ jobs:
           node-version: ${{ matrix.node }}
           cache: 'npm'
       - run: npm ci
+      - name: Fix rollup native binary (npm lockfile platform split)
+        run: npm install @rollup/rollup-linux-x64-gnu --no-save
       - run: npm run build
       - run: npm test --workspaces --if-present
       - name: CLI smoke test
