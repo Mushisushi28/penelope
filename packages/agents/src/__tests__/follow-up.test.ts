@@ -156,7 +156,7 @@ describe("draftFollowUp — vertical voice", () => {
 
     await specialist.draftFollowUp(thread, "quoted_no_booking");
 
-    const anthropic = (Anthropic as ReturnType<typeof vi.fn>).mock.results[0]!.value as {
+    const anthropic = (Anthropic as unknown as ReturnType<typeof vi.fn>).mock.results[0]!.value as {
       messages: { create: ReturnType<typeof vi.fn> };
     };
     const call = anthropic.messages.create.mock.calls[0] as [{ system: string }];

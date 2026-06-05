@@ -48,7 +48,7 @@ export {
   FollowUpSpecialist,
   StubChannelAdapter,
   hasOptedOut,
-  isQuietHours,
+  isQuietHours as isFollowUpQuietHours,
   withinRateLimit,
   nextQuietEnd,
 } from "./specialists/follow-up.js";
@@ -63,5 +63,5 @@ export type {
 } from "./specialists/follow-up.js";
 
 // Follow-up scheduler
-export { FollowUpScheduler, todayUTC } from "./specialists/follow-up-scheduler.js";
-export type { SchedulerState, SchedulerRunResult } from "./specialists/follow-up-scheduler.js";
+export { FollowUpScheduler, todayUTC as followUpTodayUTC } from "./specialists/follow-up-scheduler.js";
+export type { SchedulerState as FollowUpSchedulerState, SchedulerRunResult } from "./specialists/follow-up-scheduler.js";
