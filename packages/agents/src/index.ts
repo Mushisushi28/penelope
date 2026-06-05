@@ -21,3 +21,24 @@ export type { PostInput, GeneratedPost, MarketingDraft, MarketingConfig, Marketi
 // Marketing scheduler
 export { MarketingScheduler, parseCadence, shouldFire, getMondayOfWeek, todayUTC } from "./specialists/marketing-scheduler.js";
 export type { SchedulerConfig, SchedulerState } from "./specialists/marketing-scheduler.js";
+
+// Browser specialist
+export { BrowserSpecialist, registerRecipe, getRecipe, requiresConfirmation } from "./specialists/browser.js";
+export type {
+  BrowserSpecialistConfig,
+  BrowserResult,
+  StepTrace,
+  StepAction,
+  EscalationPayload,
+  ExecuteOptions,
+  StagehandPage,
+  StagehandInstance,
+  StagehandFactory,
+  RecipeHandler,
+} from "./specialists/browser.js";
+
+// Browser recipes
+export { yelpReviewCountRecipe } from "./specialists/browser-recipes/yelp-review-count.js";
+export type { YelpReviewData } from "./specialists/browser-recipes/yelp-review-count.js";
+export { nextdoorPostRecipe } from "./specialists/browser-recipes/nextdoor-post.js";
+export type { NextdoorPostData } from "./specialists/browser-recipes/nextdoor-post.js";
