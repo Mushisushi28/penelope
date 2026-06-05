@@ -1,143 +1,214 @@
-// panels/inbox.js — Unified inbox: thread list → thread view
+// panels/inbox.js — Unified omnichannel inbox orchestrator (v2)
+import { renderThreadList, updateThreadListItem } from '../inbox/thread-list.js';
+import { renderThreadDetail, appendMessage, refreshHeader } from '../inbox/thread-detail.js';
+import { renderComposer } from '../inbox/composer.js';
+import { renderTakeoverToggle } from '../inbox/takeover-toggle.js';
 
-import { getInbox, getThread } from '../api.js';
+const POLL_INTERVAL = 30_000;
+const _state = new WeakMap();
+function getState(root) { return _state.get(root) || {}; }
+function setState(root, patch) { _state.set(root, { ...getState(root), ...patch }); }
 
 export function mountInbox(root) {
-  root.innerHTML = `
-    <div class="panel" id="inbox-panel">
-      <div class="panel-header">
-        <h1 class="panel-title">Inbox</h1>
-        <span class="panel-subtitle">All customer conversations</span>
-      </div>
-      <div class="inbox-controls">
-        <select class="inbox-filter" id="inbox-channel">
-          <option value="">All channels</option>
-          <option value="sms">SMS</option>
-          <option value="fb-messenger">FB Messenger</option>
-          <option value="email">Email</option>
-        </select>
-        <button class="btn btn-ghost btn-sm" id="inbox-refresh">↻ Refresh</button>
-      </div>
-      <div id="inbox-body">
-        <div style="color:var(--muted);padding:16px 0;">Loading…</div>
-      </div>
-    </div>
-  `;
+  setState(root, {
+    threads: [], activeThread: null, messages: [],
+    channelFilter: '', loading: false, pollTimer: null,
+  });
 
-  root.querySelector('#inbox-refresh').addEventListener('click', () => loadInbox(root));
-  root.querySelector('#inbox-channel').addEventListener('change', () => loadInbox(root));
+  root.innerHTML = buildShell();
 
-  loadInbox(root);
+  root.querySelector('#inbox-refresh').addEventListener('click', () =>
+    refreshThreads(root, { silent: false }));
+
+  root.querySelector('#inbox-channel').addEventListener('change', e => {
+    setState(root, { channelFilter: e.target.value, activeThread: null });
+    root.querySelector('#inbox-detail-pane').style.display = 'none';
+    root.querySelector('#inbox-detail-empty').style.display = '';
+    root.querySelector('#inbox-v2').classList.remove('inbox-v2--thread-open');
+    refreshThreads(root, { silent: true });
+  });
+
+  refreshThreads(root, { silent: false });
+  const timer = setInterval(() => refreshThreads(root, { silent: true }), POLL_INTERVAL);
+  setState(root, { pollTimer: timer });
 }
 
 export function unmountInbox(root) {
+  const st = getState(root);
+  if (st.pollTimer) clearInterval(st.pollTimer);
+  _state.delete(root);
   root.innerHTML = '';
 }
 
-async function loadInbox(root) {
-  const ch = root.querySelector('#inbox-channel')?.value || '';
+function buildShell() {
+  return [
+    '<div class="inbox-v2" id="inbox-v2">',
+    '  <aside class="inbox-rail" id="inbox-rail">',
+    '    <div class="inbox-rail-header">',
+    '      <h2 class="inbox-rail-title">Inbox</h2>',
+    '      <div class="inbox-rail-controls">',
+    '        <select class="inbox-filter" id="inbox-channel" aria-label="Filter by channel">',
+    '          <option value="">All channels</option>',
+    '          <option value="telegram">Telegram</option>',
+    '          <option value="fb-messenger">FB Messenger</option>',
+    '          <option value="sms">SMS</option>',
+    '          <option value="email">Email</option>',
+    '          <option value="instagram">Instagram</option>',
+    '          <option value="whatsapp">WhatsApp</option>',
+    '          <option value="loom-a2a">Loom A2A</option>',
+    '        </select>',
+    '        <button class="btn btn-ghost btn-sm" id="inbox-refresh" aria-label="Refresh inbox">',
+    '          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">',
+    '            <path d="M23 4v6h-6M1 20v-6h6"/>',
+    '            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>',
+    '          </svg>',
+    '        </button>',
+    '      </div>',
+    '    </div>',
+    '    <div class="inbox-thread-list" id="inbox-thread-list">',
+    '      <div class="tl-loading">Loading...</div>',
+    '    </div>',
+    '  </aside>',
+    '  <section class="inbox-detail" id="inbox-detail">',
+    '    <div class="inbox-detail-empty" id="inbox-detail-empty">',
+    '      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">',
+    '        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
+    '      </svg>',
+    '      <p>Select a conversation</p>',
+    '    </div>',
+    '    <div class="inbox-detail-pane" id="inbox-detail-pane" style="display:none">',
+    '      <div class="inbox-detail-body" id="inbox-detail-body"></div>',
+    '      <div class="inbox-takeover-bar" id="inbox-takeover-bar"></div>',
+    '      <div class="inbox-composer" id="inbox-composer"></div>',
+    '    </div>',
+    '  </section>',
+    '</div>',
+  ].join('\n');
+}
+
+async function refreshThreads(root, { silent = false } = {}) {
+  const st = getState(root);
+  if (st.loading && !silent) return;
+  setState(root, { loading: true });
+
+  const ch = st.channelFilter || root.querySelector('#inbox-channel')?.value || '';
+
   try {
-    const data = await getInbox(ch);
-    renderInbox(root, data.threads || []);
+    const path = ch
+      ? '/api/inbox/threads?channel=' + encodeURIComponent(ch)
+      : '/api/inbox/threads';
+    const res = await fetch(path);
+    if (!res.ok) throw new Error(await res.text());
+    const data = await res.json();
+    const threads = data.threads || [];
+
+    setState(root, { threads, loading: false });
+
+    const listEl = root.querySelector('#inbox-thread-list');
+    if (listEl) {
+      const activeId = getState(root).activeThread?.id;
+      renderThreadList(listEl, threads, activeId, (id) => {
+        const t = getState(root).threads.find(x => String(x.id) === String(id));
+        if (t) selectThread(root, t);
+      });
+    }
+
+    const totalUnread = threads.reduce((n, t) => n + (t.unread || 0), 0);
+    updateNavBadge(totalUnread);
   } catch (e) {
-    const body = root.querySelector('#inbox-body');
-    if (body) body.innerHTML = `<div style="color:var(--danger);padding:16px 0;">Failed to load inbox: ${e.message}</div>`;
+    setState(root, { loading: false });
+    if (!silent) {
+      const listEl = root.querySelector('#inbox-thread-list');
+      if (listEl) listEl.innerHTML = '<div class="tl-error">Failed to load inbox: ' + e.message + '</div>';
+    }
   }
 }
 
-function renderInbox(root, threads) {
-  const body = root.querySelector('#inbox-body');
-  if (!body) return;
-
-  if (threads.length === 0) {
-    body.innerHTML = `
-      <div class="empty-state">
-        <div class="empty-state-icon">✉</div>
-        <div class="empty-state-text">No messages yet.</div>
-      </div>
-    `;
-    return;
-  }
-
-  body.innerHTML = `<div class="inbox-list">${threads.map(t => buildRow(t)).join('')}</div>`;
-
-  body.querySelectorAll('.inbox-row').forEach(row => {
-    row.addEventListener('click', () => openThread(root, row.dataset.id, threads));
-  });
+function makeToggleHandler(root, bodyEl, takeoverEl, composerEl, draft) {
+  return function onToggle(updatedThread) {
+    const st = getState(root);
+    const idx = st.threads.findIndex(x => String(x.id) === String(updatedThread.id));
+    if (idx !== -1) {
+      const newThreads = [...st.threads];
+      newThreads[idx] = Object.assign({}, newThreads[idx], updatedThread);
+      setState(root, { threads: newThreads, activeThread: updatedThread });
+    } else {
+      setState(root, { activeThread: updatedThread });
+    }
+    renderTakeoverToggle(takeoverEl, updatedThread,
+      makeToggleHandler(root, bodyEl, takeoverEl, composerEl, draft));
+    renderComposer(composerEl, updatedThread, draft, function(msg) { appendMessage(bodyEl, msg); });
+    refreshHeader(bodyEl, updatedThread);
+    const listEl = root.querySelector('#inbox-thread-list');
+    if (listEl) updateThreadListItem(listEl, updatedThread.id, updatedThread);
+  };
 }
 
-function buildRow(t) {
-  const initials = (t.customer_name || '?').slice(0, 2).toUpperCase();
-  const preview  = esc((t.last_message || '').slice(0, 80));
-  const time     = t.last_at ? relTime(new Date(t.last_at)) : '';
-  return `
-    <div class="inbox-row ${t.unread ? 'unread' : ''}" data-id="${t.id}">
-      <div class="inbox-avatar">${initials}</div>
-      <div class="inbox-meta">
-        <div class="inbox-name">
-          ${esc(t.customer_name || 'Unknown')}
-          <span class="channel-badge">${esc(t.channel || '?')}</span>
-        </div>
-        <div class="inbox-preview">${preview}</div>
-      </div>
-      <div class="inbox-right">
-        <span class="inbox-time">${time}</span>
-        ${t.unread ? `<span class="inbox-unread-badge">${t.unread}</span>` : ''}
-      </div>
-    </div>
-  `;
-}
+async function selectThread(root, thread) {
+  setState(root, { activeThread: thread, messages: [] });
+  root.querySelector('#inbox-v2').classList.add('inbox-v2--thread-open');
 
-async function openThread(root, id, threads) {
-  const t = threads.find(x => String(x.id) === String(id));
-  const body = root.querySelector('#inbox-body');
-  if (!body) return;
+  root.querySelector('#inbox-detail-pane').style.display  = '';
+  root.querySelector('#inbox-detail-empty').style.display = 'none';
 
-  body.innerHTML = `<div style="color:var(--muted);padding:16px 0;">Loading thread…</div>`;
-
-  try {
-    const data = await getThread(id);
-    const msgs = data.messages || [];
-    body.innerHTML = `
-      <div class="thread-view">
-        <div class="thread-header">
-          <button class="btn btn-ghost btn-sm" id="thread-back">← Back</button>
-          <h3>${esc(t ? t.customer_name : id)}</h3>
-          ${t ? `<span class="channel-badge">${esc(t.channel || '')}</span>` : ''}
-        </div>
-        <div class="messages-list">
-          ${msgs.map(m => buildBubble(m)).join('')}
-          ${msgs.length === 0 ? '<div class="empty-state"><div class="empty-state-text">No messages in this thread.</div></div>' : ''}
-        </div>
-      </div>
-    `;
-    body.querySelector('#thread-back').addEventListener('click', () => {
-      renderInbox(root, threads);
+  const listEl = root.querySelector('#inbox-thread-list');
+  if (listEl) {
+    renderThreadList(listEl, getState(root).threads, thread.id, function(id) {
+      const t = getState(root).threads.find(x => String(x.id) === String(id));
+      if (t) selectThread(root, t);
     });
+  }
+
+  const bodyEl     = root.querySelector('#inbox-detail-body');
+  const takeoverEl = root.querySelector('#inbox-takeover-bar');
+  const composerEl = root.querySelector('#inbox-composer');
+
+  if (bodyEl) bodyEl.innerHTML = '<div class="td-loading">Loading messages...</div>';
+
+  try {
+    const res = await fetch('/api/inbox/' + thread.id + '/thread');
+    if (!res.ok) throw new Error(await res.text());
+    const data = await res.json();
+    const messages = data.messages || [];
+    const draft    = data.pending_draft || null;
+
+    setState(root, { messages, activeThread: thread });
+
+    if (bodyEl) {
+      renderThreadDetail(bodyEl, thread, messages, draft);
+      const backBtn = bodyEl.querySelector('#td-back');
+      if (backBtn) {
+        backBtn.addEventListener('click', function() {
+          root.querySelector('#inbox-v2').classList.remove('inbox-v2--thread-open');
+          root.querySelector('#inbox-detail-pane').style.display  = 'none';
+          root.querySelector('#inbox-detail-empty').style.display = '';
+        });
+      }
+    }
+
+    if (takeoverEl) {
+      renderTakeoverToggle(takeoverEl, thread,
+        makeToggleHandler(root, bodyEl, takeoverEl, composerEl, draft));
+    }
+
+    if (composerEl) {
+      renderComposer(composerEl, thread, draft, function(msg) { appendMessage(bodyEl, msg); });
+    }
+
   } catch (e) {
-    body.innerHTML = `<div style="color:var(--danger);padding:16px 0;">Failed to load thread: ${e.message}</div>`;
+    if (bodyEl) bodyEl.innerHTML = '<div class="td-error">Failed to load thread: ' + e.message + '</div>';
   }
 }
 
-function buildBubble(m) {
-  const side = m.direction === 'outbound' ? 'agent' : 'customer';
-  const time = m.ts ? new Date(m.ts).toLocaleString('en-US', { month:'short', day:'numeric', hour:'numeric', minute:'2-digit' }) : '';
-  return `
-    <div class="message-bubble ${side}">
-      ${esc(m.text || '')}
-      <div class="message-meta">${side === 'agent' ? 'Agent' : 'Customer'} · ${time}</div>
-    </div>
-  `;
-}
-
-function relTime(d) {
-  const diff = (Date.now() - d.getTime()) / 1000;
-  if (diff < 60)   return 'just now';
-  if (diff < 3600) return Math.floor(diff / 60) + 'm';
-  if (diff < 86400) return Math.floor(diff / 3600) + 'h';
-  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-}
-
-function esc(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+function updateNavBadge(count) {
+  let badge = document.querySelector('.nav-inbox-badge');
+  if (count <= 0) { if (badge) badge.remove(); return; }
+  if (!badge) {
+    const navRow = document.querySelector('[data-view="inbox"], [data-route="inbox"], [href="#/inbox"]');
+    if (!navRow) return;
+    badge = document.createElement('span');
+    badge.className = 'nav-inbox-badge';
+    navRow.appendChild(badge);
+  }
+  badge.textContent = count > 99 ? '99+' : String(count);
 }

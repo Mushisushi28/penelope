@@ -5,6 +5,38 @@ import { mountInbox, unmountInbox } from './panels/inbox.js';
 import { mountShadowQueue, unmountShadowQueue } from './panels/shadow-queue.js';
 import { mountSettings } from './panels/settings.js';
 
+// ── Lazy-load procedures editor ─────────────────────────────────────────────
+// Deferred import keeps the vanilla-JS shell unbundled; the canvas module
+// (js-yaml + SVG canvas ~30 KB) only downloads when the user navigates to
+// /procedures/:id/edit.
+let _procEditorModule = null;
+async function loadProceduresEditor() {
+  if (!_procEditorModule) {
+    _procEditorModule = await import('./panels/procedures-editor.js');
+  }
+  return _procEditorModule;
+}
+
+// Procedures-editor shim panel — created dynamically for /procedures/:id/edit
+function makeProcEditorPanel(procedureId) {
+  let _unmountFn = null;
+  return {
+    mount(root) {
+      loadProceduresEditor().then(mod => {
+        _unmountFn = mod.unmount;
+        mod.mount(root, procedureId);
+      }).catch(err => {
+        root.innerHTML = `<div style="padding:24px;color:#e07060;font-family:monospace">
+          Failed to load procedure editor: ${err.message}
+        </div>`;
+      });
+    },
+    unmount(root) {
+      if (_unmountFn) { try { _unmountFn(root); } catch (_) {} _unmountFn = null; }
+    },
+  };
+}
+
 function stubPanel(label, icon, desc) {
   return {
     mount(root) {
@@ -67,10 +99,40 @@ export const ROUTES = {
 let _active = null;
 let _root = null;
 let _onChange = null;
+// Dynamic panels created at runtime (keyed by hash fragment)
+const _dynamicPanels = new Map();
 
 function getHash() {
   const h = location.hash.replace(/^#\/?/, '');
   return h || 'home';
+}
+
+// Returns { routeId, panel } for the current hash.
+// Handles static ROUTES and dynamic /procedures/:id/edit patterns.
+function resolveRoute(hash) {
+  // Dynamic: /procedures/:id/edit
+  const procEditMatch = hash.match(/^procedures\/([^/]+)\/edit$/);
+  if (procEditMatch) {
+    const procedureId = procEditMatch[1];
+    const key = hash;
+    if (!_dynamicPanels.has(key)) {
+      _dynamicPanels.set(key, makeProcEditorPanel(procedureId));
+    }
+    return {
+      routeId: key,
+      panel: _dynamicPanels.get(key),
+      label: `Edit: ${procedureId}`,
+      faviconShape: 'triangle',
+    };
+  }
+  // Static
+  const route = ROUTES[hash] || ROUTES.home;
+  return {
+    routeId: hash in ROUTES ? hash : 'home',
+    panel: route,
+    label: route.label,
+    faviconShape: route.faviconShape,
+  };
 }
 
 function setFavicon(shape, accent) {
@@ -98,26 +160,30 @@ function setFavicon(shape, accent) {
   link.href = 'data:image/svg+xml,' + encodeURIComponent(svg);
 }
 
-function activate(id) {
-  const route = ROUTES[id] || ROUTES.home;
-  const prevId = _active;
+function activate(hash) {
+  const { routeId, panel, label, faviconShape } = resolveRoute(hash);
+  const prevHash = _active;
 
-  if (prevId && prevId !== id && ROUTES[prevId] && ROUTES[prevId].unmount) {
-    try { ROUTES[prevId].unmount(_root); } catch (_) {}
+  // Unmount previous panel
+  if (prevHash && prevHash !== routeId) {
+    const { panel: prevPanel } = resolveRoute(prevHash);
+    if (prevPanel && prevPanel.unmount) {
+      try { prevPanel.unmount(_root); } catch (_) {}
+    }
   }
 
-  _active = id;
+  _active = routeId;
   if (_root) {
     _root.innerHTML = '';
-    route.mount(_root);
+    panel.mount(_root);
   }
 
   const accent = getComputedStyle(document.documentElement).getPropertyValue('--penelope-shuttle').trim() || '#b87333';
-  setFavicon(route.faviconShape, accent);
+  setFavicon(faviconShape, accent);
 
-  document.title = `${route.label} — Penelope`;
+  document.title = `${label} — Penelope`;
 
-  if (_onChange) _onChange(id);
+  if (_onChange) _onChange(routeId);
 }
 
 function onHashChange() {

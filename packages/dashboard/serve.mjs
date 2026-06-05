@@ -6,8 +6,8 @@
 
 import { createServer }  from 'node:http';
 import { createRequire } from 'node:module';
-import { readFileSync, writeFileSync, existsSync } from 'node:fs';
-import { dirname, join }  from 'node:path';
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
+import { dirname, join, resolve }  from 'node:path';
 import { fileURLToPath }  from 'node:url';
 import { lookup }         from 'node:dns/promises';
 
@@ -17,6 +17,19 @@ const PORT    = parseInt(process.env.PENELOPE_DASHBOARD_PORT || '18900', 10);
 const BUS_DB  = process.env.PENELOPE_TENANT_BUS || null;
 const SLUG    = process.env.PENELOPE_TENANT_SLUG || 'owner';
 const SETTINGS_FILE = join(__dir, 'tenant-settings.json');
+
+// ── Tenant directory resolution ──────────────────────────────────────────────
+// Procedures live at <repo-root>/tenants/<slug>/procedures/<id>.yaml
+// __dir is packages/dashboard; repo root is two levels up.
+const REPO_ROOT       = resolve(__dir, '..', '..');
+const TENANTS_DIR     = join(REPO_ROOT, 'tenants');
+const PROCEDURES_DIR  = join(TENANTS_DIR, SLUG, 'procedures');
+
+function procedurePath(id) {
+  // Guard against path traversal
+  const safeId = id.replace(/[^a-zA-Z0-9_-]/g, '');
+  return join(PROCEDURES_DIR, `${safeId}.yaml`);
+}
 
 // ── SQLite (optional) ───────────────────────────────────────────────────────
 const require = createRequire(import.meta.url);
@@ -328,6 +341,42 @@ async function handleApi(req, res, url) {
       console.log(`[penelope-dash] bus action: ${body.action}`);
       return sendJson(res, 200, { ok: true, queued: body.action });
     } catch (e) { return sendJson(res, 400, { error: e.message }); }
+  }
+
+  // GET /api/procedures/:id  — read procedure YAML
+  const procedureGetMatch = path.match(/^\/api\/procedures\/([^/]+)$/);
+  if (procedureGetMatch && method === 'GET') {
+    const id = procedureGetMatch[1];
+    const filePath = procedurePath(id);
+    if (!existsSync(filePath)) {
+      return sendJson(res, 404, { error: `Procedure '${id}' not found`, path: filePath });
+    }
+    try {
+      const yaml = readFileSync(filePath, 'utf8');
+      return sendJson(res, 200, { id, yaml });
+    } catch (e) {
+      return sendJson(res, 500, { error: e.message });
+    }
+  }
+
+  // PUT /api/procedures/:id  — write procedure YAML
+  const procedurePutMatch = path.match(/^\/api\/procedures\/([^/]+)$/);
+  if (procedurePutMatch && method === 'PUT') {
+    const id = procedurePutMatch[1];
+    const filePath = procedurePath(id);
+    try {
+      const body = await bodyJson(req);
+      if (typeof body.yaml !== 'string') {
+        return sendJson(res, 400, { error: '`yaml` string field required' });
+      }
+      // Ensure directory exists
+      mkdirSync(dirname(filePath), { recursive: true });
+      writeFileSync(filePath, body.yaml, 'utf8');
+      console.log(`[penelope-dash] procedure saved: ${id}`);
+      return sendJson(res, 200, { ok: true, id });
+    } catch (e) {
+      return sendJson(res, 500, { error: e.message });
+    }
   }
 
   return sendJson(res, 404, { error: 'Not found' });
