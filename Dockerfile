@@ -8,11 +8,21 @@ RUN apk add --no-cache python3 make g++
 
 # Copy workspace manifests first (layer cache)
 COPY package.json package-lock.json ./
-COPY packages/core/package.json        packages/core/
-COPY packages/agents/package.json      packages/agents/
-COPY packages/adapters/package.json    packages/adapters/
-COPY packages/cli/package.json         packages/cli/
-COPY packages/dashboard/package.json   packages/dashboard/
+COPY packages/core/package.json               packages/core/
+COPY packages/agents/package.json             packages/agents/
+COPY packages/adapters/package.json           packages/adapters/
+COPY packages/cli/package.json                packages/cli/
+COPY packages/dashboard/package.json          packages/dashboard/
+COPY packages/secrets/package.json            packages/secrets/
+COPY packages/connectors/package.json         packages/connectors/
+COPY packages/hermes/package.json             packages/hermes/
+COPY packages/marketplace/package.json        packages/marketplace/
+COPY packages/procedure-eval/package.json     packages/procedure-eval/
+COPY packages/billing/package.json            packages/billing/
+COPY packages/telemetry/package.json          packages/telemetry/
+COPY packages/audit-log/package.json          packages/audit-log/
+COPY packages/connector-discovery/package.json packages/connector-discovery/
+COPY packages/onboarding-web/package.json     packages/onboarding-web/
 
 # Install all workspace dependencies
 RUN npm ci
@@ -21,10 +31,12 @@ RUN npm ci
 COPY packages/ packages/
 COPY tsconfig*.json ./
 
-# Build all TypeScript workspaces
+# Build all TypeScript workspaces in dependency order
 RUN npm run build -w packages/core \
- && npm run build -w packages/agents \
+ && npm run build -w packages/secrets \
+ && npm run build -w packages/connectors \
  && npm run build -w packages/adapters \
+ && npm run build -w packages/agents \
  && npm run build -w packages/cli
 
 # ─── Stage 2: runtime ────────────────────────────────────────────────────────
