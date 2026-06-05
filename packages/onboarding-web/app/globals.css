@@ -1,0 +1,137 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=IBM+Plex+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Penelope brand primitives */
+  --olive-900: #111e18;
+  --olive-800: #1a2e26;
+  --olive-700: #243d33;
+  --olive-600: #2D4A3E;
+  --olive-500: #3d7560;
+  --olive-400: #5d9178;
+  --olive-300: #82ae98;
+  --olive-200: #aecbbc;
+  --olive-100: #d6e5de;
+  --olive-50:  #f0f4f2;
+
+  --gold-900: #3f2e10;
+  --gold-800: #62481b;
+  --gold-700: #856126;
+  --gold-600: #a87b32;
+  --gold-500: #C9983F;
+  --gold-400: #d9a245;
+  --gold-300: #e5ba6e;
+  --gold-200: #efd4a0;
+  --gold-100: #f7ead0;
+  --gold-50:  #fdf8ee;
+
+  --copper-500: #A0522D;
+  --copper-600: #844424;
+
+  --bone-50:  #FDFCFA;
+  --bone-100: #F6F3EC;
+  --bone-200: #ede8dc;
+
+  --charcoal-600: #383838;
+  --charcoal-900: #111111;
+
+  /* Semantic tokens */
+  --penelope-loom:    var(--olive-600);
+  --penelope-thread:  var(--gold-500);
+  --penelope-shuttle: var(--copper-500);
+
+  --penelope-warp-bg:       var(--bone-50);
+  --penelope-warp-surface:  var(--bone-100);
+  --penelope-warp-border:   var(--bone-200);
+
+  --penelope-weft-text:    var(--charcoal-600);
+  --penelope-weft-muted:   #6b7280;
+  --penelope-weft-inverse: var(--bone-50);
+}
+
+@layer base {
+  html {
+    font-family: 'IBM Plex Sans', system-ui, sans-serif;
+    color: var(--penelope-weft-text);
+    background-color: var(--penelope-warp-bg);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-weight: 300;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-sans font-medium text-sm tracking-wide text-bone-50 bg-shuttle-500 hover:bg-shuttle-600 active:bg-shuttle-700 transition-colors duration-150 disabled:opacity-40 disabled:cursor-not-allowed;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-sans font-medium text-sm tracking-wide text-loom-700 bg-transparent border border-loom-300 hover:bg-loom-50 active:bg-loom-100 transition-colors duration-150 disabled:opacity-40 disabled:cursor-not-allowed;
+  }
+
+  .btn-thread {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-sans font-medium text-sm tracking-wide text-loom-800 bg-thread-500 hover:bg-thread-600 active:bg-thread-700 transition-colors duration-150 disabled:opacity-40 disabled:cursor-not-allowed;
+  }
+
+  .card {
+    @apply bg-bone-100 border border-bone-200 rounded-xl p-5 transition-all duration-200;
+  }
+
+  .card.selected {
+    @apply border-loom-600 bg-loom-50 ring-1 ring-loom-600/20;
+  }
+
+  .input-field {
+    @apply w-full px-3.5 py-2.5 rounded-lg border border-bone-300 bg-bone-50 text-sm text-charcoal-600 placeholder:text-charcoal-400 focus:outline-none focus:ring-2 focus:ring-loom-600/30 focus:border-loom-600 transition-all duration-150;
+  }
+
+  .input-label {
+    @apply block text-xs font-medium tracking-wide text-charcoal-500 mb-1 uppercase;
+  }
+
+  .display-serif {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-weight: 300;
+  }
+
+  .label-caps {
+    @apply text-xs font-medium tracking-widest uppercase text-charcoal-500;
+  }
+
+  .label-caps-accent {
+    @apply text-xs font-medium tracking-widest uppercase text-thread-600;
+  }
+
+  .thread-accent {
+    color: var(--penelope-thread);
+  }
+
+  .loom-bg {
+    background-color: var(--penelope-loom);
+    color: var(--penelope-weft-inverse);
+  }
+
+  .terminal {
+    font-family: 'JetBrains Mono', Menlo, monospace;
+    font-size: 0.8125rem;
+    line-height: 1.6;
+    background: #1a2e26;
+    color: #aecbbc;
+    border-radius: 0.5rem;
+    padding: 1.25rem 1.5rem;
+    overflow-x: auto;
+  }
+}
