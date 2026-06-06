@@ -1,0 +1,42 @@
+import type { MCPConnectorDescriptor } from "../types.js";
+
+export const chargebeeConnector: MCPConnectorDescriptor = {
+  id: "chargebee",
+  vendor: "Chargebee",
+  category: "billing",
+  mcp_server: "@chargebee/mcp-server",
+  transport: "stdio",
+  capabilities: [
+    "subscription.create",
+    "subscription.update",
+    "subscription.cancel",
+    "subscription.list",
+    "invoice.create",
+    "invoice.list",
+    "invoice.void",
+    "customer.create",
+    "customer.update",
+    "customer.list",
+    "payment.record",
+    "payment_source.add",
+    "plan.list",
+    "coupon.apply",
+  ],
+  required_env: ["CHARGEBEE_API_KEY", "CHARGEBEE_SITE"],
+  owner_consent_required: [
+    "subscription.create",
+    "subscription.cancel",
+    "invoice.create",
+    "invoice.void",
+    "payment.record",
+    "coupon.apply",
+  ],
+  tenant_config_template: {
+    site: "",
+    currency_code: "USD",
+    default_plan_id: "",
+  },
+  docs_url: "https://apidocs.chargebee.com/docs/api",
+  sample_procedure: "procedures/templates/billing/create-subscription.yaml",
+  registry_status: "official",
+};

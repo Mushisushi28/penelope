@@ -1,0 +1,12 @@
+{
+  "connector_id": "brightlocal",
+  "tenant_id": "acme-corp",
+  "config": {
+    "location_id": "",
+    "business_name": "Acme Corp",
+    "review_sources": ["google", "facebook", "yelp"],
+    "auto_respond": false
+  },
+  "required_env": ["BRIGHTLOCAL_API_KEY"],
+  "approved_capabilities": ["review.respond"]
+}

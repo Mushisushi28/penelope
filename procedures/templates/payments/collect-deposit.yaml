@@ -1,0 +1,22 @@
+name: collect-deposit
+description: Create a Stripe payment link for a job deposit and send it to the customer.
+connector: stripe
+steps:
+  - capability: payment_link.create
+    args:
+      amount: "{{ deposit_amount_cents }}"
+      currency: "{{ tenant.config.default_currency }}"
+      description: "Deposit for {{ job.description }}"
+    consent_required: true
+
+  - capability: invoice.create
+    args:
+      customer_id: "{{ customer.stripe_id }}"
+      line_items:
+        - description: "Deposit for {{ job.description }}"
+          amount: "{{ deposit_amount_cents }}"
+    consent_required: true
+
+outputs:
+  - payment_link_url
+  - invoice_id

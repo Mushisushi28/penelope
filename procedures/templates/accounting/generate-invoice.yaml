@@ -1,0 +1,30 @@
+name: generate-invoice
+description: Create and send an invoice via Xero for a completed job.
+connector: xero
+steps:
+  - capability: contact.create
+    args:
+      name: "{{ customer.name }}"
+      email_address: "{{ customer.email }}"
+    consent_required: false
+
+  - capability: invoice.create
+    args:
+      contact_id: "{{ steps[0].contact_id }}"
+      line_items:
+        - description: "{{ job.description }}"
+          quantity: 1
+          unit_amount: "{{ job.price_cents / 100 }}"
+      currency_code: "{{ tenant.config.base_currency }}"
+      due_date: "{{ due_date }}"
+    consent_required: true
+
+  - capability: invoice.send
+    args:
+      invoice_id: "{{ steps[1].invoice_id }}"
+      to_email: "{{ customer.email }}"
+    consent_required: true
+
+outputs:
+  - invoice_id
+  - invoice_url

@@ -47,6 +47,10 @@ export type { UsageSample, PromotionSuggestion } from "./auto-promote.js";
 
 export { seedConnectors } from "./seed-connectors.js";
 
+// MCP connector registry (Wave 1)
+export type { MCPConnectorDescriptor, MCPCategory, McpTransportKind } from "./mcp-registry/types.js";
+export { mcpRegistry, getMCPByCategory, getMCPById } from "./mcp-registry/index.js";
+
 export { StripeMcpConnector } from "./connectors/stripe-mcp.js";
 
 // Image generation adapters

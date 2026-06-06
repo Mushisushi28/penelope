@@ -1,0 +1,40 @@
+import type { MCPConnectorDescriptor } from "../types.js";
+
+export const xeroConnector: MCPConnectorDescriptor = {
+  id: "xero",
+  vendor: "Xero",
+  category: "accounting",
+  mcp_server: "xero-mcp-server",
+  transport: "stdio",
+  capabilities: [
+    "invoice.create",
+    "invoice.send",
+    "invoice.list",
+    "invoice.update",
+    "payment.record",
+    "payment.list",
+    "contact.create",
+    "contact.list",
+    "expense.create",
+    "expense.list",
+    "report.profit_loss",
+    "report.balance_sheet",
+    "account.list",
+    "bank_transaction.list",
+  ],
+  required_env: ["XERO_CLIENT_ID", "XERO_CLIENT_SECRET", "XERO_REFRESH_TOKEN"],
+  owner_consent_required: [
+    "invoice.create",
+    "invoice.send",
+    "payment.record",
+    "expense.create",
+  ],
+  tenant_config_template: {
+    tenant_id: "",
+    organization_name: "",
+    base_currency: "USD",
+  },
+  docs_url: "https://developer.xero.com/documentation/api/accounting/overview",
+  sample_procedure: "procedures/templates/accounting/generate-invoice.yaml",
+  registry_status: "official",
+};

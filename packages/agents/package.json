@@ -39,6 +39,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.27.3",
+    "@penelope/connectors": "workspace:*",
     "nunjucks": "^3.2.4",
     "zod": "^3.23.8"
   }

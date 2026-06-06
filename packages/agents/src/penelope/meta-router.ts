@@ -42,6 +42,15 @@ export type Intent =
   | 'status'
   | 'autopilot'
   | 'content'
+  // MCP connector intents (Wave 1)
+  | 'crm'
+  | 'inbox'
+  | 'accounting'
+  | 'helpdesk'
+  | 'voice'
+  | 'task'
+  | 'analytics'
+  | 'automation'
   | 'unknown';
 
 /** Maps a parsed intent to the bus topic Penelope publishes on. */
@@ -58,6 +67,15 @@ export const INTENT_TOPIC_MAP: Record<Intent, string> = {
   status: 'system.status.requested',
   autopilot: 'system.autopilot.toggle',
   content: 'content.generation.requested',
+  // MCP connector intents
+  crm: 'connector.invoke.requested',
+  inbox: 'connector.invoke.requested',
+  accounting: 'connector.invoke.requested',
+  helpdesk: 'connector.invoke.requested',
+  voice: 'connector.invoke.requested',
+  task: 'connector.invoke.requested',
+  analytics: 'connector.invoke.requested',
+  automation: 'connector.invoke.requested',
   unknown: 'penelope.unrecognised',
 };
 
@@ -85,6 +103,15 @@ export function classifyIntent(text: string): Intent {
     /\bsort.*today.*photos\b|\bsort.*photos\b|\bmake.*promo.*image\b|\bgenerate.*promo\b/.test(t)
   ) return 'content';
   if (/\bcustomer\b|\blead\b|\bdm\b|\bmessage\b/.test(t)) return 'customer';
+  // MCP connector intents (Wave 1)
+  if (/\bcrm\b|\bhubspot\b|\bpipedrive\b|\bcontact.*update\b|\bdeal.*create\b/.test(t)) return 'crm';
+  if (/\binbox\b|\bchatwoot\b|\bticket.*assign\b|\bconversation.*list\b/.test(t)) return 'inbox';
+  if (/\baccounting\b|\bxero\b|\bquickbooks\b|\binvoice\b|\bprofit.*loss\b/.test(t)) return 'accounting';
+  if (/\bhelpdesk\b|\bfreshdesk\b|\bzendesk\b|\bsupport.*ticket\b/.test(t)) return 'helpdesk';
+  if (/\bvoice.*call\b|\bvapi\b|\boutbound.*call\b|\bai.*call\b/.test(t)) return 'voice';
+  if (/\btask\b|\basana\b|\bclickup\b|\blinear\b|\bproject\b/.test(t)) return 'task';
+  if (/\banalytics\b|\bposthog\b|\bmixpanel\b|\btrack.*event\b|\bfunnel\b/.test(t)) return 'analytics';
+  if (/\bautomation\b|\bzapier\b|\bzap\b|\bworkflow\b/.test(t)) return 'automation';
   return 'unknown';
 }
 

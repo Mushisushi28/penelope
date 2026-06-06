@@ -1,0 +1,11 @@
+{
+  "connector_id": "gusto",
+  "tenant_id": "acme-corp",
+  "config": {
+    "company_id": "",
+    "pay_schedule_id": "",
+    "default_department_id": ""
+  },
+  "required_env": ["GUSTO_CLIENT_ID", "GUSTO_CLIENT_SECRET", "GUSTO_COMPANY_ID"],
+  "approved_capabilities": []
+}

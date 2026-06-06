@@ -1,0 +1,24 @@
+name: qualify-lead
+description: Create or update a CRM contact and deal when a new lead is captured.
+connector: hubspot
+steps:
+  - capability: contact.create
+    args:
+      email: "{{ lead.email }}"
+      first_name: "{{ lead.first_name }}"
+      last_name: "{{ lead.last_name }}"
+      phone: "{{ lead.phone }}"
+      source: "{{ lead.source }}"
+    consent_required: true
+
+  - capability: deal.create
+    args:
+      contact_id: "{{ steps[0].contact_id }}"
+      deal_name: "{{ lead.first_name }} {{ lead.last_name }} — {{ job.type }}"
+      pipeline_id: "{{ tenant.config.default_pipeline_id }}"
+      stage: "new_lead"
+    consent_required: true
+
+outputs:
+  - contact_id
+  - deal_id

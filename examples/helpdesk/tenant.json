@@ -1,0 +1,12 @@
+{
+  "connector_id": "freshdesk",
+  "tenant_id": "acme-corp",
+  "config": {
+    "domain": "acme.freshdesk.com",
+    "default_group_id": "",
+    "default_responder_id": "",
+    "auto_assign": false
+  },
+  "required_env": ["FRESHDESK_API_KEY", "FRESHDESK_DOMAIN"],
+  "approved_capabilities": ["ticket.reply"]
+}

@@ -1,0 +1,20 @@
+name: run-payroll
+description: Run a payroll cycle via Gusto for a given pay period.
+connector: gusto
+steps:
+  - capability: employee.list
+    args:
+      company_id: "{{ tenant.config.company_id }}"
+
+  - capability: payroll.run
+    args:
+      company_id: "{{ tenant.config.company_id }}"
+      pay_schedule_id: "{{ tenant.config.pay_schedule_id }}"
+      pay_period_start: "{{ pay_period_start }}"
+      pay_period_end: "{{ pay_period_end }}"
+    consent_required: true
+
+outputs:
+  - payroll_id
+  - total_gross_pay
+  - total_net_pay

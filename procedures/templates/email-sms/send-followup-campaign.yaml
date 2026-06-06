@@ -1,0 +1,26 @@
+name: send-followup-campaign
+description: Add a contact to a Klaviyo list and trigger a follow-up email flow.
+connector: klaviyo
+steps:
+  - capability: profile.create
+    args:
+      email: "{{ customer.email }}"
+      first_name: "{{ customer.first_name }}"
+      last_name: "{{ customer.last_name }}"
+      phone_number: "{{ customer.phone }}"
+    consent_required: false
+
+  - capability: list.add_profile
+    args:
+      list_id: "{{ list_id }}"
+      profile_id: "{{ steps[0].profile_id }}"
+    consent_required: true
+
+  - capability: flow.trigger
+    args:
+      flow_id: "{{ flow_id }}"
+      profile_id: "{{ steps[0].profile_id }}"
+    consent_required: true
+
+outputs:
+  - profile_id

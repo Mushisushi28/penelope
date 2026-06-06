@@ -1,0 +1,12 @@
+{
+  "connector_id": "klaviyo",
+  "tenant_id": "acme-corp",
+  "config": {
+    "company_id": "",
+    "default_sender_email": "hello@acme.com",
+    "default_sender_name": "Acme Support",
+    "sms_sending_number": ""
+  },
+  "required_env": ["KLAVIYO_API_KEY"],
+  "approved_capabilities": ["email.send"]
+}
