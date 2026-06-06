@@ -107,6 +107,32 @@ export interface OutboundMessage {
 }
 
 // ---------------------------------------------------------------------------
+// Channel capabilities
+// ---------------------------------------------------------------------------
+
+/**
+ * Feature flags that describe what a channel adapter actually supports.
+ * Consumers can use this to drive UI, routing logic, and fallback paths
+ * without needing to know the concrete adapter class.
+ */
+export interface ChannelCapabilities {
+  /** Adapter can deliver plain-text outbound messages. */
+  send_text: boolean;
+  /** Adapter can deliver messages with file/media attachments. */
+  send_attachments: boolean;
+  /** Adapter can add emoji reactions to messages. */
+  reactions: boolean;
+  /** Adapter can fetch historical messages in a thread. */
+  thread_history: boolean;
+  /** Adapter can poll the inbox for new inbound messages. */
+  polling_inbox: boolean;
+  /** Adapter can receive inbound messages via a webhook push model. */
+  webhook_inbox: boolean;
+  /** Adapter supports sending a typing indicator before a reply. */
+  supports_typing_indicator: boolean;
+}
+
+// ---------------------------------------------------------------------------
 // Adapter contract
 // ---------------------------------------------------------------------------
 
@@ -123,6 +149,19 @@ export interface OutboundMessage {
 export interface ChannelAdapter {
   /** Canonical channel name — matches `InboundMessage.channel`. */
   readonly name: string;
+  /**
+   * Stable identifier for this channel implementation.
+   * Same as `name` for most adapters; exposed explicitly so the registry
+   * and routing engine can look up adapters without instanceof checks.
+   * e.g. 'telegram', 'fb-page', 'twilio-sms', 'email', 'instagram',
+   *      'loom-a2a', 'whatsapp-business'
+   */
+  readonly channel_id: string;
+  /**
+   * Declarative capability flags. Consumers can inspect these to avoid
+   * calling optional methods that the channel does not support.
+   */
+  readonly capabilities: ChannelCapabilities;
   /**
    * Begin receiving. `onInbound` is the single hook through which all
    * inbound messages flow into Penelope's routing engine.
@@ -147,6 +186,13 @@ export interface ChannelAdapter {
    * Optional — channels that don't support reactions may leave this undefined.
    */
   react?(external_id: string, emoji: string): Promise<void>;
+  /**
+   * Probe the channel's connectivity and credential validity.
+   * Resolves with `{ ok: true }` when the adapter can reach the channel API.
+   * Resolves with `{ ok: false, details: '<reason>' }` on any failure.
+   * MUST NOT throw — callers treat any exception as a hard failure.
+   */
+  healthCheck(): Promise<{ ok: boolean; details?: string }>;
 }
 
 // ---------------------------------------------------------------------------

@@ -22,6 +22,7 @@
 
 import type {
   ChannelAdapter,
+  ChannelCapabilities,
   InboundMessage,
   OutboundMessage,
 } from './types.js';
@@ -68,6 +69,16 @@ const DEFAULT_BUS_DB = 'C:/Users/isaac/loom/state/bus.sqlite';
 
 export class LoomA2aAdapter implements ChannelAdapter {
   readonly name = 'loom-a2a';
+  readonly channel_id = 'loom-a2a';
+  readonly capabilities: ChannelCapabilities = {
+    send_text: true,
+    send_attachments: false,
+    reactions: false,
+    thread_history: false,
+    polling_inbox: true,
+    webhook_inbox: false,            // SQLite push not possible; poll only
+    supports_typing_indicator: false,
+  };
 
   private readonly tenantId: string;
   private readonly agentId: string;
@@ -148,6 +159,23 @@ export class LoomA2aAdapter implements ChannelAdapter {
     ).run(id, this.agentId, out.external_thread_id, out.text, 'a2a', now);
 
     return { external_id: id };
+  }
+
+  async healthCheck(): Promise<{ ok: boolean; details?: string }> {
+    try {
+      const { existsSync } = await import('node:fs');
+      if (!existsSync(this.busDbPath)) {
+        return { ok: false, details: `bus.sqlite not found at ${this.busDbPath}` };
+      }
+      // If db is open, run a trivial query to confirm connectivity.
+      if (this.db) {
+        const db = this.db as { prepare: (sql: string) => { get: () => unknown } };
+        db.prepare('SELECT 1').get();
+      }
+      return { ok: true };
+    } catch (err) {
+      return { ok: false, details: (err as Error).message };
+    }
   }
 
   // -------------------------------------------------------------------------

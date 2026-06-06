@@ -25,6 +25,7 @@
 
 import type {
   ChannelAdapter,
+  ChannelCapabilities,
   InboundMessage,
   OutboundMessage,
 } from './types.js';
@@ -51,6 +52,16 @@ const DEFAULT_POLL_INTERVAL_MS = 30_000;
 
 export class InstagramAdapter implements ChannelAdapter {
   readonly name = 'instagram';
+  readonly channel_id = 'instagram';
+  readonly capabilities: ChannelCapabilities = {
+    send_text: true,            // planned — pending App Review
+    send_attachments: true,     // planned
+    reactions: false,
+    thread_history: true,       // planned — /{ig_user_id}/conversations
+    polling_inbox: true,        // stub — not yet implemented
+    webhook_inbox: true,        // planned
+    supports_typing_indicator: false,
+  };
 
   private readonly tenantId: string;
   private readonly igUserId: string;
@@ -124,6 +135,26 @@ export class InstagramAdapter implements ChannelAdapter {
     // for new DMs; normalise to InboundMessage; call onInbound.
     this.log.info('InstagramAdapter.pollOnce() is a stub — no-op');
     return 0;
+  }
+
+  async healthCheck(): Promise<{ ok: boolean; details?: string }> {
+    if (!this.pageToken?.trim()) {
+      return { ok: false, details: 'page_token is missing' };
+    }
+    try {
+      const url = `${GRAPH_BASE}/v23.0/${this.igUserId}?fields=id,name&access_token=${this.pageToken}`;
+      const res = await this.fetchImpl(url);
+      if (!res.ok) {
+        return { ok: false, details: `GET /${this.igUserId} HTTP ${res.status} ${res.statusText}` };
+      }
+      const body = (await res.json()) as { id?: string; error?: { message: string } };
+      if (body.error) {
+        return { ok: false, details: body.error.message };
+      }
+      return { ok: true };
+    } catch (err) {
+      return { ok: false, details: (err as Error).message };
+    }
   }
 
   private async runLoop(): Promise<void> {

@@ -29,6 +29,7 @@
 import { createHmac } from 'node:crypto';
 import type {
   ChannelAdapter,
+  ChannelCapabilities,
   InboundMessage,
   OutboundMessage,
   Attachment,
@@ -208,6 +209,16 @@ export interface WaMessageStatus {
 
 export class WhatsappBusinessAdapter implements ChannelAdapter {
   readonly name = 'whatsapp-business';
+  readonly channel_id = 'whatsapp-business';
+  readonly capabilities: ChannelCapabilities = {
+    send_text: true,
+    send_attachments: true,          // media messages via Cloud API
+    reactions: true,                 // emoji reactions supported
+    thread_history: false,           // WA Cloud API has no history endpoint
+    polling_inbox: true,             // poll-mode fallback for dev/test
+    webhook_inbox: true,             // primary production path
+    supports_typing_indicator: false,
+  };
 
   private readonly tenantId: string;
   private readonly phoneNumberId: string;
@@ -347,6 +358,26 @@ export class WhatsappBusinessAdapter implements ChannelAdapter {
   async sendTemplate(waId: string, template: WaTemplate): Promise<{ external_id: string }> {
     const body = this.buildTemplatePayload(waId, template);
     return this.postMessage(body);
+  }
+
+  async healthCheck(): Promise<{ ok: boolean; details?: string }> {
+    if (!this.accessToken?.trim()) {
+      return { ok: false, details: 'permanent_access_token is missing' };
+    }
+    try {
+      const url = `${GRAPH_BASE}/${this.graphVersion}/${this.phoneNumberId}?fields=id,display_phone_number&access_token=${this.accessToken}`;
+      const res = await this.fetchImpl(url);
+      if (!res.ok) {
+        return { ok: false, details: `GET /${this.phoneNumberId} HTTP ${res.status} ${res.statusText}` };
+      }
+      const body = (await res.json()) as { id?: string; error?: { message: string } };
+      if (body.error) {
+        return { ok: false, details: body.error.message };
+      }
+      return { ok: true };
+    } catch (err) {
+      return { ok: false, details: (err as Error).message };
+    }
   }
 
   /**

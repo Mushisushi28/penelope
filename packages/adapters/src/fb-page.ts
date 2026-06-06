@@ -22,6 +22,7 @@
 
 import type {
   ChannelAdapter,
+  ChannelCapabilities,
   InboundMessage,
   OutboundMessage,
   Attachment,
@@ -122,6 +123,16 @@ const DEFAULT_POLL_INTERVAL_MS = 30_000;
 
 export class FbPageAdapter implements ChannelAdapter {
   readonly name = 'fb-page';
+  readonly channel_id = 'fb-page';
+  readonly capabilities: ChannelCapabilities = {
+    send_text: true,
+    send_attachments: true,
+    reactions: true,               // emoji reactions via sender_action=react
+    thread_history: true,          // /<thread_id>/messages Graph API
+    polling_inbox: true,
+    webhook_inbox: true,           // Messenger webhook supported (future)
+    supports_typing_indicator: true, // sender_action=typing_on
+  };
 
   private readonly tenantId: string;
   private readonly pageId: string;
@@ -227,6 +238,26 @@ export class FbPageAdapter implements ChannelAdapter {
 
   // edit / react not supported by Messenger Platform
   // Intentionally left undefined (interface fields are optional).
+
+  async healthCheck(): Promise<{ ok: boolean; details?: string }> {
+    if (!this.pageToken?.trim()) {
+      return { ok: false, details: 'page_token is missing' };
+    }
+    try {
+      const url = `${GRAPH_BASE}/${this.graphVersion}/me?fields=id,name&access_token=${this.pageToken}`;
+      const res = await this.fetchImpl(url);
+      if (!res.ok) {
+        return { ok: false, details: `GET /me HTTP ${res.status} ${res.statusText}` };
+      }
+      const body = (await res.json()) as { id?: string; error?: { message: string } };
+      if (body.error) {
+        return { ok: false, details: body.error.message };
+      }
+      return { ok: true };
+    } catch (err) {
+      return { ok: false, details: (err as Error).message };
+    }
+  }
 
   // -------------------------------------------------------------------------
   // Test / advanced surface
