@@ -1,50 +1,40 @@
 # Contributing to Penelope
 
-Thank you for your interest in contributing. Penelope is a small-business OS — every improvement directly helps real owners run their businesses better.
+Penelope is a small-business OS. Every improvement directly helps real owners
+run their businesses better. Contributions are welcome — bugs, new channel
+adapters, vertical tenant templates, specialist logic, and documentation.
+
+**Quick links:**
+- [License (MIT)](LICENSE)
+- [Security policy](SECURITY.md)
+- [Deploy guide](docs/DEPLOY.md)
+- [Issues](https://github.com/Mushisushi28/penelope/issues)
+- [Discussions](https://github.com/Mushisushi28/penelope/discussions)
+
+**Code of conduct:** Be direct, be respectful, assume good intent.
+Harassment of any kind is grounds for removal.
+
+DCO sign-off is **not** required. By submitting a PR you certify your
+contribution is original work you have the right to submit under the MIT
+license.
 
 ---
 
-## Getting started
+## Development setup
 
-### Prerequisites
-
-- Node.js v20+ (`node --version`)
-- Git
-- A Telegram bot token for testing (see INSTALL.md)
-
-### Clone and install
+Full prerequisites, environment variables, and first-run walkthrough are in
+[docs/DEPLOY.md](docs/DEPLOY.md). Quick version:
 
 ```bash
 git clone https://github.com/Mushisushi28/penelope.git
 cd penelope
-npm install          # installs all workspaces
+node --version   # must be 22+; @penelope/memory requires node:sqlite
+npm install      # installs all workspaces
+npm run build    # compiles all TypeScript packages
+npm test --workspaces --if-present   # full test suite
 ```
 
-### Build
-
-```bash
-npm run build        # builds all TypeScript packages
-```
-
-Or build a single package:
-
-```bash
-npm run build -w packages/core
-```
-
-### Run tests
-
-```bash
-npm test             # runs vitest across all packages
-```
-
-Watch mode:
-
-```bash
-npm run test:watch -w packages/core
-```
-
-### Dev mode (TypeScript watch)
+Dev watch mode:
 
 ```bash
 make dev
@@ -53,104 +43,146 @@ make dev
 
 ---
 
-## Repository layout
+## Adding a specialist
 
-```
-penelope/
-  packages/
-    core/          — tenant model, bus, procedures
-    agents/        — Penelope head agent, meta-router, specialists
-    adapters/      — channel adapters (FB, Twilio, SMTP) + integrations
-    cli/           — penelope CLI binary
-    dashboard/     — owner web dashboard (vanilla JS)
-  examples/        — example tenant configs and scripts
-  docs/            — extended documentation
-  tenants/         — gitignored; your local tenant configs live here
-  state/           — gitignored; runtime databases
-```
+Reference implementations: `packages/agents/src/specialists/follow-up.ts`
+and `packages/agents/src/specialists/content.ts`.
+
+**6-step pattern:**
+
+1. **Extend `SpecialistAgent`** from `packages/agents/src/specialists/base.ts`.
+   Provide a `SpecialistRole` string for your specialist.
+
+2. **Implement `run()`** — the specialist's main entry point. All logic lives
+   here. Specialists MUST NOT acquire `telegram-owner`. Publish results to the
+   internal bus; let Penelope relay them to the owner.
+
+3. **Wire to the meta-router** — add your intent to the `Intent` union in
+   `packages/agents/src/penelope/meta-router.ts` and map it to a bus topic in
+   `INTENT_TOPIC_MAP`.
+
+4. **Add a scheduler if needed** — for time-driven work, follow the pattern in
+   `packages/agents/src/specialists/follow-up-scheduler.ts` (setInterval +
+   quiet-hours guard + per-customer rate-limit).
+
+5. **Write tests** — place them in `packages/agents/src/__tests__/`. Cover the
+   happy path, rate-limit enforcement, and opt-out/do-not-contact paths.
+
+6. **Document** — add an entry in `packages/agents/README.md` describing the
+   specialist's role, config keys, and bus topics it publishes and subscribes to.
 
 ---
 
-## Making changes
+## Adding a channel adapter
 
-### Small fixes and docs
+The adapter contract is `ChannelAdapter` in
+`packages/adapters/src/types.ts`. Every property and method is documented
+inline there.
 
-Open a PR directly. No issue required.
+**5-step pattern:**
 
-### New features or adapters
+1. **Implement `ChannelAdapter`** — create `packages/adapters/src/<name>.ts`.
+   Required properties: `name`, `channel_id`, `capabilities`. Required
+   methods: `start(onInbound)`, `stop()`, `send(out)`, `healthCheck()`.
+   Optional: `edit()`, `react()`.
 
-1. Open an issue describing the feature and its use case.
-2. Wait for a maintainer to label it `accepted` before writing code.
-3. Reference the issue in your PR: `Closes #123`.
+2. **Declare capabilities accurately** — set each flag in `ChannelCapabilities`
+   to reflect what the channel actually supports today. Do not set
+   `send_attachments: true` for channels where attachment delivery is a stub.
 
-### Branching convention
+3. **Register in `AdapterRegistry`** — add the import and wiring in
+   `packages/adapters/src/registry.ts`. Follow the existing pattern for
+   channel-config shape and secrets injection.
 
+4. **Write tests** — place them in `packages/adapters/src/__tests__/`. At
+   minimum: verify the adapter implements every required interface method,
+   test that `healthCheck()` resolves without throwing, and cover the inbound
+   normalisation logic. See `channel-adapter.test.ts` for the compliance
+   harness.
+
+5. **Add to the README adapter list** — update the adapter table in
+   `packages/adapters/README.md` with channel name, status (shipped / stub /
+   roadmap), and any relevant caveats (e.g. review-gated permissions, 24-hour
+   reply window).
+
+---
+
+## Adding a connector
+
+Connectors let specialists call external services (CRMs, booking tools, payment
+processors, etc.). The resolution cascade — in priority order:
+
+1. **MCP tool** — if a Model Context Protocol server already exposes the
+   capability, wire it first. See `packages/connectors/src/connectors/` for
+   existing MCP connectors.
+2. **API skill** — a typed SDK call using the service's official API client.
+3. **Hermes OpenAPI** — use the Hermes OpenAPI executor
+   (`packages/hermes/`) for services with a published OpenAPI spec but no
+   SDK.
+4. **Browser automation** — CSS-selector–driven DOM interaction via the
+   browser specialist. Last resort for web-only surfaces.
+5. **Computer-use** — pixel-level computer control. Only for surfaces with
+   no other path. Must be flagged explicitly in the connector's capabilities.
+
+New connectors go in `packages/connectors/src/connectors/`. Add a
+corresponding entry to `docs/CONNECTORS.md`.
+
+---
+
+## Tests
+
+Run the full suite before opening a PR:
+
+```bash
+npm test --workspaces --if-present
 ```
-fix/short-description
-feat/short-description
-infra/short-description
-docs/short-description
-```
 
-### Commit style
+CI requires **Node 22** and a green Docker build. Both are enforced in
+`.github/workflows/`. If your change touches a package, add tests in that
+package's `src/__tests__/` directory.
 
-This project uses [Conventional Commits](https://www.conventionalcommits.org/):
+---
+
+## Commit style
+
+This project uses [Conventional Commits](https://www.conventionalcommits.org/).
+Match the style already in `git log`:
 
 ```
 feat(adapters): add Instagram DM adapter
 fix(core): prevent race condition in procedure loader
 docs(install): clarify FB webhook setup
-chore(ci): pin Node to 20.15.0
+chore(ci): pin Node to 22.x
+ci(workflows): add docker build gate
 ```
 
----
-
-## Code style
-
-- TypeScript strict mode. `tsconfig.json` in each package enforces this.
-- No `any`. If you must escape the type system, use `unknown` and narrow it.
-- ESM only (`"type": "module"` in all packages).
-- No default exports in library code; named exports only.
-- Secrets never in logs. Use the redactor utility from `@penelope/core`.
-- Every new adapter must implement `ChannelAdapter` from `@penelope/adapters`.
-- Every new outbound action must write to the tenant's `audit_log`.
+Scope is the package or area changed: `adapters`, `agents`, `core`, `cli`,
+`dashboard`, `hermes`, `ci`, `docs`.
 
 ---
 
-## Running a local end-to-end test
+## PR process
 
-1. Copy `.env.example` to `.env` and fill in your test bot token and chat ID.
-2. Run `penelope init` to scaffold a test tenant.
-3. Run `penelope up` and send `/status` to your bot.
-4. Verify the dashboard at `http://localhost:18900`.
+1. Branch from `main` using the convention: `feat/`, `fix/`, `docs/`,
+   `infra/`, `chore/`.
+2. Open a PR against `main`. Fill in the description — what changed and why.
+3. CI must be green (build + tests + Docker).
+4. One approving review required. Maintainers squash-merge by default.
+5. For new features or adapters, open an issue first and wait for the
+   `accepted` label before writing code.
 
----
-
-## Publishing (maintainers only)
-
-The release pipeline is fully automated via GitHub Actions (`.github/workflows/release.yml`). To publish:
-
-1. Update `version` in the root `package.json` and affected `packages/*/package.json`.
-2. Tag the commit: `git tag v0.2.0 && git push --tags`.
-3. The release workflow builds, tests, publishes to npm, and pushes the Docker image to `ghcr.io/mushisushi28/penelope`.
-
-You need the `NPM_TOKEN` secret set in GitHub repository settings (Settings → Secrets → Actions). The token must have publish access to the `@penelope` npm org scope.
+Small fixes and docs PRs can skip the issue step.
 
 ---
 
-## Developer Certificate of Origin
+## Reporting issues
 
-By contributing to Penelope, you certify that your contribution is your original work and you have the right to submit it under the MIT license. We use DCO sign-off:
+Use [GitHub Issues](https://github.com/Mushisushi28/penelope/issues).
 
-```bash
-git commit -s -m "feat(core): add thing"
-```
+Label your issue:
+- `bug` — something broken
+- `enhancement` — new capability or improvement
+- `question` — clarification needed
 
-The `-s` flag adds `Signed-off-by: Your Name <you@example.com>` to the commit message.
-
----
-
-## Getting help
-
-- Open an issue: https://github.com/Mushisushi28/penelope/issues
-- Start a discussion: https://github.com/Mushisushi28/penelope/discussions
+Include: Node version, OS, relevant config (redact secrets), and steps to
+reproduce. For security issues, see [SECURITY.md](SECURITY.md) instead.
