@@ -1,0 +1,11 @@
+{
+  "connector_id": "stripe",
+  "tenant_id": "acme-corp",
+  "config": {
+    "mode": "live",
+    "default_currency": "USD",
+    "webhook_secret_env": "STRIPE_WEBHOOK_SECRET"
+  },
+  "required_env": ["STRIPE_API_KEY", "STRIPE_WEBHOOK_SECRET"],
+  "approved_capabilities": []
+}

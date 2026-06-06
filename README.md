@@ -8,6 +8,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Node 22](https://img.shields.io/badge/node-22-green)](https://nodejs.org)
 [![16 packages](https://img.shields.io/badge/packages-16-blue)](packages/)
+[![27 MCP connectors](https://img.shields.io/badge/MCP%20connectors-27-purple)](packages/connectors/src/mcp-registry/)
 [![pre-alpha](https://img.shields.io/badge/status-pre--alpha-orange)](https://github.com/Mushisushi28/penelope/releases)
 
 [quickstart](docs/QUICKSTART.md) · [deploy guide](docs/DEPLOY.md) · [architecture](ARCHITECTURE.md) · [connectors](docs/CONNECTORS.md) · [contributing](CONTRIBUTING.md) · [faq](docs/FAQ.md)
@@ -83,6 +84,35 @@ Full catalog with tier and status in [docs/CONNECTORS.md](docs/CONNECTORS.md).
 - **Calendar** — Google Calendar (T1 MCP + T2, stub), Calendly (T3 Hermes, stub)
 - **Email** — IMAP/SMTP (T2, stub), Gmail MCP (T1, stub)
 - **OpenAPI (Hermes)** — register any service with an OpenAPI spec; no code required
+
+### Wave-1 MCP connector registry (27 connectors)
+
+Descriptor-only metadata wiring 27 popular SaaS tools as first-class Penelope connectors. Tenants declare which ones they need; Penelope checks env vars, gates owner-consent operations, and dispatches via the MCP Host specialist. No packages are bundled — each connector declares its MCP server npm package and required env vars so the host can spawn on demand.
+
+| Category | Connectors |
+|---|---|
+| **Payments** | Stripe |
+| **CRM** | HubSpot, Pipedrive |
+| **Inbox** | Chatwoot |
+| **Booking** | Cal.com, Calendly |
+| **Email / SMS** | Klaviyo |
+| **Accounting** | QuickBooks Online, Xero |
+| **Reviews** | BrightLocal |
+| **Helpdesk** | Freshdesk, Zendesk |
+| **Voice AI** | Vapi |
+| **Payroll** | Gusto |
+| **Project mgmt** | Asana, ClickUp, Linear |
+| **E-sign** | PandaDoc |
+| **Surveys** | Tally |
+| **Automation** | Zapier |
+| **Analytics** | PostHog, Mixpanel |
+| **Shipping** | ShipStation |
+| **Inventory** | inFlow |
+| **Billing** | Chargebee |
+| **Content** | Canva |
+| **Channels** | Twilio |
+
+Owner-consent gate is enforced at the routing layer: any operation that charges money, sends an outbound message, or mutates irreversible third-party state (e.g. `payment.charge`, `payroll.run`, `email.send`, `call.create`) requires an explicit approval token before dispatch.
 
 ## Packages
 

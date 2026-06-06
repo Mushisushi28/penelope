@@ -1,0 +1,41 @@
+import type { MCPConnectorDescriptor } from "../types.js";
+
+export const klaviyoConnector: MCPConnectorDescriptor = {
+  id: "klaviyo",
+  vendor: "Klaviyo",
+  category: "email-sms",
+  mcp_server: "@klaviyo/mcp",
+  transport: "stdio",
+  capabilities: [
+    "email.send",
+    "sms.send",
+    "campaign.create",
+    "campaign.send",
+    "campaign.list",
+    "list.add_profile",
+    "list.remove_profile",
+    "list.create",
+    "profile.create",
+    "profile.update",
+    "profile.list",
+    "flow.trigger",
+    "metric.query",
+  ],
+  required_env: ["KLAVIYO_API_KEY"],
+  owner_consent_required: [
+    "email.send",
+    "sms.send",
+    "campaign.send",
+    "flow.trigger",
+    "list.add_profile",
+  ],
+  tenant_config_template: {
+    company_id: "",
+    default_sender_email: "",
+    default_sender_name: "",
+    sms_sending_number: "",
+  },
+  docs_url: "https://developers.klaviyo.com/en/reference/api-overview",
+  sample_procedure: "procedures/templates/email-sms/send-followup-campaign.yaml",
+  registry_status: "official",
+};

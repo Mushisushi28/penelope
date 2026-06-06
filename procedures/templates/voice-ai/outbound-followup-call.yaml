@@ -1,0 +1,22 @@
+name: outbound-followup-call
+description: Initiate an outbound AI voice call via Vapi to follow up with a lead.
+connector: vapi
+steps:
+  - capability: call.create
+    args:
+      assistant_id: "{{ tenant.config.default_assistant_id }}"
+      phone_number_id: "{{ tenant.config.phone_number_id }}"
+      customer_number: "{{ customer.phone }}"
+      variables:
+        customer_name: "{{ customer.first_name }}"
+        job_type: "{{ job.type }}"
+    consent_required: true
+
+  - capability: transcript.get
+    args:
+      call_id: "{{ steps[0].call_id }}"
+
+outputs:
+  - call_id
+  - transcript
+  - call_status

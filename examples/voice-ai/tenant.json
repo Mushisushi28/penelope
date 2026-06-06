@@ -1,0 +1,12 @@
+{
+  "connector_id": "vapi",
+  "tenant_id": "acme-corp",
+  "config": {
+    "default_assistant_id": "",
+    "phone_number_id": "",
+    "voice_model": "eleven_turbo_v2_5",
+    "language": "en-US"
+  },
+  "required_env": ["VAPI_API_KEY"],
+  "approved_capabilities": ["call.create"]
+}

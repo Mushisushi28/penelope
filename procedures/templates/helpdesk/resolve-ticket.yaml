@@ -1,0 +1,24 @@
+name: resolve-ticket
+description: Reply to and resolve a Freshdesk support ticket.
+connector: freshdesk
+steps:
+  - capability: ticket.list
+    args:
+      status: "open"
+      order_by: "created_at"
+      order_type: "desc"
+
+  - capability: ticket.reply
+    args:
+      ticket_id: "{{ ticket.id }}"
+      body: "{{ ai_drafted_reply }}"
+    consent_required: true
+
+  - capability: ticket.resolve
+    args:
+      ticket_id: "{{ ticket.id }}"
+    consent_required: true
+
+outputs:
+  - ticket_id
+  - resolved_at

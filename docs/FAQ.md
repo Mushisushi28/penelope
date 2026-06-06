@@ -129,6 +129,28 @@ per their terms. Same for FB Messenger via Meta's Graph API.
 
 ---
 
+## What are the Wave-1 MCP connectors?
+
+The Wave-1 connector registry (`packages/connectors/src/mcp-registry/`) wires 27
+popular SaaS tools as first-class Penelope connectors using descriptor-only metadata
+— no packages are bundled in this repo. Each descriptor declares:
+
+- **mcp_server** — the npm package to spawn (e.g. `@stripe/agent-toolkit`)
+- **capabilities** — verb.noun ops the server exposes (e.g. `payment.list`, `payment.charge`)
+- **required_env** — env vars the tenant must supply
+- **owner_consent_required** — capabilities that need an explicit approval token before dispatch (charging money, sending messages, running payroll, etc.)
+- **tenant_config_template** — schema for the tenant's config block
+
+At runtime, the connector router (`packages/agents/src/specialists/connector-router.ts`)
+checks env vars and consent gates before approving dispatch. The MCP Host specialist
+then spawns the declared server on demand.
+
+Covered P0 categories: Payments, CRM, Inbox, Booking, Email/SMS, Accounting, Reviews,
+Helpdesk, Voice AI, Payroll — plus Asana/ClickUp/Linear, PandaDoc, Tally, Zapier,
+PostHog, Mixpanel, ShipStation, inFlow, Chargebee, Canva, Twilio.
+
+---
+
 ## What is Loom?
 
 Loom is the private engine Penelope runs on. Penelope is the public

@@ -1,0 +1,12 @@
+{
+  "connector_id": "cal-com",
+  "tenant_id": "acme-corp",
+  "config": {
+    "base_url": "https://api.cal.com",
+    "default_event_type_id": "",
+    "timezone": "America/New_York",
+    "auto_confirm": false
+  },
+  "required_env": ["CAL_COM_API_KEY"],
+  "approved_capabilities": ["booking.create"]
+}

@@ -1,0 +1,11 @@
+{
+  "connector_id": "hubspot",
+  "tenant_id": "acme-corp",
+  "config": {
+    "portal_id": "12345678",
+    "default_pipeline_id": "",
+    "owner_id": ""
+  },
+  "required_env": ["HUBSPOT_ACCESS_TOKEN"],
+  "approved_capabilities": ["contact.create", "deal.create"]
+}

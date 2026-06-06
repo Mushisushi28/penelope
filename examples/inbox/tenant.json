@@ -1,0 +1,12 @@
+{
+  "connector_id": "chatwoot",
+  "tenant_id": "acme-corp",
+  "config": {
+    "base_url": "https://app.chatwoot.com",
+    "account_id": "1",
+    "default_inbox_id": "",
+    "auto_assign_agent_id": ""
+  },
+  "required_env": ["CHATWOOT_API_TOKEN", "CHATWOOT_BASE_URL"],
+  "approved_capabilities": ["conversation.reply", "message.send"]
+}

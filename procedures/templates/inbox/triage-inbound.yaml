@@ -1,0 +1,22 @@
+name: triage-inbound
+description: Assign and reply to an inbound Chatwoot conversation.
+connector: chatwoot
+steps:
+  - capability: inbox.list
+    args: {}
+
+  - capability: conversation.assign
+    args:
+      conversation_id: "{{ conversation.id }}"
+      agent_id: "{{ tenant.config.auto_assign_agent_id }}"
+    consent_required: false
+
+  - capability: conversation.reply
+    args:
+      conversation_id: "{{ conversation.id }}"
+      message: "{{ reply_message }}"
+    consent_required: true
+
+outputs:
+  - conversation_id
+  - assigned_agent_id

@@ -1,0 +1,11 @@
+{
+  "connector_id": "xero",
+  "tenant_id": "acme-corp",
+  "config": {
+    "tenant_id": "",
+    "organization_name": "Acme Corp",
+    "base_currency": "USD"
+  },
+  "required_env": ["XERO_CLIENT_ID", "XERO_CLIENT_SECRET", "XERO_REFRESH_TOKEN"],
+  "approved_capabilities": ["invoice.create"]
+}
