@@ -10,7 +10,7 @@
 [![16 packages](https://img.shields.io/badge/packages-16-blue)](packages/)
 [![pre-alpha](https://img.shields.io/badge/status-pre--alpha-orange)](https://github.com/Mushisushi28/penelope/releases)
 
-[quickstart](docs/QUICKSTART.md) · [deploy guide](docs/DEPLOY.md) · [architecture](ARCHITECTURE.md) · [connectors](docs/CONNECTORS.md) · [contributing](CONTRIBUTING.md)
+[quickstart](docs/QUICKSTART.md) · [deploy guide](docs/DEPLOY.md) · [architecture](ARCHITECTURE.md) · [connectors](docs/CONNECTORS.md) · [contributing](CONTRIBUTING.md) · [faq](docs/FAQ.md)
 
 </div>
 
