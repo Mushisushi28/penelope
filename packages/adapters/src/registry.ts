@@ -170,6 +170,14 @@ export class AdapterRegistry {
     return adapters;
   }
 
+  /**
+   * Look up an adapter by its channel_id string.
+   * Returns undefined if no adapter with that id was registered or built.
+   */
+  getByChannelId(channelId: string): ChannelAdapter | undefined {
+    return this.build().find(a => a.channel_id === channelId);
+  }
+
   // -------------------------------------------------------------------------
   // Builders
   // -------------------------------------------------------------------------

@@ -14,6 +14,7 @@
 
 import type {
   ChannelAdapter,
+  ChannelCapabilities,
   InboundMessage,
   OutboundMessage,
 } from './types.js';
@@ -116,6 +117,16 @@ const DEFAULT_POLL_INTERVAL_MS = 30_000;
 
 export class TwilioSmsAdapter implements ChannelAdapter {
   readonly name = 'twilio-sms';
+  readonly channel_id = 'twilio-sms';
+  readonly capabilities: ChannelCapabilities = {
+    send_text: true,
+    send_attachments: false,        // MMS possible but not implemented
+    reactions: false,
+    thread_history: false,          // Twilio doesn't expose a thread-history API
+    polling_inbox: true,
+    webhook_inbox: true,
+    supports_typing_indicator: false,
+  };
 
   private readonly tenantId: string;
   private readonly accountSid: string;
@@ -205,6 +216,25 @@ export class TwilioSmsAdapter implements ChannelAdapter {
       );
     }
     return { external_id: data.sid };
+  }
+
+  async healthCheck(): Promise<{ ok: boolean; details?: string }> {
+    if (!this.accountSid?.trim()) {
+      return { ok: false, details: 'accountSid is missing' };
+    }
+    try {
+      // Probe the account resource — lightweight, requires valid credentials.
+      const url = `${TWILIO_API_BASE}/Accounts/${this.accountSid}.json`;
+      const res = await this.fetchImpl(url, {
+        headers: { Authorization: this.authHeader },
+      });
+      if (!res.ok) {
+        return { ok: false, details: `GET /Accounts HTTP ${res.status} ${res.statusText}` };
+      }
+      return { ok: true };
+    } catch (err) {
+      return { ok: false, details: (err as Error).message };
+    }
   }
 
   // -------------------------------------------------------------------------

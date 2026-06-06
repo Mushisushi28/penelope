@@ -9,6 +9,7 @@ export type {
   InboundMessage,
   OutboundMessage,
   ChannelAdapter,
+  ChannelCapabilities,
 } from './types.js';
 export { WindowExpiredError, AdapterConfigError } from './types.js';
 

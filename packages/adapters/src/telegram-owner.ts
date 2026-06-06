@@ -17,6 +17,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import { dirname } from 'path';
 import type {
   ChannelAdapter,
+  ChannelCapabilities,
   InboundMessage,
   OutboundMessage,
 } from './types.js';
@@ -116,6 +117,16 @@ const DEFAULT_LONG_POLL_TIMEOUT_SEC = 25;
 
 export class TelegramOwnerAdapter implements ChannelAdapter {
   readonly name = 'telegram';
+  readonly channel_id = 'telegram';
+  readonly capabilities: ChannelCapabilities = {
+    send_text: true,
+    send_attachments: true,
+    reactions: true,         // setMessageReaction (Bot API >= 7.0)
+    thread_history: false,   // Telegram Bot API has no history endpoint
+    polling_inbox: true,
+    webhook_inbox: true,     // setWebhook supported; this adapter uses long-poll
+    supports_typing_indicator: true,
+  };
 
   private readonly tenantId: string;
   private readonly botToken: string;
@@ -257,6 +268,25 @@ export class TelegramOwnerAdapter implements ChannelAdapter {
       }),
     });
     if (!res.ok) throw new Error(`telegram setMessageReaction HTTP ${res.status}`);
+  }
+
+  async healthCheck(): Promise<{ ok: boolean; details?: string }> {
+    if (!this.botToken?.trim()) {
+      return { ok: false, details: 'botToken is missing' };
+    }
+    try {
+      const res = await this.fetchImpl(this.apiUrl('getMe'));
+      if (!res.ok) {
+        return { ok: false, details: `getMe HTTP ${res.status} ${res.statusText}` };
+      }
+      const body = (await res.json()) as { ok?: boolean; description?: string };
+      if (!body.ok) {
+        return { ok: false, details: body.description ?? 'getMe returned ok=false' };
+      }
+      return { ok: true };
+    } catch (err) {
+      return { ok: false, details: (err as Error).message };
+    }
   }
 
   // -------------------------------------------------------------------------

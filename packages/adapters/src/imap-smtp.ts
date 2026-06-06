@@ -17,6 +17,7 @@
 
 import type {
   ChannelAdapter,
+  ChannelCapabilities,
   InboundMessage,
   OutboundMessage,
 } from './types.js';
@@ -79,6 +80,16 @@ const DEFAULT_POLL_INTERVAL_MS = 60_000;
 
 export class ImapSmtpAdapter implements ChannelAdapter {
   readonly name = 'email';
+  readonly channel_id = 'email';
+  readonly capabilities: ChannelCapabilities = {
+    send_text: true,
+    send_attachments: true,
+    reactions: false,
+    thread_history: false,           // IMAP has no Penelope thread-history API
+    polling_inbox: true,
+    webhook_inbox: false,
+    supports_typing_indicator: false,
+  };
 
   private readonly tenantId: string;
   private readonly opts: ImapSmtpAdapterOptions;
@@ -186,6 +197,30 @@ export class ImapSmtpAdapter implements ChannelAdapter {
     ).sendMail(mailOptions);
 
     return { external_id: info.messageId };
+  }
+
+  async healthCheck(): Promise<{ ok: boolean; details?: string }> {
+    if (!this.opts.username?.trim()) {
+      return { ok: false, details: 'username is missing' };
+    }
+    try {
+      const { ImapFlow } = await import('imapflow');
+      const client = new (ImapFlow as new (opts: unknown) => {
+        connect: () => Promise<void>;
+        logout: () => Promise<void>;
+      })({
+        host: this.opts.imap_host,
+        port: this.opts.imap_port ?? 993,
+        secure: this.opts.imap_secure ?? true,
+        auth: { user: this.opts.username, pass: this.opts.password ?? '' },
+        logger: false,
+      });
+      await client.connect();
+      await client.logout();
+      return { ok: true };
+    } catch (err) {
+      return { ok: false, details: (err as Error).message };
+    }
   }
 
   // -------------------------------------------------------------------------
