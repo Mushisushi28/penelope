@@ -29,9 +29,10 @@ export function makeTenantCommand(): Command {
     .command('list')
     .description('List all tenants')
     .option('--cwd <path>', 'workspace root', process.cwd())
+    .option('--tenants-dir <path>', 'path to tenants directory (overrides <cwd>/tenants)')
     .option('--json', 'output as JSON')
-    .action((opts: { cwd: string; json?: boolean }) => {
-      const tenantsDir = join(resolve(opts.cwd), 'tenants');
+    .action((opts: { cwd: string; tenantsDir?: string; json?: boolean }) => {
+      const tenantsDir = opts.tenantsDir ? resolve(opts.tenantsDir) : join(resolve(opts.cwd), 'tenants');
       const slugs = listTenants(tenantsDir);
 
       if (opts.json) {
@@ -78,9 +79,11 @@ export function makeTenantCommand(): Command {
     .command('remove <slug>')
     .description('Remove a tenant (deletes tenants/<slug>/ directory)')
     .option('--cwd <path>', 'workspace root', process.cwd())
+    .option('--tenants-dir <path>', 'path to tenants directory (overrides <cwd>/tenants)')
     .option('--force', 'skip confirmation prompt')
-    .action(async (slug: string, opts: { cwd: string; force?: boolean }) => {
-      const tenantDir = join(resolve(opts.cwd), 'tenants', slug);
+    .action(async (slug: string, opts: { cwd: string; tenantsDir?: string; force?: boolean }) => {
+      const resolvedTenantsDir = opts.tenantsDir ? resolve(opts.tenantsDir) : join(resolve(opts.cwd), 'tenants');
+      const tenantDir = join(resolvedTenantsDir, slug);
 
       if (!existsSync(join(tenantDir, 'tenant.json'))) {
         console.error(chalk.red(`  Tenant "${slug}" not found.`));
@@ -108,8 +111,9 @@ export function makeTenantCommand(): Command {
     .command('info <slug>')
     .description('Show full config for a tenant')
     .option('--cwd <path>', 'workspace root', process.cwd())
-    .action((slug: string, opts: { cwd: string }) => {
-      const tenantsDir = join(resolve(opts.cwd), 'tenants');
+    .option('--tenants-dir <path>', 'path to tenants directory (overrides <cwd>/tenants)')
+    .action((slug: string, opts: { cwd: string; tenantsDir?: string }) => {
+      const tenantsDir = opts.tenantsDir ? resolve(opts.tenantsDir) : join(resolve(opts.cwd), 'tenants');
       const cfg = readConfig(tenantsDir, slug);
 
       console.log(`\n  ${chalk.bold(String(cfg['name'] ?? slug))} ${chalk.dim(`(${slug})`)}`);

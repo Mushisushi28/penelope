@@ -53,10 +53,11 @@ export function makeStatusCommand(): Command {
     .description('Show tenant agent status, last inbound, and queue depths')
     .argument('[slug]', 'tenant slug (default: all tenants)')
     .option('--cwd <path>', 'workspace root', process.cwd())
+    .option('--tenants-dir <path>', 'path to tenants directory (overrides <cwd>/tenants)')
     .option('--json', 'output as JSON')
-    .action(async (slug: string | undefined, opts: { cwd: string; json?: boolean }) => {
+    .action(async (slug: string | undefined, opts: { cwd: string; tenantsDir?: string; json?: boolean }) => {
       const root = resolve(opts.cwd);
-      const tenantsDir = join(root, 'tenants');
+      const tenantsDir = opts.tenantsDir ? resolve(opts.tenantsDir) : join(root, 'tenants');
 
       if (!existsSync(tenantsDir)) {
         console.error(chalk.red('  No tenants/ directory. Run `penelope init` first.'));

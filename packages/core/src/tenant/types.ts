@@ -124,8 +124,8 @@ export interface ChannelConfig {
 
 /** Branding / identity info for the business. */
 export interface BrandConfig {
-  name: string;               // Display name, e.g. "Dobson Headlight Restoration"
-  short_name?: string;        // Short name for SMS, e.g. "DHR"
+  name: string;               // Display name, e.g. "Sample Mobile Service"
+  short_name?: string;        // Short name for SMS, e.g. "SMS"
   brand_color?: string;       // Hex color, e.g. "#e53e3e"
   logo_url?: string;
   website_url?: string;

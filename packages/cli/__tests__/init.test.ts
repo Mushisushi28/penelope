@@ -89,8 +89,8 @@ describe('init — tenant scaffold', () => {
 
   it('creates tenant.json with correct fields', () => {
     const tenantDir = scaffoldTenant(tmpDir, {
-      name: 'Dobson Headlight Restoration',
-      slug: 'dobson-headlight-restoration',
+      name: 'Sample Mobile Service',
+      slug: 'sample-mobile-service',
       vertical: 'auto-service',
       channels: ['telegram-owner', 'fb-page'],
       quietHours: { start: '22:00', end: '07:00' },
@@ -101,8 +101,8 @@ describe('init — tenant scaffold', () => {
     expect(existsSync(configPath)).toBe(true);
 
     const config = JSON.parse(readFileSync(configPath, 'utf8'));
-    expect(config.name).toBe('Dobson Headlight Restoration');
-    expect(config.slug).toBe('dobson-headlight-restoration');
+    expect(config.name).toBe('Sample Mobile Service');
+    expect(config.slug).toBe('sample-mobile-service');
     expect(config.vertical).toBe('auto-service');
     expect(config.channels).toEqual(['telegram-owner', 'fb-page']);
     expect(config.quietHours).toEqual({ start: '22:00', end: '07:00' });

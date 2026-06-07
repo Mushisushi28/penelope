@@ -77,18 +77,20 @@ export function makeSendCommand(): Command {
     .argument('<text>', 'message text')
     .option('--slug <slug>', 'tenant slug (to load its .env)')
     .option('--cwd <path>', 'workspace root', process.cwd())
+    .option('--tenants-dir <path>', 'path to tenants directory (overrides <cwd>/tenants)')
     .action(
       async (
         channel: string,
         recipient: string,
         text: string,
-        opts: { slug?: string; cwd: string }
+        opts: { slug?: string; cwd: string; tenantsDir?: string }
       ) => {
         const root = resolve(opts.cwd);
+        const tenantsDir = opts.tenantsDir ? resolve(opts.tenantsDir) : join(root, 'tenants');
 
         // Load env from tenant if slug given
         const env: Record<string, string> = opts.slug
-          ? loadEnv(join(root, 'tenants', opts.slug))
+          ? loadEnv(join(tenantsDir, opts.slug))
           : {};
 
         const spinner = ora(`Sending via ${channel}…`).start();

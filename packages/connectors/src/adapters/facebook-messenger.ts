@@ -2,7 +2,7 @@
  * FacebookMessengerAdapter — connector for the Meta Graph API Messenger send API.
  *
  * Supports messaging_type=RESPONSE (within 24h of last customer message) only.
- * HUMAN_AGENT 7-day window requires App Review — not yet approved for DHR.
+ * HUMAN_AGENT 7-day window requires App Review (see Meta developer portal).
  * Real API calls activate when a page token is provided; mock responses returned otherwise.
  *
  * Graph API reference: https://developers.facebook.com/docs/messenger-platform/
@@ -86,7 +86,7 @@ const GRAPH_BASE = 'https://graph.facebook.com/v19.0';
  * Thin typed wrapper over the Meta Graph API for Messenger.
  *
  * Constructor accepts a page access token directly, or falls back to the
- * DHR_FB_PAGE_TOKEN environment variable. When neither is present the adapter
+ * TENANT_FB_PAGE_TOKEN environment variable. When neither is present the adapter
  * operates in mock mode — all methods resolve immediately with synthetic data
  * so the rest of the Penelope stack can be exercised without a live token.
  */
@@ -94,7 +94,7 @@ export class FacebookMessengerAdapter {
   private readonly pageToken: string | null;
 
   constructor(pageToken?: string) {
-    this.pageToken = pageToken ?? process.env['DHR_FB_PAGE_TOKEN'] ?? null;
+    this.pageToken = pageToken ?? process.env['TENANT_FB_PAGE_TOKEN'] ?? null;
   }
 
   /** True when no real page token is wired — methods return mock data. */
@@ -118,7 +118,7 @@ export class FacebookMessengerAdapter {
     const messagingType = opts.messagingType ?? 'RESPONSE';
 
     if (this.isMock) {
-      // TODO: real Graph API call when DHR_FB_PAGE_TOKEN is wired
+      // TODO: real Graph API call when TENANT_FB_PAGE_TOKEN is wired
       // POST https://graph.facebook.com/v19.0/me/messages?access_token=<token>
       // body: { recipient: { id: psid }, message: { text }, messaging_type, notification_type }
       return {
@@ -157,7 +157,7 @@ export class FacebookMessengerAdapter {
    * Add (or remove) a reaction to a message.
    *
    * POST /me/messages — sender_action=react
-   * Replicates the reaction support added to the live DHR responder.
+   * Replicates the reaction support added to the Penelope FB adapter.
    *
    * Note: Facebook only accepts a fixed reaction emoji whitelist:
    *   ❤ 😍 😮 😂 😢 👍 👎
@@ -172,7 +172,7 @@ export class FacebookMessengerAdapter {
     const action = opts.action ?? 'react';
 
     if (this.isMock) {
-      // TODO: real Graph API call when DHR_FB_PAGE_TOKEN is wired
+      // TODO: real Graph API call when TENANT_FB_PAGE_TOKEN is wired
       // POST https://graph.facebook.com/v19.0/me/messages?access_token=<token>
       // body: { recipient: { id: psid }, sender_action: 'react', payload: { message_id, reaction: 'love'|'haha'|'wow'|'sad'|'angry'|'like'|'dislike' } }
       return;
@@ -223,7 +223,7 @@ export class FacebookMessengerAdapter {
     limit = 20,
   ): Promise<ThreadHistoryResult> {
     if (this.isMock) {
-      // TODO: real Graph API call when DHR_FB_PAGE_TOKEN is wired
+      // TODO: real Graph API call when TENANT_FB_PAGE_TOKEN is wired
       // GET https://graph.facebook.com/v19.0/<threadId>/messages?fields=id,message,from,created_time&limit=<limit>&access_token=<token>
       return {
         data: [
@@ -262,7 +262,7 @@ export class FacebookMessengerAdapter {
     const limit = opts.limit ?? 20;
 
     if (this.isMock) {
-      // TODO: real Graph API call when DHR_FB_PAGE_TOKEN is wired
+      // TODO: real Graph API call when TENANT_FB_PAGE_TOKEN is wired
       // GET https://graph.facebook.com/v19.0/me/conversations?fields=id,updated_time,participants,snippet,unread_count&limit=<limit>&access_token=<token>
       return {
         data: [

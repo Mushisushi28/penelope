@@ -47,7 +47,7 @@ describe('lastCustomerMessageMs', () => {
 
   it('returns null when all messages are from the page', () => {
     const messages = [
-      { id: 'm1', message: 'hello', from: { id: PAGE_ID, name: 'DHR Page' }, created_time: new Date().toISOString() },
+      { id: 'm1', message: 'hello', from: { id: PAGE_ID, name: 'Sample Page' }, created_time: new Date().toISOString() },
     ];
     expect(lastCustomerMessageMs(messages as never, PAGE_ID)).toBe(null);
   });
@@ -90,7 +90,7 @@ describe('FbPageAdapter constructor', () => {
 
   it('constructs successfully with valid options', () => {
     const adapter = new FbPageAdapter({
-      tenant_id: 'dhr',
+      tenant_id: 'sample-tenant',
       page_id: '12345',
       page_token: 'EAAabc...',
       manualPolling: true,

@@ -44,7 +44,7 @@ describe('migrateFromPlain — dry-run', () => {
 
   it('dry-run: reports what would be migrated without touching files or store', async () => {
     const tenantsDir = join(tmpDir, 'tenants');
-    scaffoldPlainSecrets(tenantsDir, 'dhr', {
+    scaffoldPlainSecrets(tenantsDir, 'sample-tenant', {
       'telegram.botToken': 'bot123',
       'fb.pageToken': 'page456',
     });
@@ -59,10 +59,10 @@ describe('migrateFromPlain — dry-run', () => {
     expect(result.errors.length).toBe(0);
 
     // Plain files must still exist (dry-run does NOT delete)
-    expect(existsSync(join(tenantsDir, 'dhr', '.secrets', 'telegram.botToken.json'))).toBe(true);
+    expect(existsSync(join(tenantsDir, 'sample-tenant', '.secrets', 'telegram.botToken.json'))).toBe(true);
 
     // Nothing should be stored in the vault
-    const vaultRefs = await store.list('dhr');
+    const vaultRefs = await store.list('sample-tenant');
     expect(vaultRefs.length).toBe(0);
   });
 

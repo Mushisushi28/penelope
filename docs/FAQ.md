@@ -160,8 +160,7 @@ packaging of the small-business OS layer that sits on top of it.
 
 ## Is Penelope production-ready?
 
-Honest answer: in active use by Dobson Headlight Restoration (Calgary,
-AB) as of June 2026.
+Honest answer: in active production use by a mobile auto-service business as of June 2026.
 
 What is shipped and running:
 - Wave A specialists: FollowUpSpecialist, MarketingSpecialist,

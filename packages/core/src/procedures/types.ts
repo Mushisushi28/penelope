@@ -114,7 +114,7 @@ export interface EmitBusEventStep extends BaseStep {
 /** Escalate to a higher-level agent and halt this procedure. */
 export interface EscalateStep extends BaseStep {
   kind: 'escalate';
-  to: string;         // agent id or role, e.g. "dhr-lead", "owner"
+  to: string;         // agent id or role, e.g. "lead", "owner"
   reason: string;
   /** Whether to include the full thread context in the escalation. */
   include_context?: boolean;

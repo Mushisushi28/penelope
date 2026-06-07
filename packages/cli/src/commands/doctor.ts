@@ -20,13 +20,13 @@ function checkNode(): CheckResult {
   };
 }
 
-function checkTenantDir(root: string): CheckResult {
-  const tenantsDir = join(root, 'tenants');
-  if (!existsSync(tenantsDir)) {
+function checkTenantDir(root: string, tenantsDir?: string): CheckResult {
+  const dir = tenantsDir ? resolve(tenantsDir) : join(root, 'tenants');
+  if (!existsSync(dir)) {
     return { label: 'tenants/ directory', pass: false, detail: 'Run `penelope init`' };
   }
-  const dirs = readdirSync(tenantsDir).filter((d) =>
-    statSync(join(tenantsDir, d)).isDirectory()
+  const dirs = readdirSync(dir).filter((d) =>
+    statSync(join(dir, d)).isDirectory()
   );
   return {
     label: 'tenants/ directory',
@@ -131,15 +131,17 @@ export function makeDoctorCommand(): Command {
     .description('Check environment, config, and connectivity for Penelope')
     .argument('[slug]', 'tenant slug to check (default: all tenants)')
     .option('--cwd <path>', 'workspace root', process.cwd())
-    .action(async (slug: string | undefined, opts: { cwd: string }) => {
+    .option('--tenants-dir <path>', 'path to tenants directory (overrides <cwd>/tenants)')
+    .action(async (slug: string | undefined, opts: { cwd: string; tenantsDir?: string }) => {
       const root = resolve(opts.cwd);
+      const tenantsDir = opts.tenantsDir ? resolve(opts.tenantsDir) : join(root, 'tenants');
       console.log(chalk.cyan('\n  penelope doctor\n'));
 
       const results: CheckResult[] = [];
 
       // System checks
       results.push(checkNode());
-      results.push(checkTenantDir(root));
+      results.push(checkTenantDir(root, tenantsDir));
 
       for (const r of results) printCheck(r);
 
@@ -149,7 +151,6 @@ export function makeDoctorCommand(): Command {
       }
 
       // Per-tenant checks
-      const tenantsDir = join(root, 'tenants');
       const slugs = slug
         ? [slug]
         : readdirSync(tenantsDir).filter((d) => statSync(join(tenantsDir, d)).isDirectory());

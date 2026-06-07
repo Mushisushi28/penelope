@@ -1,21 +1,21 @@
 {
   "schema_version": 1,
-  "tenant_id": "dhr-auto-service",
-  "name": "Dobson Headlight Restoration",
+  "tenant_id": "sample-auto-service",
+  "name": "Sample Mobile Service",
   "vertical": "auto-service",
   "brand": {
-    "display_name": "Dobson Headlight Restoration",
+    "display_name": "Sample Mobile Service",
     "brand_color": "#1E40AF",
-    "tagline": "Crystal-clear headlights. Fast, mobile, guaranteed.",
+    "tagline": "Fast, mobile service — we come to you.",
     "voice_notes": "lowercase, conversational, 1-2 sentences. no corporate speak."
   },
   "address": {
-    "city": "Calgary",
-    "province": "AB",
-    "country": "CA"
+    "city": "Your City",
+    "province_state": "YY",
+    "country": "US"
   },
   "hours": {
-    "timezone": "America/Edmonton",
+    "timezone": "America/Chicago",
     "schedule": {
       "monday":    { "open": "08:00", "close": "18:00" },
       "tuesday":   { "open": "08:00", "close": "18:00" },
@@ -30,35 +30,38 @@
     {
       "type": "fb-page",
       "enabled": true,
-      "credential_env": "DHR_FB_PAGE_TOKEN",
+      "credential_env": "TENANT_FB_PAGE_TOKEN",
       "config": {
-        "page_id_env": "DHR_FB_PAGE_ID"
+        "page_id_env": "TENANT_FB_PAGE_ID"
       }
     },
     {
-      "type": "sms-textnow",
+      "type": "telegram-owner",
       "enabled": true,
-      "credential_env": "DHR_TEXTNOW_SESSION"
+      "credential_env": "TENANT_PENELOPE_BOT_TOKEN",
+      "settings": {
+        "chat_id_env": "TENANT_OWNER_CHAT_ID"
+      }
     }
   ],
   "pricing": [
     {
-      "id": "regular",
-      "label": "Standard headlight restoration",
-      "currency": "CAD",
-      "floor": 99,
+      "id": "standard",
+      "label": "Standard service",
+      "currency": "USD",
+      "floor": 80,
       "ceiling": 200,
-      "auto_quote_band": [99, 150],
-      "qualifier_question": "What's the make, model, and year of your vehicle, and roughly how foggy are the headlights?"
+      "auto_quote_band": [80, 150],
+      "qualifier_question": "What make, model, and year is your vehicle?"
     },
     {
-      "id": "ceramic",
-      "label": "Ceramic-coated headlight restoration",
-      "currency": "CAD",
-      "floor": 200,
-      "ceiling": 250,
-      "auto_quote_band": [200, 240],
-      "qualifier_question": "What's the make, model, and year? And are you interested in the ceramic coating that lasts 2-3x longer?"
+      "id": "premium",
+      "label": "Premium service with extended warranty",
+      "currency": "USD",
+      "floor": 180,
+      "ceiling": 300,
+      "auto_quote_band": [180, 240],
+      "qualifier_question": "Interested in the premium package with a 3-year warranty?"
     }
   ],
   "approval_gates": {
@@ -67,11 +70,11 @@
     "complaint_level": "owner_telegram_confirm"
   },
   "review_platforms": [
-    { "name": "Google", "url_env": "DHR_GOOGLE_REVIEW_URL" },
-    { "name": "Facebook", "url_env": "DHR_FB_REVIEW_URL" }
+    { "name": "Google", "url_env": "TENANT_GOOGLE_REVIEW_URL" },
+    { "name": "Facebook", "url_env": "TENANT_FB_REVIEW_URL" }
   ],
   "payment_processors": [
-    { "name": "square", "credential_env": "DHR_SQUARE_ACCESS_TOKEN" }
+    { "name": "square", "credential_env": "TENANT_SQUARE_ACCESS_TOKEN" }
   ],
   "quiet_hours": {
     "start": "21:00",
@@ -82,6 +85,16 @@
     "max_usd_per_month": 40.00,
     "alert_threshold_pct": 80
   },
+  "connectors": {
+    "booking": {
+      "provider": "calendly",
+      "url_env": "TENANT_CALENDLY_URL"
+    },
+    "square": {
+      "access_token_secret": "TENANT_SQUARE_ACCESS_TOKEN",
+      "location_id_secret": "TENANT_SQUARE_LOCATION_ID"
+    }
+  },
   "followup": {
     "enabled": true,
     "min_days_silent": 7,
@@ -90,10 +103,9 @@
     "stages": ["quoted_no_booking", "booked_no_show", "paid_rebook"]
   },
   "content": {
-    "enabled": true,
-    "providers": { "image_gen": "fal-ai", "static_promo": "nano-banana", "vision": "claude" },
-    "daily_sort_at_utc": "03:00",
-    "watermark_targets": ["dhr logo on lens"],
+    "enabled": false,
+    "providers": { "image_gen": "fal-ai", "vision": "claude" },
+    "watermark_targets": [],
     "object_removal_defaults": ["tape", "masking tape", "tools", "hands"],
     "output_folder": "sorted"
   }

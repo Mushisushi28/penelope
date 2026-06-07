@@ -31,7 +31,7 @@ const registry = new AdapterRegistry('my-tenant', {
   telegram: {
     enabled: true,
     bot_token: process.env.TELEGRAM_BOT_TOKEN!,
-    chat_id_allowlist: ['7949309437'],
+    chat_id_allowlist: ['YOUR_TELEGRAM_CHAT_ID'],
     offset_state_path: '/var/penelope/telegram-offset.json',
   },
   'fb-page': {
@@ -73,7 +73,7 @@ import { TelegramOwnerAdapter, WindowExpiredError } from '@penelope/adapters';
 const tg = new TelegramOwnerAdapter({
   tenant_id: 'acme',
   botToken: 'bot123:abc...',
-  chatIdAllowlist: ['7949309437'],
+  chatIdAllowlist: ['YOUR_TELEGRAM_CHAT_ID'],
 });
 
 await tg.start(async (msg) => {
@@ -96,7 +96,7 @@ The `FbPageAdapter` tracks the last inbound message time per PSID and enforces t
 import { FbPageAdapter, WindowExpiredError } from '@penelope/adapters';
 
 const fb = new FbPageAdapter({
-  tenant_id: 'dhr',
+  tenant_id: 'my-tenant',
   page_id: 'me',
   page_token: process.env.FB_PAGE_TOKEN!,
   window_mode: 'enforce', // 'warn' or 'off' also available

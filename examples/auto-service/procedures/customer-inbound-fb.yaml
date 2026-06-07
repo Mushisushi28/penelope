@@ -148,7 +148,7 @@ states:
       - kind: emit_bus_event
         event: job_complete
         payload:
-          tenant_id: dhr-auto-service
+          tenant_id: auto-service
           thread_id: "{{thread_id}}"
           vehicle_info: "{{customer_state.vehicle_info}}"
       - kind: log_audit

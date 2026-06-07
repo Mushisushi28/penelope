@@ -136,7 +136,7 @@ Owner-consent gate is enforced at the routing layer: any operation that charges 
 
 ## Reference tenant
 
-`tenants/dhr/` is a working reference tenant for a mobile auto-service business (headlight restoration). It includes a `tenant.json` with brand config, pricing rules, and example procedures. Use it as the template for your first vertical.
+`examples/auto-service/` is a reference template for a mobile auto-service business. It includes a `tenant.json` with generic brand config, pricing rules, and example procedures. Use it as the starting point for your first vertical.
 
 Example vertical starters in `examples/`: `auto-service`, `home-services`, `personal-services`.
 

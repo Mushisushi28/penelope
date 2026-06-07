@@ -29,29 +29,29 @@ describe('EncryptedFileStore — round-trip', () => {
   });
 
   it('set and get returns the original value', async () => {
-    const ref = { tenantId: 'dhr', key: 'telegram.botToken' };
+    const ref = { tenantId: 'sample-tenant', key: 'telegram.botToken' };
     await store.set(ref, 'bot123:AAAA');
     const result = await store.get(ref);
     expect(result).toBe('bot123:AAAA');
   });
 
   it('get on missing key returns undefined', async () => {
-    const result = await store.get({ tenantId: 'dhr', key: 'does.not.exist' });
+    const result = await store.get({ tenantId: 'sample-tenant', key: 'does.not.exist' });
     expect(result).toBeUndefined();
   });
 
   it('list returns all stored keys for a tenant', async () => {
-    await store.set({ tenantId: 'dhr', key: 'a' }, 'va');
-    await store.set({ tenantId: 'dhr', key: 'b' }, 'vb');
+    await store.set({ tenantId: 'sample-tenant', key: 'a' }, 'va');
+    await store.set({ tenantId: 'sample-tenant', key: 'b' }, 'vb');
     await store.set({ tenantId: 'other', key: 'c' }, 'vc');
 
-    const refs = await store.list('dhr');
+    const refs = await store.list('sample-tenant');
     const keys = refs.map((r) => r.key).sort();
     expect(keys).toEqual(['a', 'b']);
   });
 
   it('delete removes the key', async () => {
-    const ref = { tenantId: 'dhr', key: 'fb.pageToken' };
+    const ref = { tenantId: 'sample-tenant', key: 'fb.pageToken' };
     await store.set(ref, 'token_abc');
     await store.delete(ref);
     const result = await store.get(ref);
@@ -60,12 +60,12 @@ describe('EncryptedFileStore — round-trip', () => {
 
   it('delete on non-existent key is silent', async () => {
     await expect(
-      store.delete({ tenantId: 'dhr', key: 'never.set' })
+      store.delete({ tenantId: 'sample-tenant', key: 'never.set' })
     ).resolves.not.toThrow();
   });
 
   it('overwrite replaces the value', async () => {
-    const ref = { tenantId: 'dhr', key: 'telegram.botToken' };
+    const ref = { tenantId: 'sample-tenant', key: 'telegram.botToken' };
     await store.set(ref, 'first');
     await store.set(ref, 'second');
     const result = await store.get(ref);
@@ -92,7 +92,7 @@ describe('EncryptedFileStore — round-trip', () => {
   });
 
   it('wrong password fails to decrypt', async () => {
-    const ref = { tenantId: 'dhr', key: 'secret' };
+    const ref = { tenantId: 'sample-tenant', key: 'secret' };
     await store.set(ref, 'my-secret');
 
     // Temporarily switch password
@@ -101,7 +101,7 @@ describe('EncryptedFileStore — round-trip', () => {
   });
 
   it('stores and retrieves special characters', async () => {
-    const ref = { tenantId: 'dhr', key: 'misc' };
+    const ref = { tenantId: 'sample-tenant', key: 'misc' };
     const special = 'p@ssw0rd!#$%^&*()=+[]{}|;:,.<>?/`~\'"\\';
     await store.set(ref, special);
     expect(await store.get(ref)).toBe(special);
