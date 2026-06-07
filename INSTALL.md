@@ -131,7 +131,7 @@ sudo systemctl enable --now penelope
 
 1. Search for **@userinfobot** in Telegram.
 2. Start a chat and send any message.
-3. It replies with `Id: 7949309437` (your numeric ID). Copy the number.
+3. It replies with `Id: <your_numeric_id>` (your numeric ID). Copy the number.
 4. Paste it as `OWNER_TELEGRAM_CHAT_ID` in your `.env`.
 
 ---

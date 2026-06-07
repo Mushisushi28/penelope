@@ -158,7 +158,8 @@ export function makeInitCommand(): Command {
   cmd
     .description('Scaffold a new Penelope tenant (5 questions, ~90 seconds)')
     .option('--cwd <path>', 'output directory (default: current dir)', process.cwd())
-    .action(async (opts: { cwd: string }) => {
+    .option('--tenants-dir <path>', 'path to tenants directory (overrides <cwd>/tenants)')
+    .action(async (opts: { cwd: string; tenantsDir?: string }) => {
       const outDir = resolve(opts.cwd);
 
       console.log(chalk.cyan('\n  Penelope tenant setup — 5 quick questions\n'));
@@ -239,7 +240,8 @@ export function makeInitCommand(): Command {
       // ── Scaffold ─────────────────────────────────────────────────────────
       const spinner = ora('Scaffolding tenant…').start();
 
-      const tenantDir = join(outDir, 'tenants', slug);
+      const tenantsRoot = opts.tenantsDir ? resolve(opts.tenantsDir) : join(outDir, 'tenants');
+      const tenantDir = join(tenantsRoot, slug);
 
       try {
         scaffoldDir(tenantDir);
@@ -282,7 +284,7 @@ ${chalk.green('  ✓ Tenant created:')} ${chalk.bold(businessName)} (${slug})
   └── dashboard/         ← Odysseus dashboard assets
 
   ${chalk.bold('Next steps:')}
-  1. Fill in ${chalk.yellow(`tenants/${slug}/.env.example`)} → rename to ${chalk.yellow('.env')}
+  1. Fill in ${chalk.yellow(`${slug}/.env.example`)} inside your tenants dir → rename to ${chalk.yellow('.env')}
   2. Run ${chalk.cyan('penelope up')} to start the agents
   3. Chat with your bot on Telegram
 

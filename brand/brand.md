@@ -92,7 +92,7 @@ penelope start
 penelope status
 penelope logs --follow
 penelope channel add telegram
-penelope skill install dhr-responder
+penelope skill install auto-service-responder
 ```
 
 ### Subdomains / services
@@ -223,7 +223,7 @@ channel: telegram-first
 ```
 Penelope — [Business Name] · [Section]
 ```
-Example: `Penelope — Dobson Headlight Restoration · Inbox`
+Example: `Penelope — Sample Mobile Service · Inbox`
 
 ---
 

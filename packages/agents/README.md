@@ -168,11 +168,11 @@ import {
 
 const config: FollowUpSpecialistConfig = {
   role: "follow-up",
-  tenant_id: "dhr",
+  tenant_id: "my-tenant",
   tenants_root: "/app/tenants",
   vertical: "auto-service",
   voice_notes: "lowercase, conversational. we come to you.",
-  display_name: "Dobson Headlight Restoration",
+  display_name: "Sample Mobile Service",
   followup: {
     enabled: true,
     min_days_silent: 7,
@@ -234,7 +234,7 @@ sorting. See `src/specialists/content.ts`.
   "enabled": true,
   "providers": { "image_gen": "fal-ai", "static_promo": "nano-banana", "vision": "claude" },
   "daily_sort_at_utc": "03:00",
-  "watermark_targets": ["dhr logo on lens"],
+  "watermark_targets": [],
   "object_removal_defaults": ["tape", "masking tape", "tools", "hands"],
   "output_folder": "sorted"
 }
@@ -265,13 +265,13 @@ import {
 
 const config: ContentSpecialistConfig = {
   role: "content",
-  tenant_id: "dhr",
+  tenant_id: "my-tenant",
   tenants_root: "/app/tenants",
   content: {
     enabled: true,
     providers: { image_gen: "fal-ai", static_promo: "nano-banana", vision: "claude" },
     daily_sort_at_utc: "03:00",
-    watermark_targets: ["dhr logo on lens"],
+    watermark_targets: [],
     object_removal_defaults: ["tape", "masking tape", "tools", "hands"],
     output_folder: "sorted",
   },
@@ -279,7 +279,7 @@ const config: ContentSpecialistConfig = {
 };
 
 // Daily sort (called from cron at 03:00 UTC)
-const scheduler = new ContentScheduler(config, "/app/tenants/dhr/inbox");
+const scheduler = new ContentScheduler(config, "/app/tenants/my-tenant/inbox");
 const result = await scheduler.tick();
 // result.ran: true | false
 // result.sort_result: { total, classified, moved, skipped, categories }

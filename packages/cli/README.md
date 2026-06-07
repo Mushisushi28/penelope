@@ -21,8 +21,8 @@ npx penelope init
 Interactive 5-question scaffold. Creates `tenants/<slug>/` with config, env stub, and procedure templates.
 
 ```
-? Business name? Dobson Headlight Restoration
-? Tenant slug: dobson-headlight-restoration — looks good? Yes
+? Business name? Sample Mobile Service
+? Tenant slug: sample-mobile-service — looks good? Yes
 ? Business vertical? Auto Service
 ? Channels to enable? telegram-owner, fb-page
 ? Quiet hours start (24h): 22:00
@@ -64,7 +64,7 @@ penelope tenant remove my-business
 Send a message directly via a channel (admin / testing).
 
 ```bash
-penelope send telegram-owner 7949309437 "Test message"
+penelope send telegram-owner 1234567890 "Test message"
 penelope send twilio-sms +14035551234 "Hello from Penelope" --slug my-business
 ```
 
@@ -118,4 +118,4 @@ npm test
 
 ## License
 
-MIT — Isaac Dobson / Penelope project
+MIT

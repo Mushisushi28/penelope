@@ -38,7 +38,7 @@ const procedure: Procedure = {
 function makePerfectRecording(): Recording {
   const fields = {
     customer_first_name: "Alex",
-    business_name: "Dobson Detailing",
+    business_name: "Sample Detailing",
     vehicle_year: "2020",
     vehicle_make: "Honda",
     vehicle_model: "Civic",
@@ -48,10 +48,10 @@ function makePerfectRecording(): Recording {
   return {
     id: "rec-001",
     procedureId: "mobile-detail-v1",
-    tenantId: "dhr",
+    tenantId: "sample-tenant",
     recordedAt: "2026-06-04T00:00:00Z",
     messages: [
-      { role: "agent", content: "Hey Alex! Thanks for reaching out to Dobson Detailing. What kind of vehicle do you have?" },
+      { role: "agent", content: "Hey Alex! Thanks for reaching out to Sample Detailing. What kind of vehicle do you have?" },
       { role: "customer", content: "2020 Honda Civic", extracted: { vehicle_year: "2020", vehicle_make: "Honda", vehicle_model: "Civic" } },
       { role: "agent", content: "Nice! What service are you looking for? Exterior wash, interior deep clean, or full detail?" },
       { role: "customer", content: "Full detail please", extracted: { service_requested: "full detail" } },
@@ -110,7 +110,7 @@ describe("replay()", () => {
     const recording: Recording = {
       id: "rec-empty",
       procedureId: "mobile-detail-v1",
-      tenantId: "dhr",
+      tenantId: "sample-tenant",
       recordedAt: "2026-06-04T00:00:00Z",
       messages: [],
       extractedFields: {},
@@ -130,7 +130,7 @@ describe("recorder integration", () => {
 
     const session = createRecorder(mockAgent, {
       procedureId: "mobile-detail-v1",
-      tenantId: "dhr",
+      tenantId: "sample-tenant",
       recordingId: "rec-recorder-test",
     });
 

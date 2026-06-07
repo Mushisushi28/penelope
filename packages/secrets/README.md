@@ -69,9 +69,9 @@ import { detectStore, rotateSecret, listSecrets } from '@penelope/secrets';
 const store = await detectStore();
 
 // Rotate a secret
-const { previousExists } = await rotateSecret(store, 'dhr', 'fb.pageToken', 'new-token');
+const { previousExists } = await rotateSecret(store, 'my-tenant', 'fb.pageToken', 'new-token');
 
 // List all secrets for a tenant
-const refs = await listSecrets(store, 'dhr');
+const refs = await listSecrets(store, 'my-tenant');
 refs.forEach(r => console.log(r.key));
 ```

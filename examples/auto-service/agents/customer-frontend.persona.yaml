@@ -1,7 +1,7 @@
 # Placeholder persona for the customer-frontend specialist.
 # Full persona spec defined in packages/agents when that package is built.
 id: customer-frontend
-display_name: DHR Customer Frontend
+display_name: Customer Frontend
 specialist_class: customer-frontend
 procedures:
   - customer-inbound-fb

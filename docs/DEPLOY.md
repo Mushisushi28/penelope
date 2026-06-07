@@ -37,10 +37,16 @@ Open `.env`. Most values have sensible defaults. The only required field to get 
 
 ## 4. Create your first tenant
 
-Copy the reference tenant and edit it:
+Use the interactive scaffolder:
 
 ```bash
-cp -r tenants/dhr tenants/<your-slug>
+node packages/cli/bin/penelope.mjs init
+```
+
+Or copy the reference template and edit it:
+
+```bash
+cp -r examples/auto-service tenants/<your-slug>
 ```
 
 Edit `tenants/<your-slug>/tenant.json`:
@@ -78,6 +84,28 @@ Penelope will boot, connect to Telegram, and send your bot an "I'm awake" messag
 - **Dashboard** — open `http://localhost:18900` in a browser. Pick your tenant from the dropdown.
 - **Logs** — tail `tenants/<your-slug>/audit.jsonl` to see the tamper-chained audit stream.
 
+## Keeping tenant configs private
+
+The `tenants/` directory is committed alongside the framework by default. If your tenant config contains sensitive business data (pricing, personas, private procedures), keep it outside the public repo and mount it at runtime using `--tenants-dir`:
+
+```bash
+# Scaffold into a private directory outside the repo
+node packages/cli/bin/penelope.mjs init --tenants-dir ~/my-private-tenants
+
+# Start using the private tenants directory
+node packages/cli/bin/penelope.mjs up --tenants-dir ~/my-private-tenants
+
+# Run a health check against the private tenants
+node packages/cli/bin/penelope.mjs doctor --tenants-dir ~/my-private-tenants
+
+# List tenants in the private directory
+node packages/cli/bin/penelope.mjs tenant list --tenants-dir ~/my-private-tenants
+```
+
+All CLI commands accept `--tenants-dir <path>`. When omitted, they default to `<cwd>/tenants`.
+
+This pattern lets you version-control Penelope itself publicly while keeping customer-specific configs in a private repo, a secrets manager, or any directory of your choice.
+
 ## Troubleshooting
 
 **Bot doesn't respond** — check `TELEGRAM_BOT_TOKEN` matches BotFather exactly; whitespace breaks it.
@@ -93,3 +121,10 @@ docker compose up -d
 ```
 
 Mounts `tenants/` as a volume so tenant data persists. Set env vars in `.env` at project root — compose picks it up.
+
+To use a private tenants directory with Docker, mount it instead:
+
+```yaml
+volumes:
+  - /path/to/private/tenants:/app/tenants
+```

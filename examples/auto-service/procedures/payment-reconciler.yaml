@@ -69,7 +69,7 @@ states:
       - kind: emit_bus_event
         event: job_complete
         payload:
-          tenant_id: dhr-auto-service
+          tenant_id: auto-service
           thread_id: "{{matched_thread_id}}"
           payment_id: "{{payment_id}}"
       - kind: schedule_followup

@@ -43,7 +43,7 @@ export interface BrowserRecipe {
 }
 
 export interface BrowserTenantConfig {
-  /** CCEMOD Chrome profile name, e.g. "dhr", "personal". */
+  /** CCEMOD Chrome profile name, e.g. "my-tenant", "personal". */
   chromeProfile: string;
   /**
    * Base URL for the CCEMOD MCP server.
