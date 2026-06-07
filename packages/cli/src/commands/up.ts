@@ -5,10 +5,12 @@ import { spawn } from 'child_process';
 import chalk from 'chalk';
 import ora from 'ora';
 
+type ChannelEntry = string | { type: string; [key: string]: unknown };
+
 interface TenantConfig {
   name: string;
   slug: string;
-  channels: string[];
+  channels: ChannelEntry[];
   telegramBotToken?: string;
 }
 
@@ -95,7 +97,9 @@ export function makeUpCommand(): Command {
 
       console.log(chalk.cyan(`\n  Starting Penelope for ${chalk.bold(config.name)} (${slug})\n`));
 
-      for (const channel of config.channels) {
+      for (const rawChannel of config.channels) {
+        // Support both string arrays ("telegram-owner") and object arrays ({type: "telegram-owner", ...})
+        const channel = typeof rawChannel === 'string' ? rawChannel : rawChannel.type;
         const agent = CHANNEL_AGENTS[channel];
         if (!agent) continue;
 
