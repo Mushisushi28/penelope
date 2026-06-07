@@ -75,6 +75,7 @@ describe('examples/auto-service/tenant.json', () => {
     const config = validateTenantConfig(loadExampleTenant());
     expect(config.pricing.length).toBeGreaterThan(0);
     const first = config.pricing[0];
+    if (!first) throw new Error('Expected at least one pricing rule');
     expect(typeof first.floor).toBe('number');
     expect(typeof first.ceiling).toBe('number');
     expect(first.ceiling).toBeGreaterThan(first.floor);
