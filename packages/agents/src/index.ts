@@ -2,6 +2,33 @@
 export { classifyIntent, route, INTENT_TOPIC_MAP } from "./penelope/meta-router.js";
 export type { InboundOwnerMessage, BusDispatch, Intent } from "./penelope/meta-router.js";
 
+// PenelopeHeadAgent runtime
+export {
+  PenelopeHeadAgent,
+  buildAnthropicLLMProvider,
+  buildInMemoryStore,
+} from "./penelope/head-agent.js";
+export type {
+  LLMProvider,
+  MemoryStore,
+  ProcedureLibrary,
+  PenelopeHeadAgentOptions,
+} from "./penelope/head-agent.js";
+
+// Penelope command handlers
+export {
+  dispatchCommand,
+  handleStart,
+  handleStatus,
+  handleHelp,
+  handleInbox,
+  handleQuote,
+  handleFollowup,
+  handleBook,
+  handleReview,
+} from "./penelope/commands.js";
+export type { CommandContext, CommandResult, CommandName } from "./penelope/commands.js";
+
 // Specialist base class
 export { SpecialistAgent } from "./specialists/base.js";
 export type { SpecialistConfig, SpecialistRole } from "./specialists/base.js";
