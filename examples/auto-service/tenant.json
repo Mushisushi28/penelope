@@ -4,6 +4,7 @@
   "name": "Sample Mobile Service",
   "vertical": "auto-service",
   "brand": {
+    "name": "Sample Mobile Service",
     "display_name": "Sample Mobile Service",
     "brand_color": "#1E40AF",
     "tagline": "Fast, mobile service — we come to you.",
@@ -64,21 +65,19 @@
       "qualifier_question": "Interested in the premium package with a 3-year warranty?"
     }
   ],
-  "approval_gates": {
-    "default_level": "auto",
-    "above_band_level": "owner_telegram_confirm",
-    "complaint_level": "owner_telegram_confirm"
-  },
+  "approval_gates": [
+    { "action": "quote_within_band", "level": "auto" },
+    { "action": "quote_above_band", "level": "owner_telegram_confirm" },
+    { "action": "handle_complaint", "level": "owner_telegram_confirm" }
+  ],
   "review_platforms": [
-    { "name": "Google", "url_env": "TENANT_GOOGLE_REVIEW_URL" },
-    { "name": "Facebook", "url_env": "TENANT_FB_REVIEW_URL" }
+    { "type": "google", "label": "Google", "url": "https://example.com/google-review" },
+    { "type": "facebook", "label": "Facebook", "url": "https://example.com/facebook-review" }
   ],
-  "payment_processors": [
-    { "name": "square", "credential_env": "TENANT_SQUARE_ACCESS_TOKEN" }
-  ],
+  "payment_processors": ["square"],
   "quiet_hours": {
-    "start": "21:00",
-    "end": "08:00"
+    "enabled": true,
+    "respect_business_hours": true
   },
   "budget": {
     "max_usd_per_day": 2.00,
